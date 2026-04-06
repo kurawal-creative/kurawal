@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+// Import authClient dari path yang sesuai
+import { authClient } from "@/lib/auth-client";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -10,27 +11,46 @@ export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
-	const { login, user } = useAuth();
+
+	// Mengganti useAuth dengan hook bawaan Better Auth
+	const { data: session } = authClient.useSession();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const redirectTo = searchParams.get("redirect") || "/";
 
 	useEffect(() => {
-		if (user) {
+		// Jika session ditemukan, redirect ke halaman tujuan
+		if (session) {
 			navigate(redirectTo);
 		}
-	}, [user, navigate, redirectTo]);
+	}, [session, navigate, redirectTo]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
+
 		try {
-			await login(email, password);
+			// Menggunakan method signIn dari Better Auth
+			const { error: authError } = await authClient.signIn.email({
+				email,
+				password,
+				// Better Auth menangani redirect secara internal jika diinginkan,
+				// tapi di sini kita tetap pakai navigate manual agar konsisten dengan kodemu
+				callbackURL: redirectTo,
+			});
+
+			if (authError) {
+				setError(authError.message || "Login failed");
+				return;
+			}
+
+			// Jika sukses, navigasi dilakukan oleh useEffect di atas atau manual di sini
 			navigate(redirectTo);
 		} catch (err: any) {
-			setError(err.message || "Login failed");
+			setError("An unexpected error occurred");
 		}
 	};
+
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
 			<Card className="w-full max-w-md">

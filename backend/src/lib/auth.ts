@@ -1,3 +1,15 @@
-// Auth logic moved to middleware and routes
-// JWT authentication is handled via authMiddleware.ts
-// Routes: POST /api/auth/login, POST /api/auth/logout, GET /api/auth/me
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export const auth = betterAuth({
+    baseURL: 'http://localhost:5173',
+    database: prismaAdapter(prisma, {
+        provider: 'mongodb', // or "mysql", "postgresql", ...etc
+    }),
+    emailAndPassword: {
+        enabled: true,
+    },
+});
