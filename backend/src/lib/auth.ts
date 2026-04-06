@@ -5,9 +5,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const auth = betterAuth({
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.BETTER_AUTH_BASE_URL || 'http://localhost:5173',
     database: prismaAdapter(prisma, {
-        provider: 'mongodb', // or "mysql", "postgresql", ...etc
+        provider: 'mongodb',
     }),
     emailAndPassword: {
         enabled: true,
