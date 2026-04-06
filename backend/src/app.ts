@@ -1,5 +1,8 @@
 import express, { type Express, Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import userRoutes from './routes/userRoutes.js';
 import postRoutes from './routes/postRoutes.js';
@@ -10,6 +13,13 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './lib/auth.js';
 
 const app: Express = express();
+
+app.use(compression());
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const staticDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
+
+app.use(express.static(staticDir));
 
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 
@@ -32,12 +42,8 @@ app.use('/api/tags', tagRoutes);
 //     }
 // });
 
-// const staticDir = path.resolve(__dirname, "../..", "frontend", "dist");
-
-// app.use(express.static(staticDir));
-
-// app.use((req, res, next) => {
-//     return res.sendFile(path.join(staticDir, "index.html"));
-// });
+app.use((_req, res, _next) => {
+    return res.sendFile(path.join(staticDir, 'index.html'));
+});
 
 export default app;

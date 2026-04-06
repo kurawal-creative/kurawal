@@ -1,35 +1,25 @@
-import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { auth } from '../src/lib/auth';
 
 async function main() {
     try {
         console.log('🌱 Starting seed...');
 
-        const hashedPassword = await bcrypt.hash('admin123', 10);
-
-        const user = await prisma.user.create({
-            data: {
-                email: 'admin@kurawal.com',
-                name: 'Admin Kurawal',
-                password: hashedPassword,
+        const user = await auth.api.signUpEmail({
+            body: {
+                name: 'Admin',
+                email: 'test@example.com',
+                password: 'password',
             },
         });
 
         console.log('✅ Admin user created successfully');
-        console.log('📧 Email: admin@kurawal.com');
-        console.log('🔐 Password: admin123');
-        console.log('👤 User ID:', user.id);
+        console.log('📧 Email: test@example.com');
+        console.log('🔐 Password: password');
+        console.log('👤 User ID:', user.user.id);
     } catch (error) {
         console.error('❌ Seed error:', error);
         throw error;
-    } finally {
-        await prisma.$disconnect();
     }
 }
 
-main().catch((error) => {
-    console.error('Seed error:', error);
-    process.exit(1);
-});
+main();
