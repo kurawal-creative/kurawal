@@ -1,7 +1,7 @@
-import { Response } from "express";
-import { AuthRequest } from "../middlewares/authMiddleware";
-import { prisma } from "../lib/prisma";
-import { extractPublicIdFromUrl, deleteFullMedia, extractCloudinaryUrlsFromContent, linkMediaToPost, linkMultipleMediaToPost } from "../utils/mediaHelpers";
+import { Response } from 'express';
+import { AuthRequest } from '../middlewares/authMiddleware.js';
+import { prisma } from '../lib/prisma.js';
+import { extractPublicIdFromUrl, deleteFullMedia, extractCloudinaryUrlsFromContent, linkMediaToPost, linkMultipleMediaToPost } from '../utils/mediaHelpers.js';
 
 export const getPosts = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -9,13 +9,13 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
         const skip = (page - 1) * limit;
 
-        const search = (req.query.search as string) || "";
-        const tagId = (req.query.tagId as string) || "";
+        const search = (req.query.search as string) || '';
+        const tagId = (req.query.tagId as string) || '';
 
         const where: any = {};
 
         if (search) {
-            where.OR = [{ title: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }];
+            where.OR = [{ title: { contains: search, mode: 'insensitive' } }, { description: { contains: search, mode: 'insensitive' } }];
         }
 
         if (tagId) {
@@ -25,7 +25,7 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
         const [posts, totalPosts] = await Promise.all([
             prisma.post.findMany({
                 where,
-                orderBy: { createdAt: "desc" },
+                orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,
             }),
@@ -51,10 +51,10 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
             },
         });
     } catch (error: any) {
-        console.error("Error fetching posts:", error);
+        console.error('Error fetching posts:', error);
         res.status(500).json({
             success: false,
-            message: "Failed to fetch posts",
+            message: 'Failed to fetch posts',
             error: error.message,
         });
     }
@@ -69,13 +69,13 @@ export const getPost = async (req: AuthRequest, res: Response) => {
         });
 
         if (!post) {
-            return res.status(404).json({ message: "Post not found" });
+            return res.status(404).json({ message: 'Post not found' });
         }
 
         res.json(post);
     } catch (error) {
-        console.error("Error fetching post:", error);
-        res.status(500).json({ message: "Server error" });
+        console.error('Error fetching post:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -84,15 +84,15 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         const { title, description, type_post, content, link_github, thumbnail, tagId, status } = req.body;
 
         if (!title || !content || !tagId) {
-            return res.status(400).json({ message: "title, content, and tagId are required" });
+            return res.status(400).json({ message: 'title, content, and tagId are required' });
         }
 
-        if (type_post && !["POST", "PROJECT"].includes(type_post)) {
-            return res.status(400).json({ message: "type_post must be POST or PROJECT" });
+        if (type_post && !['POST', 'PROJECT'].includes(type_post)) {
+            return res.status(400).json({ message: 'type_post must be POST or PROJECT' });
         }
 
-        if (status && !["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) {
-            return res.status(400).json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
+        if (status && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
+            return res.status(400).json({ message: 'status must be DRAFT, PUBLISHED, or ARCHIVED' });
         }
 
         const existingTag = await prisma.tag.findUnique({
@@ -100,7 +100,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         });
 
         if (!existingTag) {
-            return res.status(400).json({ message: "Tag not found" });
+            return res.status(400).json({ message: 'Tag not found' });
         }
 
         const post = await prisma.post.create({
@@ -112,8 +112,8 @@ export const createPost = async (req: AuthRequest, res: Response) => {
                 description: description ?? null,
                 link_github: link_github ?? null,
                 thumbnail: thumbnail ?? null,
-                type_post: type_post ?? "POST",
-                status: status ?? "DRAFT",
+                type_post: type_post ?? 'POST',
+                status: status ?? 'DRAFT',
             },
         });
 
@@ -143,8 +143,8 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
         res.status(201).json(post);
     } catch (error) {
-        console.error("Error creating post:", error);
-        res.status(500).json({ message: "Server error" });
+        console.error('Error creating post:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -158,19 +158,19 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
         });
 
         if (!post) {
-            return res.status(404).json({ message: "Post not found" });
+            return res.status(404).json({ message: 'Post not found' });
         }
 
         if (post.userId !== req.user!.id) {
-            return res.status(403).json({ message: "Unauthorized: You can only edit your own posts" });
+            return res.status(403).json({ message: 'Unauthorized: You can only edit your own posts' });
         }
 
-        if (type_post !== undefined && !["POST", "PROJECT"].includes(type_post)) {
-            return res.status(400).json({ message: "type_post must be POST or PROJECT" });
+        if (type_post !== undefined && !['POST', 'PROJECT'].includes(type_post)) {
+            return res.status(400).json({ message: 'type_post must be POST or PROJECT' });
         }
 
-        if (status !== undefined && !["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) {
-            return res.status(400).json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
+        if (status !== undefined && !['DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(status)) {
+            return res.status(400).json({ message: 'status must be DRAFT, PUBLISHED, or ARCHIVED' });
         }
 
         if (tagId !== undefined) {
@@ -179,7 +179,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
             });
 
             if (!tag) {
-                return res.status(400).json({ message: "Tag not found" });
+                return res.status(400).json({ message: 'Tag not found' });
             }
         }
 
@@ -240,8 +240,8 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
         res.json(updatedPost);
     } catch (error) {
-        console.error("Error updating post:", error);
-        res.status(500).json({ message: "Server error" });
+        console.error('Error updating post:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -254,11 +254,11 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
         });
 
         if (!post) {
-            return res.status(404).json({ message: "Post not found" });
+            return res.status(404).json({ message: 'Post not found' });
         }
 
         if (post.userId !== req.user!.id) {
-            return res.status(403).json({ message: "Unauthorized: You can only delete your own posts" });
+            return res.status(403).json({ message: 'Unauthorized: You can only delete your own posts' });
         }
 
         if (post.thumbnail) {
@@ -280,9 +280,9 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
             where: { id },
         });
 
-        res.json({ message: "Post deleted successfully" });
+        res.json({ message: 'Post deleted successfully' });
     } catch (error) {
-        console.error("Error deleting post:", error);
-        res.status(500).json({ message: "Server error" });
+        console.error('Error deleting post:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 };

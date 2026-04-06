@@ -1,5 +1,5 @@
-import cloudinary from "./cloudinary";
-import { prisma } from "../lib/prisma";
+import cloudinary from './cloudinary.js';
+import { prisma } from '../lib/prisma.js';
 
 /**
  * Extract public ID from Cloudinary URL
@@ -12,7 +12,7 @@ export const extractPublicIdFromUrl = (url: string): string | null => {
         const match = url.match(regex);
         return match ? match[1] : null;
     } catch (error) {
-        console.error("Error extracting publicId from URL:", error);
+        console.error('Error extracting publicId from URL:', error);
         return null;
     }
 };
@@ -25,7 +25,7 @@ export const extractCloudinaryUrlsFromContent = (content: string): string[] => {
         const regex = /https:\/\/res\.cloudinary\.com\/[^/]+\/[^/]+\/upload\/[^\s"'<>)]+/g;
         return content.match(regex) || [];
     } catch (error) {
-        console.error("Error extracting Cloudinary URLs from content:", error);
+        console.error('Error extracting Cloudinary URLs from content:', error);
         return [];
     }
 };
@@ -36,22 +36,22 @@ export const extractCloudinaryUrlsFromContent = (content: string): string[] => {
 export const deleteMediaFromCloudinary = async (publicId: string): Promise<boolean> => {
     try {
         // Remove file extension if present
-        const publicIdClean = publicId.replace(/\.(png|jpe?g|gif|webp|mp4|pdf|svg|bmp|ico|mov|avi|wmv|doc|docx|txt|zip|json|xml|csv)$/i, "");
+        const publicIdClean = publicId.replace(/\.(png|jpe?g|gif|webp|mp4|pdf|svg|bmp|ico|mov|avi|wmv|doc|docx|txt|zip|json|xml|csv)$/i, '');
 
-        console.log("Deleting from Cloudinary:", publicIdClean);
+        console.log('Deleting from Cloudinary:', publicIdClean);
 
         const result = await cloudinary.uploader.destroy(publicIdClean, {
             invalidate: true,
         });
 
-        if (result.result !== "ok" && result.result !== "not found") {
-            console.warn("Cloudinary delete warning:", result);
+        if (result.result !== 'ok' && result.result !== 'not found') {
+            console.warn('Cloudinary delete warning:', result);
             return false;
         }
 
         return true;
     } catch (error) {
-        console.error("Cloudinary delete error:", error);
+        console.error('Cloudinary delete error:', error);
         return false;
     }
 };
@@ -66,7 +66,7 @@ export const deleteMediaRecord = async (publicId: string): Promise<boolean> => {
         });
 
         if (!media) {
-            console.warn("Media record not found for publicId:", publicId);
+            console.warn('Media record not found for publicId:', publicId);
             return false;
         }
 
@@ -76,7 +76,7 @@ export const deleteMediaRecord = async (publicId: string): Promise<boolean> => {
 
         return true;
     } catch (error) {
-        console.error("Error deleting media record:", error);
+        console.error('Error deleting media record:', error);
         return false;
     }
 };
@@ -92,7 +92,7 @@ export const updateMediaStatus = async (publicId: string, status: string, postId
         });
 
         if (!media) {
-            console.warn("Media record not found for publicId:", publicId);
+            console.warn('Media record not found for publicId:', publicId);
             return false;
         }
 
@@ -106,7 +106,7 @@ export const updateMediaStatus = async (publicId: string, status: string, postId
 
         return true;
     } catch (error) {
-        console.error("Error updating media status:", error);
+        console.error('Error updating media status:', error);
         return false;
     }
 };
@@ -122,7 +122,7 @@ export const getMediaByPublicId = async (publicId: string) => {
 
         return media;
     } catch (error) {
-        console.error("Error fetching media by publicId:", error);
+        console.error('Error fetching media by publicId:', error);
         return null;
     }
 };
@@ -136,21 +136,21 @@ export const linkMediaToPost = async (publicId: string, postId: string): Promise
         const media = await getMediaByPublicId(publicId);
 
         if (!media) {
-            console.warn("Media not found, cannot link to post:", publicId);
+            console.warn('Media not found, cannot link to post:', publicId);
             return false;
         }
 
         await prisma.media.update({
             where: { id: media.id },
             data: {
-                status: "ACTIVE",
+                status: 'ACTIVE',
                 postId,
             },
         });
 
         return true;
     } catch (error) {
-        console.error("Error linking media to post:", error);
+        console.error('Error linking media to post:', error);
         return false;
     }
 };
@@ -169,26 +169,26 @@ export const linkMultipleMediaToPost = async (publicIds: string[], postId: strin
             if (media) {
                 validPublicIds.push(publicId);
             } else {
-                console.warn("Media not found, skipping:", publicId);
+                console.warn('Media not found, skipping:', publicId);
             }
         }
 
         if (validPublicIds.length === 0) {
-            console.warn("No valid media found to link to post");
+            console.warn('No valid media found to link to post');
             return 0;
         }
 
         const result = await prisma.media.updateMany({
             where: { publicId: { in: validPublicIds } },
             data: {
-                status: "ACTIVE",
+                status: 'ACTIVE',
                 postId,
             },
         });
 
         return result.count;
     } catch (error) {
-        console.error("Error linking multiple media to post:", error);
+        console.error('Error linking multiple media to post:', error);
         return 0;
     }
 };
@@ -204,7 +204,7 @@ export const deleteFullMedia = async (publicId: string): Promise<boolean> => {
         await deleteMediaRecord(publicId);
         return true;
     } catch (error) {
-        console.error("Error deleting full media:", error);
+        console.error('Error deleting full media:', error);
         return false;
     }
 };
