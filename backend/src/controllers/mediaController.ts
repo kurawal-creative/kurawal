@@ -1,15 +1,15 @@
-import { Response } from "express";
-import { AuthRequest } from "../middlewares/authMiddleware";
-import cloudinary from "../utils/cloudinary";
-import { prisma } from "../lib/prisma";
+import { Response } from 'express';
+import { AuthRequest } from '../middlewares/authMiddleware.js';
+import cloudinary from '../utils/cloudinary.js';
+import { prisma } from '../lib/prisma.js';
 
 // Generate upload signature for direct Cloudinary upload
 export const getUploadSignature = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { folder = "temp", filename } = req.body;
+        const { folder = 'temp', filename } = req.body;
 
         if (!filename) {
-            res.status(400).json({ error: "filename is required" });
+            res.status(400).json({ error: 'filename is required' });
             return;
         }
 
@@ -38,7 +38,7 @@ export const getUploadSignature = async (req: AuthRequest, res: Response): Promi
             data: {
                 publicId: fullPublicId,
                 filename,
-                status: "PENDING",
+                status: 'PENDING',
             } as any,
         });
 
@@ -53,7 +53,7 @@ export const getUploadSignature = async (req: AuthRequest, res: Response): Promi
             public_id: publicId, // Send without folder prefix to client
         });
     } catch (error) {
-        console.error("Error generating signature:", error);
-        res.status(500).json({ error: "Failed to generate signature" });
+        console.error('Error generating signature:', error);
+        res.status(500).json({ error: 'Failed to generate signature' });
     }
 };

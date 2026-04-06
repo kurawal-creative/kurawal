@@ -1,6 +1,6 @@
-import { Router } from "express";
-import { getUploadSignature } from "../controllers/mediaController";
-import { authenticate } from "../middlewares/authMiddleware";
+import { Router } from 'express';
+import { getUploadSignature } from '../controllers/mediaController.js';
+import { authenticate } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
@@ -138,6 +138,6 @@ const router = Router();
  *         description: Unauthorized
  */
 
-router.post("/signature", authenticate, getUploadSignature);
+router.post('/signature', authenticate, getUploadSignature);
 
 export default router;

@@ -1,8 +1,8 @@
-import { Router, Request, Response } from "express";
-import { authenticate, AuthRequest } from "../middlewares/authMiddleware";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import { prisma } from "../lib/prisma";
+import { Router, Request, Response } from 'express';
+import { authenticate, AuthRequest } from '../middlewares/authMiddleware.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { prisma } from '../lib/prisma.js';
 
 const router = Router();
 
@@ -40,11 +40,11 @@ const router = Router();
  *         description: Server error
  */
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post('/login', async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+        return res.status(400).json({ message: 'Email and password are required' });
     }
 
     try {
@@ -53,19 +53,19 @@ router.post("/login", async (req: Request, res: Response) => {
         });
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 
-        res.cookie("token", token, {
+        res.cookie('token', token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        res.json({ message: "Login successful", user: { id: user.id, email: user.email } });
+        res.json({ message: 'Login successful', user: { id: user.id, email: user.email } });
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -83,9 +83,9 @@ router.post("/login", async (req: Request, res: Response) => {
  *         description: Logged out successfully
  */
 
-router.post("/logout", (req: AuthRequest, res: Response) => {
-    res.clearCookie("token");
-    res.json({ message: "Logged out successfully" });
+router.post('/logout', (req: AuthRequest, res: Response) => {
+    res.clearCookie('token');
+    res.json({ message: 'Logged out successfully' });
 });
 
 /**
@@ -104,7 +104,7 @@ router.post("/logout", (req: AuthRequest, res: Response) => {
  *         description: Unauthorized
  */
 
-router.get("/me", authenticate, (req: AuthRequest, res: Response) => {
+router.get('/me', authenticate, (req: AuthRequest, res: Response) => {
     res.json({ user: req.user });
 });
 

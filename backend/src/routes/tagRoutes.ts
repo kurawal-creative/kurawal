@@ -1,6 +1,6 @@
-import { Router } from "express";
-import { getTags, getTag, createTag, updateTag, deleteTag } from "../controllers/tagController";
-import { authenticate } from "../middlewares/authMiddleware";
+import { Router } from 'express';
+import { getTags, getTag, createTag, updateTag, deleteTag } from '../controllers/tagController.js';
+import { authenticate } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
@@ -51,8 +51,8 @@ const router = Router();
  *         description: Unauthorized
  */
 
-router.get("/", authenticate, getTags);
-router.post("/", authenticate, createTag);
+router.get('/', authenticate, getTags);
+router.post('/', authenticate, createTag);
 
 /**
  * @swagger
@@ -136,8 +136,8 @@ router.post("/", authenticate, createTag);
  *         description: Unauthorized
  */
 
-router.get("/:id", authenticate, getTag);
-router.put("/:id", authenticate, updateTag);
-router.delete("/:id", authenticate, deleteTag);
+router.get('/:id', authenticate, getTag);
+router.put('/:id', authenticate, updateTag);
+router.delete('/:id', authenticate, deleteTag);
 
 export default router;
