@@ -8,6 +8,7 @@ export default function AdminLayout(props: { children: ReactNode }) {
 	const routes = {
 		"/": "Home",
 		"/admin": "Admin",
+		"/admin/project": "Project",
 		"/posts": "Posts",
 		"/create-post": "Create Post",
 		"/edit-post": "Edit Post",

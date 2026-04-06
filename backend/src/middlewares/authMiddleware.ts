@@ -1,22 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { auth } from '../lib/auth.js';
+import { fromNodeHeaders } from 'better-auth/node';
 
 export interface AuthRequest extends Request {
     user?: any;
 }
 
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
-    const token = req.cookies?.token;
+export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+    });
 
-    if (!token) {
+    if (!session) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        return res.status(401).json({ message: 'Invalid token' });
-    }
+    req.user = session.user;
+
+    next();
 };

@@ -1,15 +1,20 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BookOpen, HomeIcon, Image, Tags, LogOut } from "lucide-react";
+import { BookOpen, FolderGit2, HomeIcon, Image, Tags, LogOut } from "lucide-react";
 import kurawalSidebar from "@/assets/kurawal-sidebar.svg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 
 const items = [
 	{
 		title: "Dashboard",
 		url: "/admin",
 		icon: HomeIcon,
+	},
+	{
+		title: "Project",
+		url: "/admin/project",
+		icon: FolderGit2,
 	},
 	{
 		title: "Posts",
@@ -31,11 +36,12 @@ const items = [
 export function AppSidebar() {
 	const pathname = useLocation().pathname;
 	const navigate = useNavigate();
-	const { user, logout } = useAuth();
+	const data = authClient.useSession();
+	const user = data.data?.user;
 
 	const handleLogout = async () => {
 		try {
-			await logout();
+			await authClient.signOut();
 			navigate("/login");
 		} catch (error) {
 			console.error("Logout failed:", error);

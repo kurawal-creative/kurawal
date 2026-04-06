@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { authClient } from "@/lib/auth-client";
 
 export default function Register() {
-	const { user } = useAuth();
+	const { data: session } = authClient.useSession();
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (user) {
+		if (session) {
 			navigate("/");
 		}
-	}, [user, navigate]);
+	}, [session, navigate]);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">

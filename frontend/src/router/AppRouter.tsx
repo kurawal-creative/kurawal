@@ -12,6 +12,10 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminPostsPage from "@/pages/admin/Posts";
 import AdminTagsPage from "@/pages/admin/Tags";
 import AdminMediaPage from "@/pages/admin/Media";
+import AdminProjectPage from "@/pages/admin/Project";
+import AdminProjectDetailPage from "@/pages/admin/ProjectDetail.tsx";
+import AdminProjectCreatePage from "@/pages/admin/ProjectCreate.tsx";
+import AdminProjectEditPage from "@/pages/admin/ProjectEdit.tsx";
 import CreatePostPage from "@/pages/admin/CreatePost";
 import EditPostPage from "@/pages/admin/EditPost";
 import { NuqsAdapter } from "nuqs/adapters/react";
@@ -86,6 +90,42 @@ export default function AppRouter() {
 						<NuqsAdapter>
 							<AdminMediaPage />
 						</NuqsAdapter>
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/admin/project"
+				element={
+					<ProtectedRoute>
+						<AdminProjectPage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/admin/project/create"
+				element={
+					<ProtectedRoute>
+						<AdminProjectCreatePage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/admin/project/:id"
+				element={
+					<ProtectedRoute>
+						<AdminProjectDetailPage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/admin/project/:id/edit"
+				element={
+					<ProtectedRoute>
+						<AdminProjectEditPage />
 					</ProtectedRoute>
 				}
 			/>
