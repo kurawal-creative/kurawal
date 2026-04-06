@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// Import authClient dari path yang sesuai
 import { authClient } from "@/lib/auth-client";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
@@ -11,15 +10,14 @@ export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
+	const [isLoggingIn, setIsLoggingIn] = useState(false); // State indikator loading
 
-	// Mengganti useAuth dengan hook bawaan Better Auth
 	const { data: session } = authClient.useSession();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const redirectTo = searchParams.get("redirect") || "/";
 
 	useEffect(() => {
-		// Jika session ditemukan, redirect ke halaman tujuan
 		if (session) {
 			navigate(redirectTo);
 		}
@@ -28,26 +26,25 @@ export default function Login() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
+		setIsLoggingIn(true); // Mulai loading
 
 		try {
-			// Menggunakan method signIn dari Better Auth
 			const { error: authError } = await authClient.signIn.email({
 				email,
 				password,
-				// Better Auth menangani redirect secara internal jika diinginkan,
-				// tapi di sini kita tetap pakai navigate manual agar konsisten dengan kodemu
 				callbackURL: redirectTo,
 			});
 
 			if (authError) {
 				setError(authError.message || "Login failed");
+				setIsLoggingIn(false); // Hentikan loading jika error
 				return;
 			}
 
-			// Jika sukses, navigasi dilakukan oleh useEffect di atas atau manual di sini
-			navigate(redirectTo);
+			// Jika sukses, useEffect di atas akan menangani redirect
 		} catch (err: any) {
 			setError("An unexpected error occurred");
+			setIsLoggingIn(false); // Hentikan loading jika crash
 		}
 	};
 
@@ -62,15 +59,23 @@ export default function Login() {
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div className="space-y-2">
 							<Label htmlFor="email">Email</Label>
-							<Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Enter your email" />
+							<Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Enter your email" disabled={isLoggingIn} />
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="password">Password</Label>
-							<Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Enter your password" />
+							<Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Enter your password" disabled={isLoggingIn} />
 						</div>
 						{error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-						<Button type="submit" className="w-full">
-							Login
+
+						<Button type="submit" className="w-full" disabled={isLoggingIn}>
+							{isLoggingIn ? (
+								<div className="flex items-center gap-2">
+									<div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+									Logging in...
+								</div>
+							) : (
+								"Login"
+							)}
 						</Button>
 					</form>
 					<div className="mt-4 text-center text-sm">

@@ -1,28 +1,28 @@
-import bcrypt from "bcryptjs";
-import { PrismaClient } from "../src/generated/prisma";
+import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
     try {
-        console.log("🌱 Starting seed...");
+        console.log('🌱 Starting seed...');
 
-        const hashedPassword = await bcrypt.hash("admin123", 10);
+        const hashedPassword = await bcrypt.hash('admin123', 10);
 
         const user = await prisma.user.create({
             data: {
-                email: "admin@kurawal.com",
-                name: "Admin Kurawal",
+                email: 'admin@kurawal.com',
+                name: 'Admin Kurawal',
                 password: hashedPassword,
             },
         });
 
-        console.log("✅ Admin user created successfully");
-        console.log("📧 Email: admin@kurawal.com");
-        console.log("🔐 Password: admin123");
-        console.log("👤 User ID:", user.id);
+        console.log('✅ Admin user created successfully');
+        console.log('📧 Email: admin@kurawal.com');
+        console.log('🔐 Password: admin123');
+        console.log('👤 User ID:', user.id);
     } catch (error) {
-        console.error("❌ Seed error:", error);
+        console.error('❌ Seed error:', error);
         throw error;
     } finally {
         await prisma.$disconnect();
@@ -30,6 +30,6 @@ async function main() {
 }
 
 main().catch((error) => {
-    console.error("Seed error:", error);
+    console.error('Seed error:', error);
     process.exit(1);
 });
