@@ -40,7 +40,7 @@ export default function Navbar() {
 			<nav className="mx-auto flex h-full w-full max-w-350 items-center justify-between border-dashed px-4 min-[1400px]:border-x">
 				{/* Left */}
 				<div className="flex flex-1 items-center text-lg font-semibold">
-					<Link to={navbarItems[0].href}>
+					<Link to={"/"}>
 						<img src={isDarkMode ? logoDark : logoLight} alt="Logo" className="h-4 w-auto md:h-5" />
 					</Link>
 				</div>
