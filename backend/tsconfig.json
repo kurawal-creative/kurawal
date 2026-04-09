@@ -1,14 +1,19 @@
 {
     "compilerOptions": {
-        "target": "es2016",
-        "jsx": "preserve",
-        "module": "commonjs",
-        "allowJs": true,
+        "target": "ES2022",
+        "module": "NodeNext", // UBAH INI
+        "moduleResolution": "NodeNext", // UBAH INI
+        "lib": ["ES2022"],
         "outDir": "./dist",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
+        "rootDir": "./src",
         "strict": true,
-        "skipLibCheck": true
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "declaration": true,
+        "sourceMap": true,
     },
-    "exclude": ["node_modules", "dist"]
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"],
 }

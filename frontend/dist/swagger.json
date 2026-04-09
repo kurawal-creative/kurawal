@@ -1,0 +1,905 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Kurawal API",
+        "version": "1.0.0",
+        "description": "Kurawal Backend API Documentation"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "summary": "Login with email and password",
+                "tags": [
+                    "Authentication"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "admin@kurawal.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "admin123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful"
+                    },
+                    "400": {
+                        "description": "Email and password are required"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "summary": "Logout user",
+                "tags": [
+                    "Authentication"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully"
+                    }
+                }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "summary": "Get current user info",
+                "tags": [
+                    "Authentication"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current user information"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/envs": {
+            "get": {
+                "summary": "Get all environment variables",
+                "description": "Retrieve a list of all environment configurations",
+                "tags": [
+                    "Environment"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Environment variables retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new environment variable",
+                "description": "Create a new environment configuration",
+                "tags": [
+                    "Environment"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "key",
+                                    "value"
+                                ],
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Environment variable created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request data"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/envs/{id}": {
+            "get": {
+                "summary": "Get a specific environment variable",
+                "description": "Retrieve an environment variable by ID",
+                "tags": [
+                    "Environment"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Environment variable ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Environment variable retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Environment variable not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update an environment variable",
+                "description": "Update an existing environment configuration",
+                "tags": [
+                    "Environment"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Environment variable ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Environment variable updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Environment variable not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete an environment variable",
+                "description": "Delete an environment variable by ID",
+                "tags": [
+                    "Environment"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Environment variable ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Environment variable deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Environment variable not found"
+                    }
+                }
+            }
+        },
+        "/api/media/signature": {
+            "post": {
+                "summary": "Get Cloudinary upload signature",
+                "description": "Generate upload signature untuk direct upload ke Cloudinary dari client.\nMedia record akan dibuat di database dengan status \"PENDING\".\nPublic ID di-generate secara random tanpa menggunakan nama file asli.\n\n**Flow Upload:**\n1. Client → Server: Minta signature dengan filename (`POST /api/media/signature`)\n2. Server: Generate random public_id & signature, create media record (status: PENDING)\n3. Client → Cloudinary: Upload file dengan public_id dan signature\n4. Media ready di database dengan status PENDING\n\n**Contoh Client (Vanilla JS):**\n```javascript\nasync function uploadFile(file) {\n  // Step 1: Get signature from server\n  const sigRes = await fetch('/api/media/signature', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      filename: file.name,\n      folder: 'posts'\n    }),\n    credentials: 'include'\n  });\n  const { timestamp, signature, cloudinary_url, api_key, public_id } = await sigRes.json();\n\n  // Step 2: Upload directly to Cloudinary\n  const formData = new FormData();\n  formData.append('file', file);\n  formData.append('api_key', api_key);\n  formData.append('timestamp', timestamp);\n  formData.append('signature', signature);\n  formData.append('public_id', public_id);\n\n  const uploadRes = await fetch(cloudinary_url, {\n    method: 'POST',\n    body: formData\n  });\n\n  const result = await uploadRes.json();\n  console.log('Upload success:', result.secure_url);\n  return result;\n}\n```\n\n**Contoh Client (React/Axios):**\n```javascript\nconst handleUpload = async (file) => {\n  // Get signature\n  const { data: sig } = await axios.post('/api/media/signature', {\n    filename: file.name,\n    folder: 'posts'\n  });\n\n  // Upload to Cloudinary\n  const formData = new FormData();\n  formData.append('file', file);\n  formData.append('api_key', sig.api_key);\n  formData.append('timestamp', sig.timestamp);\n  formData.append('signature', sig.signature);\n  formData.append('public_id', sig.public_id);\n\n  const { data } = await axios.post(sig.cloudinary_url, formData);\n  console.log('URL:', data.secure_url);\n  return data;\n};\n```\n",
+                "tags": [
+                    "Media"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "filename"
+                                ],
+                                "properties": {
+                                    "filename": {
+                                        "type": "string",
+                                        "example": "photo.jpg"
+                                    },
+                                    "folder": {
+                                        "type": "string",
+                                        "example": "posts",
+                                        "default": "temp"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Signature generated successfully - Media record created with status PENDING in database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "timestamp": {
+                                            "type": "number",
+                                            "example": 1707761234
+                                        },
+                                        "signature": {
+                                            "type": "string",
+                                            "example": "abcd1234efgh5678"
+                                        },
+                                        "cloud_name": {
+                                            "type": "string",
+                                            "example": "your-cloud-name"
+                                        },
+                                        "api_key": {
+                                            "type": "string",
+                                            "example": 123456789012345
+                                        },
+                                        "folder": {
+                                            "type": "string",
+                                            "example": "posts"
+                                        },
+                                        "cloudinary_url": {
+                                            "type": "string",
+                                            "example": "https://api.cloudinary.com/v1_1/your-cloud/auto/upload"
+                                        },
+                                        "media_id": {
+                                            "type": "string",
+                                            "example": "507f1f77bcf86cd799439011",
+                                            "description": "Database media ID - reference saat create/update post"
+                                        },
+                                        "public_id": {
+                                            "type": "string",
+                                            "example": "abc1def2ghi3jkl4",
+                                            "description": "Random generated ID untuk upload (tanpa folder prefix)"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "filename or postId is required"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            }
+        },
+        "/api/posts": {
+            "get": {
+                "summary": "Get all posts",
+                "description": "Retrieve a list of all posts with pagination and filtering",
+                "tags": [
+                    "Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "description": "Page number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        },
+                        "description": "Number of posts per page (max 50)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "search",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Search by title or description"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tagId",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter by tag ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Posts retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new post",
+                "description": "Create a new post with title, content, and optional metadata.\n\n**Media Handling:**\n- Frontend upload ke Cloudinary via `/api/media/signature`\n- Frontend dapat full Cloudinary URL dari response upload\n- Kirim full URL ke `thumbnail` atau dalam `content`\n- Backend akan extract publicId, cari media record, dan ubah status PENDING → ACTIVE\n",
+                "tags": [
+                    "Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "title",
+                                    "content",
+                                    "tagId"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "My Awesome Project"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "A brief description of the project"
+                                    },
+                                    "type_post": {
+                                        "type": "string",
+                                        "example": "PROJECT",
+                                        "description": "POST or PROJECT"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Detailed content in markdown or HTML with ![image](https://res.cloudinary.com/...)",
+                                        "description": "Can contain Cloudinary URLs for embedded images/media"
+                                    },
+                                    "link_github": {
+                                        "type": "string",
+                                        "example": "https://github.com/user/repo"
+                                    },
+                                    "thumbnail": {
+                                        "type": "string",
+                                        "example": "https://res.cloudinary.com/your-cloud/image/upload/posts/abc1def2ghi3jkl4",
+                                        "description": "Cloudinary image URL (must be from signature endpoint)"
+                                    },
+                                    "tagId": {
+                                        "type": "string",
+                                        "example": "507f1f77bcf86cd799439011"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "PUBLISHED",
+                                        "description": "DRAFT, PUBLISHED, or ARCHIVED"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Post created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request data"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/posts/{id}": {
+            "get": {
+                "summary": "Get a specific post",
+                "description": "Retrieve a post by ID",
+                "tags": [
+                    "Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Post ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a post",
+                "description": "Update an existing post (only by author).\n\n**Media Handling:**\n- If `thumbnail` changes, update associated media references\n- If content changes, ensure media references stay consistent\n",
+                "tags": [
+                    "Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Post ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "type_post": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    },
+                                    "link_github": {
+                                        "type": "string"
+                                    },
+                                    "thumbnail": {
+                                        "type": "string",
+                                        "description": "Cloudinary image URL (optional, will delete old image if changed)"
+                                    },
+                                    "tagId": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Post updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - Not the author"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a post",
+                "description": "Delete a post by ID (only by author).\n\n**Media Cleanup:**\n- Associated thumbnail will be deleted from both Cloudinary and database\n- All Cloudinary URLs in content will be deleted from both Cloudinary and database\n",
+                "tags": [
+                    "Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Post ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - Not the author"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            }
+        },
+        "/api/tags": {
+            "get": {
+                "summary": "Get all tags",
+                "description": "Retrieve a list of all available tags",
+                "tags": [
+                    "Tags"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tags retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new tag",
+                "description": "Create a new tag",
+                "tags": [
+                    "Tags"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Web Development"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "web-development",
+                                        "description": "Optional; auto-generated if omitted"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tag created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request data"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/tags/{id}": {
+            "get": {
+                "summary": "Get a specific tag",
+                "description": "Retrieve a tag by ID",
+                "tags": [
+                    "Tags"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Tag ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tag retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a tag",
+                "description": "Update an existing tag",
+                "tags": [
+                    "Tags"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Tag ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Web Development"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "web-development",
+                                        "description": "Optional; auto-generated if omitted"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tag updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a tag",
+                "description": "Delete a tag by ID",
+                "tags": [
+                    "Tags"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Tag ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tag deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            }
+        },
+        "/api/user/profile": {
+            "get": {
+                "summary": "Get user profile",
+                "description": "Retrieve the current authenticated user's profile information",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {},
+    "tags": []
+}

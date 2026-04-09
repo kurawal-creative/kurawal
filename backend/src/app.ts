@@ -1,37 +1,49 @@
-import express, { type Express } from "express";
-import path from "path";
-import cookieParser from "cookie-parser";
-import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
-import postRoutes from "./routes/postRoutes";
-import envRoutes from "./routes/envRoutes";
-import mediaRoutes from "./routes/mediaRoutes";
-import tagRoutes from "./routes/tagRoutes";
+import express, { type Express, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import userRoutes from './routes/userRoutes.js';
+import postRoutes from './routes/postRoutes.js';
+import envRoutes from './routes/envRoutes.js';
+import mediaRoutes from './routes/mediaRoutes.js';
+import tagRoutes from './routes/tagRoutes.js';
+import { toNodeHandler } from 'better-auth/node';
+import { auth } from './lib/auth.js';
 
 const app: Express = express();
+
+app.use(compression());
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const staticDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
+
+app.use(express.static(staticDir));
+
+app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/envs", envRoutes);
-app.use("/api/media", mediaRoutes);
-app.use("/api/tags", tagRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/envs', envRoutes);
+app.use('/api/media', mediaRoutes);
+app.use('/api/tags', tagRoutes);
 
-app.get("/api", (req, res) => {
-    return res.json({
-        hello: "world",
-    });
-});
+// app.get('/api', async (req: Request, res: Response) => {
+//     try {
+//         const { apiReference } = await import('@scalar/express-api-reference');
+//         apiReference({ url: '/swagger.json', theme: 'kepler' })(req, res);
+//     } catch (error) {
+//         console.error('Error loading API documentation:', error);
+//         res.status(500).json({ error: 'Failed to load API documentation' });
+//     }
+// });
 
-const staticDir = path.resolve(__dirname, "../..", "frontend", "dist");
-
-app.use(express.static(staticDir));
-
-app.use((req, res, next) => {
-    return res.sendFile(path.join(staticDir, "index.html"));
+app.use((_req, res, _next) => {
+    return res.sendFile(path.join(staticDir, 'index.html'));
 });
 
 export default app;

@@ -6,6 +6,7 @@ import cetha from "@/assets/video/cetha.mp4";
 import aitherway from "@/assets/video/aitherway.mp4";
 import { Button } from "../ui/button";
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ShowcaseSection = () => {
 	return (
@@ -24,8 +25,8 @@ const ShowcaseSection = () => {
 						<p className="mx-auto mt-2 max-w-2xl text-neutral-700 dark:text-neutral-400">Every project reflects our commitment to clarity, creativity, and reliable execution designed to elevate brands with measurable results.</p>
 					</div>
 
-					<div className="mt-12 grid grid-cols-1 overflow-hidden gap-0.5 border border-dashed p-0.5 md:grid-cols-4 lg:grid-cols-6 lg:border-t">
-						<div className="col-span-1 grid overflow-hidden border-b md:border-0 border-dashed p-0.5 md:col-span-2 lg:col-span-2 md:border-r">
+					<div className="mt-12 grid grid-cols-1 gap-0.5 overflow-hidden border border-dashed p-0.5 md:grid-cols-4 lg:grid-cols-6 lg:border-t">
+						<div className="col-span-1 grid overflow-hidden border-b border-dashed p-0.5 md:col-span-2 md:border-0 md:border-r lg:col-span-2">
 							<VideoCard src={daunesia} title="Daunesia" desc="UI/UX & Landing Page Development" badges={["Ai", "Web Development"]} />
 						</div>
 
@@ -35,15 +36,15 @@ const ShowcaseSection = () => {
 					</div>
 
 					<div className="grid grid-cols-1 overflow-hidden border border-dashed p-0.5">
-						<div className="col-span-1 grid overflow-hidden border-dashed p-0.5 ">
+						<div className="col-span-1 grid overflow-hidden border-dashed p-0.5">
 							<VideoCard src={cetha} title="Cetha" desc="Branding & Motion Design" badges={["Ai", "Web Development"]} />
 						</div>
 					</div>
 
 					<Button asChild className="group my-6">
-						<a href="/projects">
+						<Link to="/projects">
 							Show More <ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
-						</a>
+						</Link>
 					</Button>
 				</div>
 			</section>

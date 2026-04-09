@@ -1,15 +1,15 @@
 import Posts from "../features/posts/Posts";
 import CreatePost from "../features/posts/CreatePost";
 import EditPost from "../features/posts/EditPost";
-import Layout from "../layouts/Layout";
+import Layout from "@/layouts/Layout";
 
 export default [
 	{
 		path: "/posts",
 		element: (
-			<Layout>
-				<Posts />
-			</Layout>
+			// <Layout>
+			<Posts />
+			// </Layout>
 		),
 	},
 	{

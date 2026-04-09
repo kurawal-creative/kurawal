@@ -106,10 +106,10 @@ export function Footer() {
 						<p className="text-muted-foreground max-w-sm font-mono text-sm text-balance">A comprehensive financial technology platform.</p>
 						<div className="flex gap-2">
 							{socialLinks.map((item, index) => (
-								<Button key={`social-${item.link}-${index}`} size="sm" variant="outline">
-									<a href={item.link} target="_blank">
+								<Button key={`social-${item.link}-${index}`} size="sm" variant="outline" asChild>
+									<Link to={item.link} target="_blank" rel="noopener noreferrer">
 										<item.icon className="size-3.5" />
-									</a>
+									</Link>
 								</Button>
 							))}
 						</div>

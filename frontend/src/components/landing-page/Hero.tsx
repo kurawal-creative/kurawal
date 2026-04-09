@@ -105,9 +105,9 @@ const HeroSection = () => {
 					<div className="flex lg:hidden">
 						<Marquee pauseOnHover className="grayscale [--duration:12s] dark:grayscale-0">
 							{frameworkTech.map((v, i) => (
-								<a key={i} href={v} className="flex items-center justify-center">
+								<Link key={i} to={v} className="flex items-center justify-center">
 									<img src={v} alt="project" className="h-7 w-auto rounded-sm transition hover:opacity-100" />
-								</a>
+								</Link>
 							))}
 						</Marquee>
 						<div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-linear-to-r"></div>
@@ -126,16 +126,16 @@ const HeroSection = () => {
 			<div className="z-10 -mt-20 px-4 md:-mt-25 lg:-mt-30">
 				<Marquee pauseOnHover className="[--duration:20s]">
 					{cardProjects.map((item, i) => (
-						<a key={i} href={item.link || "#"} className="flex items-center justify-center">
+						<Link key={i} to={item.link || "#"} className="flex items-center justify-center">
 							<img src={item.src} alt="project" className="h-40 w-auto rounded-sm transition hover:opacity-100" />
-						</a>
+						</Link>
 					))}
 				</Marquee>
 				<Marquee reverse pauseOnHover className="mt-2 [--duration:20s]">
 					{cardProjects1.map((item, i) => (
-						<a key={i} href={item.link || "#"} className="flex items-center justify-center">
+						<Link key={i} to={item.link || "#"} className="flex items-center justify-center">
 							<img src={item.src} alt="project" className="h-40 w-auto rounded-sm transition hover:opacity-100" />
-						</a>
+						</Link>
 					))}
 				</Marquee>
 				<div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r"></div>

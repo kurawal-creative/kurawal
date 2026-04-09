@@ -1,16 +1,14 @@
-import { useState, type ReactNode } from "react";
-import { Button } from "../ui/button";
-import { MenuIcon } from "lucide-react";
+import { type ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
 import { AppSidebar } from "../ui/app-sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
-import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { userBreadcrumbs } from "@/utils/generateBreadcrumbs";
 export default function AdminLayout(props: { children: ReactNode }) {
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const routes = {
 		"/": "Home",
 		"/admin": "Admin",
+		"/admin/project": "Project",
 		"/posts": "Posts",
 		"/create-post": "Create Post",
 		"/edit-post": "Edit Post",
@@ -43,10 +41,14 @@ export default function AdminLayout(props: { children: ReactNode }) {
 						<Breadcrumb>
 							<BreadcrumbList>
 								{breadcrumbs.map((breadcrumb, index) => (
-									<BreadcrumbItem key={breadcrumb.path}>
-										<BreadcrumbLink href={breadcrumb.path}>{breadcrumb.label}</BreadcrumbLink>
+									<>
+										<BreadcrumbItem key={breadcrumb.path}>
+											<BreadcrumbLink asChild>
+												<Link to={breadcrumb.path}>{breadcrumb.label}</Link>
+											</BreadcrumbLink>
+										</BreadcrumbItem>
 										{index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-									</BreadcrumbItem>
+									</>
 								))}
 							</BreadcrumbList>
 						</Breadcrumb>

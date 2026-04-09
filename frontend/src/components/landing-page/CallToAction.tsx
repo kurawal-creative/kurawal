@@ -1,6 +1,7 @@
 import { ArrowUpRight, Globe } from "lucide-react";
 import CardSwap, { Card } from "../CardSwap";
 import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 import arunika from "@/assets/images/arunika.jpg";
 import aitherway from "@/assets/images/aitherway.jpg";
@@ -43,7 +44,7 @@ const CallToAction = () => {
 				<div className="px-2 lg:px-14">
 					<div className="overflow-hidden rounded-3xl border">
 						<div className="relative overflow-hidden md:h-60 lg:h-90">
-							<div className="flex flex-col items-center lg:gap-6 md:items-start md:gap-0 lg:flex-row">
+							<div className="flex flex-col items-center md:items-start md:gap-0 lg:flex-row lg:gap-6">
 								{/* LEFT CONTENT */}
 								<div className="relative lg:w-2/3">
 									<div className="absolute top-39 -left-8 md:-right-3 md:left-auto lg:top-69 lg:-left-3">
@@ -58,10 +59,10 @@ const CallToAction = () => {
 
 										<div className="flex justify-center md:justify-start">
 											<Button asChild className="group my-3">
-												<a href="/contact-us">
+												<Link to="/contact-us">
 													Contact Us
 													<ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
-												</a>
+												</Link>
 											</Button>
 										</div>
 									</div>

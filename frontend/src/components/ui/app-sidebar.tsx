@@ -1,21 +1,53 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BookOpen, Calendar, HomeIcon, Image, Settings } from "lucide-react";
+import { BookOpen, FolderGit2, HomeIcon, Image, Tags, LogOut } from "lucide-react";
 import kurawalSidebar from "@/assets/kurawal-sidebar.svg";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+
 const items = [
 	{
+		title: "Dashboard",
+		url: "/admin",
+		icon: HomeIcon,
+	},
+	{
+		title: "Project",
+		url: "/admin/project",
+		icon: FolderGit2,
+	},
+	{
 		title: "Posts",
-		url: "/posts",
+		url: "/admin/posts",
 		icon: BookOpen,
 	},
 	{
+		title: "Tags",
+		url: "/admin/tags",
+		icon: Tags,
+	},
+	{
 		title: "Media",
-		url: "/media",
+		url: "/admin/media",
 		icon: Image,
 	},
 ];
+
 export function AppSidebar() {
 	const pathname = useLocation().pathname;
+	const navigate = useNavigate();
+	const data = authClient.useSession();
+	const user = data.data?.user;
+
+	const handleLogout = async () => {
+		try {
+			await authClient.signOut();
+			navigate("/login");
+		} catch (error) {
+			console.error("Logout failed:", error);
+		}
+	};
+
 	return (
 		<Sidebar className="mt-4 border-0! pl-4">
 			<SidebarMenu>
@@ -34,10 +66,10 @@ export function AppSidebar() {
 							{items.map((item) => (
 								<SidebarMenuItem key={item.title}>
 									<SidebarMenuButton isActive={pathname === item.url} size={"md"} className="" asChild>
-										<a href={item.url}>
+										<Link to={item.url}>
 											<item.icon />
 											<span>{item.title}</span>
-										</a>
+										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}
@@ -45,7 +77,20 @@ export function AppSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
-			<SidebarFooter />
+			<SidebarFooter className="bg-gray-50!">
+				<div className="space-y-3 border-t pt-3">
+					{user && (
+						<div className="px-2">
+							<p className="text-xs text-gray-500">Logged in as</p>
+							<p className="text-sm font-medium text-gray-900">{user.email}</p>
+						</div>
+					)}
+					<Button onClick={handleLogout} variant="outline" size="sm" className="w-full justify-start">
+						<LogOut className="mr-2 h-4 w-4" />
+						Logout
+					</Button>
+				</div>
+			</SidebarFooter>
 		</Sidebar>
 	);
 }

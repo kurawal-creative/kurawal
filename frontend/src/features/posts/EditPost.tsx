@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../utils/api";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -65,10 +65,10 @@ export default function EditPost() {
 		<div className="container mx-auto max-w-2xl p-6">
 			<div className="mb-6">
 				<Button variant="ghost" asChild className="mb-4">
-					<a href="/posts">
+					<Link to="/posts">
 						<ArrowLeft className="mr-2 h-4 w-4" />
 						Back to Posts
-					</a>
+					</Link>
 				</Button>
 			</div>
 

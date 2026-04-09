@@ -1,4 +1,5 @@
 pnpm-lock.yaml
+pnpm-workspace.yaml
 package-lock.json
 yarn.lock
 bun.lock
@@ -6,3 +7,4 @@ bun.lock
 node_modules
 .env
 dist
+/src/generated/prisma

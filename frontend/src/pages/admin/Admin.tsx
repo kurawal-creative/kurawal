@@ -1,72 +1,121 @@
-"use client";
-
+import { useEffect, useState } from "react";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { type SerializedEditorState } from "lexical";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { postsApi, tagsApi } from "@/utils/adminApi";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { Editor } from "@/components/blocks/editor-x/editor";
-
-const initialValue = {
-	root: {
-		children: [
-			{
-				children: [
-					{
-						detail: 0,
-						format: 0,
-						mode: "normal",
-						style: "",
-						text: "Hello World 🚀",
-						type: "text",
-						version: 1,
-					},
-				],
-				direction: "ltr",
-				format: "",
-				indent: 0,
-				type: "paragraph",
-				version: 1,
-			},
-		],
-		direction: "ltr",
-		format: "",
-		indent: 0,
-		type: "root",
-		version: 1,
-	},
-} as unknown as SerializedEditorState;
+interface DashboardStats {
+	totalPosts: number;
+	totalTags: number;
+	publishedPosts: number;
+	draftPosts: number;
+}
 
 export default function Admin() {
-	const [editorState, setEditorState] = useState<SerializedEditorState>(initialValue);
+	const [stats, setStats] = useState<DashboardStats>({
+		totalPosts: 0,
+		totalTags: 0,
+		publishedPosts: 0,
+		draftPosts: 0,
+	});
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchStats = async () => {
+			try {
+				setLoading(true);
+				const [postsData, tagsData] = await Promise.all([postsApi.getAll(1, 100), tagsApi.getAll(1, 100)]);
+
+				const posts = postsData.data || [];
+				const tags = tagsData.data || [];
+
+				const publishedCount = posts.filter((p: any) => p.status === "PUBLISHED").length;
+				const draftCount = posts.filter((p: any) => p.status === "DRAFT").length;
+
+				setStats({
+					totalPosts: postsData.pagination?.totalItems || 0,
+					totalTags: tagsData.pagination?.totalItems || 0,
+					publishedPosts: publishedCount,
+					draftPosts: draftCount,
+				});
+			} catch (error) {
+				console.error("Error fetching stats:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchStats();
+	}, []);
+
 	return (
 		<AdminLayout>
-			<Editor editorSerializedState={editorState} onSerializedChange={(value) => setEditorState(value)} />
-			<div className="space-y-4 pb-8">
-				<h1 className="text-3xl font-bold">Dashboard Admin</h1>
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-					<div className="rounded-lg border p-6">
-						<h3 className="text-lg font-semibold">Total Users</h3>
-						<p className="mt-2 text-3xl font-bold">1,234</p>
-					</div>
-					<div className="rounded-lg border p-6">
-						<h3 className="text-lg font-semibold">Total Orders</h3>
-						<p className="mt-2 text-3xl font-bold">567</p>
-					</div>
-					<div className="rounded-lg border p-6">
-						<h3 className="text-lg font-semibold">Revenue</h3>
-						<p className="mt-2 text-3xl font-bold">$89,000</p>
-					</div>
+			<div className="space-y-6 pb-8">
+				<div>
+					<h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+					<p className="text-muted-foreground mt-2">Welcome to Kurawal Admin Dashboard</p>
 				</div>
 
-				<div className="space-y-4">
-					{Array.from({ length: 20 }).map((_, i) => (
-						<div key={i} className="rounded-lg border p-4">
-							<h3 className="font-semibold">Item #{i + 1}</h3>
-							<p className="text-gray-600">This is dummy content item {i + 1}</p>
-						</div>
-					))}
+				{/* Stats Cards */}
+				<div className="grid gap-4 md:grid-cols-4">
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Total Posts</CardTitle>
+						</CardHeader>
+						<CardContent>{loading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stats.totalPosts}</div>}</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Published</CardTitle>
+						</CardHeader>
+						<CardContent>{loading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold text-green-600">{stats.publishedPosts}</div>}</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Drafts</CardTitle>
+						</CardHeader>
+						<CardContent>{loading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold text-yellow-600">{stats.draftPosts}</div>}</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Total Tags</CardTitle>
+						</CardHeader>
+						<CardContent>{loading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stats.totalTags}</div>}</CardContent>
+					</Card>
 				</div>
+
+				{/* Stats Summary */}
+				<Card>
+					<CardHeader>
+						<CardTitle>Content Summary</CardTitle>
+						<CardDescription>Quick overview of your content</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{loading ? (
+							<div className="space-y-2">
+								<Skeleton className="h-20 w-full" />
+							</div>
+						) : (
+							<div className="space-y-2">
+								<div className="flex items-center justify-between">
+									<span className="text-sm">Published Posts</span>
+									<span className="text-2xl font-bold text-green-600">{stats.publishedPosts}</span>
+								</div>
+								<div className="flex items-center justify-between">
+									<span className="text-sm">Draft Posts</span>
+									<span className="text-2xl font-bold text-yellow-600">{stats.draftPosts}</span>
+								</div>
+								<div className="flex items-center justify-between">
+									<span className="text-sm">Total Tags</span>
+									<span className="text-2xl font-bold">{stats.totalTags}</span>
+								</div>
+							</div>
+						)}
+					</CardContent>
+				</Card>
 			</div>
 		</AdminLayout>
 	);
