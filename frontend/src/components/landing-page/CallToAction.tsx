@@ -40,7 +40,7 @@ const CallToAction = () => {
 	return (
 		<>
 			<hr className="-mb-px w-full border-dashed" />
-			<section className="relative mx-auto max-w-[1400px] border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-[1536px]">
+			<section className="relative mx-auto max-w-350 border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-384">
 				<div className="px-2 lg:px-14">
 					<div className="overflow-hidden rounded-3xl border">
 						<div className="relative overflow-hidden md:h-60 lg:h-90">

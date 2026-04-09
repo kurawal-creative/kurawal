@@ -21,7 +21,7 @@ const values = [
 
 const OurValues = () => {
 	return (
-		<section className="relative mx-auto max-w-[1400px] border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-[1536px]">
+		<section className="relative mx-auto max-w-350 border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-384">
 			<div className="z-10 mx-auto px-6 text-center">
 				<p className="font-caveat text-xl text-neutral-800 dark:text-neutral-100">
 					<Highlighter action="underline" color="" padding={2} strokeWidth={1} iterations={2}>

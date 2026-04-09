@@ -10,7 +10,7 @@ const ServicesSection = () => {
 	return (
 		<>
 			<hr className="-mb-px w-full border-dashed" />
-			<section className="relative mx-auto max-w-[1400px] border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-[1536px]">
+			<section className="relative mx-auto max-w-350 border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-384">
 				<div className="flex flex-col lg:flex-row lg:gap-12">
 					{/* Left */}
 					<div className="flex-1 items-center justify-start p-6 text-center lg:text-start">
