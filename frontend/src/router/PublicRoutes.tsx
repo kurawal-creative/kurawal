@@ -1,9 +1,10 @@
-import Layout from "../layouts/layout";
+import Layout from "../layouts/Layout";
 import Home from "../features/home/Home";
 import Login from "../features/auth/Login";
 import Register from "../features/auth/Register";
 import AboutUsPage from "@/features/about-us/AboutUsPage";
 import ContactUsPage from "@/features/contact-us/ContactUsPage";
+import ProjectsPage from "@/features/projects/ProjectsPage";
 
 export default [
 	{
@@ -22,6 +23,14 @@ export default [
 	{
 		path: "/register",
 		element: <Register />,
+	},
+	{
+		path: "/projects",
+		element: (
+			<Layout>
+				<ProjectsPage />
+			</Layout>
+		),
 	},
 	{
 		path: "/about-us",

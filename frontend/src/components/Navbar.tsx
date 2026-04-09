@@ -8,10 +8,10 @@ import logoLight from "@/assets/svg/logo-light-mode.svg";
 import logoDark from "@/assets/svg/logo-dark-mode.svg";
 
 const navbarItems = [
-	{ id: 1, title: "Work", href: "#" },
-	{ id: 2, title: "Blog", href: "#" },
-	{ id: 3, title: "Resources", href: "#" },
-	{ id: 4, title: "About Us", href: "about-us" },
+	{ title: "Projects", href: "/projects" },
+	{ title: "Blog", href: "/blog" },
+	{ title: "Resources", href: "/resources" },
+	{ title: "About Us", href: "/about-us" },
 ];
 
 export default function Navbar() {
@@ -37,18 +37,18 @@ export default function Navbar() {
 
 	return (
 		<header className="sticky top-0 z-50 h-12 border-b border-dashed border-gray-300 bg-white/70 backdrop-blur-md md:h-14 dark:bg-neutral-900/70">
-			<nav className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between border-dashed px-4 min-[1400px]:border-x">
+			<nav className="mx-auto flex h-full w-full max-w-350 items-center justify-between border-dashed px-4 min-[1400px]:border-x">
 				{/* Left */}
 				<div className="flex flex-1 items-center text-lg font-semibold">
-					<Link to="/">
+					<Link to={navbarItems[0].href}>
 						<img src={isDarkMode ? logoDark : logoLight} alt="Logo" className="h-4 w-auto md:h-5" />
 					</Link>
 				</div>
 
 				{/* Center */}
 				<ul className="hidden items-center gap-6 text-sm text-neutral-800 lg:flex dark:text-neutral-100">
-					{navbarItems.map((item) => (
-						<li key={item.id}>
+					{navbarItems.map((item, index) => (
+						<li key={index}>
 							<Link to={item.href} className="hover:text-neutral-600 dark:hover:text-neutral-300">
 								{item.title}
 							</Link>
@@ -101,11 +101,11 @@ export default function Navbar() {
 			{/* Mobile Menu - Full */}
 			{isOpen && (
 				<div className="border-b border-dashed border-gray-300 bg-white/70 backdrop-blur-md md:hidden dark:bg-neutral-900/70">
-					<div className="mx-auto max-w-[1400px] bg-white/70 px-4 py-4 backdrop-blur-md dark:bg-neutral-900/70">
+					<div className="mx-auto max-w-350 bg-white/70 px-4 py-4 backdrop-blur-md dark:bg-neutral-900/70">
 						{/* Navigation Links */}
 						<ul className="mb-4 space-y-3 border-b border-dashed border-gray-300 pb-4 text-end">
-							{navbarItems.map((item) => (
-								<li key={item.id}>
+							{navbarItems.map((item, index) => (
+								<li key={index}>
 									<Link to={item.href} className="block text-sm text-neutral-800 hover:text-neutral-600 dark:text-neutral-100 dark:hover:text-neutral-300" onClick={() => setIsOpen(false)}>
 										{item.title}
 									</Link>
@@ -136,10 +136,10 @@ export default function Navbar() {
 			{/* Tablet Menu (md to lg) - Only Navigation Links */}
 			{isOpen && (
 				<div className="hidden border-b border-dashed border-gray-300 bg-white/70 backdrop-blur-md md:block lg:hidden dark:bg-neutral-900/70">
-					<div className="mx-auto max-w-[1400px] px-4 py-4 text-end">
+					<div className="mx-auto max-w-350 px-4 py-4 text-end">
 						<ul className="space-y-3">
-							{navbarItems.map((item) => (
-								<li key={item.id}>
+							{navbarItems.map((item, index) => (
+								<li key={index}>
 									<Link to={item.href} className="block text-sm text-neutral-800 hover:text-neutral-600 dark:text-neutral-100 dark:hover:text-neutral-300" onClick={() => setIsOpen(false)}>
 										{item.title}
 									</Link>

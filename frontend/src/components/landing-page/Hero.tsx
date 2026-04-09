@@ -95,11 +95,11 @@ const HeroSection = () => {
 				<div className="z-10 w-full max-w-5xl">
 					<div className="hidden flex-wrap justify-center gap-5 lg:flex">
 						{framework.map((v, i) => (
-							<img key={i} src={v} alt="tech stack" className="h-7 grayscale dark:grayscale-0" />
+							<img key={i} src={v} alt="framework" className="h-7 grayscale transition duration-300 hover:grayscale-0 dark:grayscale-0" />
 						))}
 						<div className="dark mx-2 h-7 w-0.5 bg-neutral-800 dark:bg-neutral-100 dark:grayscale-0" />
 						{techStack.map((v, i) => (
-							<img key={i} src={v} alt="tech stack" className="h-7 grayscale" />
+							<img key={i} src={v} alt="tech stack" className="h-7 grayscale transition duration-300 hover:grayscale-0 dark:grayscale-0" />
 						))}
 					</div>
 					<div className="flex lg:hidden">
