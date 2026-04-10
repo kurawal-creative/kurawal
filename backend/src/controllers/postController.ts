@@ -117,10 +117,10 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
     // Finalize thumbnail from tmp to posts
     if (thumbnail) {
-      const publicId = extractPublicIdFromUrl(thumbnail);
-      if (publicId && publicId.startsWith("tmp/")) {
-        const finalizedId = await finalizeImage(publicId, "posts");
-        thumbnail = thumbnail.replace(publicId, finalizedId);
+      const thumbIds = getPublicIds(thumbnail);
+      if (thumbIds.length > 0 && thumbIds[0].startsWith("tmp/")) {
+        const finalizedId = await finalizeImage(thumbIds[0], "posts");
+        thumbnail = thumbnail.replace(thumbIds[0], finalizedId);
       }
     }
 
@@ -211,10 +211,10 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
     // Finalize new thumbnail from tmp to posts
     if (thumbnail && thumbnail !== post.thumbnail) {
-      const publicId = extractPublicIdFromUrl(thumbnail);
-      if (publicId && publicId.startsWith("tmp/")) {
-        const finalizedId = await finalizeImage(publicId, "posts");
-        thumbnail = thumbnail.replace(publicId, finalizedId);
+      const thumbIds = getPublicIds(thumbnail);
+      if (thumbIds.length > 0 && thumbIds[0].startsWith("tmp/")) {
+        const finalizedId = await finalizeImage(thumbIds[0], "posts");
+        thumbnail = thumbnail.replace(thumbIds[0], finalizedId);
       }
     }
 
@@ -232,16 +232,16 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     // Handle Media Lifecycle (Delete old, Link new)
     if (thumbnail !== undefined && thumbnail !== post.thumbnail) {
       if (post.thumbnail) {
-        const oldPublicId = extractPublicIdFromUrl(post.thumbnail);
-        if (oldPublicId) {
-          await deleteFullMedia(oldPublicId);
+        const oldThumbIds = getPublicIds(post.thumbnail);
+        if (oldThumbIds.length > 0) {
+          await deleteFullMedia(oldThumbIds[0]);
         }
       }
 
       if (thumbnail) {
-        const newPublicId = extractPublicIdFromUrl(thumbnail);
-        if (newPublicId) {
-          await linkMediaToPost(newPublicId, post.id);
+        const newThumbIds = getPublicIds(thumbnail);
+        if (newThumbIds.length > 0) {
+          await linkMediaToPost(newThumbIds[0], post.id);
         }
       }
     }
@@ -252,14 +252,19 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
       const removedUrls = oldUrls.filter((url) => !newUrls.includes(url));
       for (const url of removedUrls) {
-        const publicId = extractPublicIdFromUrl(url);
-        if (publicId) {
-          await deleteFullMedia(publicId);
+        const pids = getPublicIds(url);
+        if (pids.length > 0) {
+          await deleteFullMedia(pids[0]);
         }
       }
 
       const addedUrls = newUrls.filter((url) => !oldUrls.includes(url));
-      const addedPublicIds = addedUrls.map((url) => extractPublicIdFromUrl(url)).filter((publicId): publicId is string => Boolean(publicId));
+      const addedPublicIds = addedUrls
+        .map((url) => {
+          const pids = getPublicIds(url);
+          return pids.length > 0 ? pids[0] : null;
+        })
+        .filter((pid): pid is string => Boolean(pid));
 
       if (addedPublicIds.length > 0) {
         await linkMultipleMediaToPost(addedPublicIds, post.id);
@@ -304,18 +309,15 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
     }
 
     if (post.thumbnail) {
-      const publicId = extractPublicIdFromUrl(post.thumbnail);
-      if (publicId) {
-        await deleteFullMedia(publicId);
+      const oldThumbIds = getPublicIds(post.thumbnail);
+      if (oldThumbIds.length > 0) {
+        await deleteFullMedia(oldThumbIds[0]);
       }
     }
 
-    const contentUrls = extractCloudinaryUrlsFromContent(post.content);
-    for (const url of contentUrls) {
-      const publicId = extractPublicIdFromUrl(url);
-      if (publicId) {
-        await deleteFullMedia(publicId);
-      }
+    const contentIds = getPublicIds(post.content);
+    for (const pid of contentIds) {
+      await deleteFullMedia(pid);
     }
 
     await prisma.post.delete({

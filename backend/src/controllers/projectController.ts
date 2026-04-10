@@ -190,22 +190,29 @@ export const deleteProject = async (req: Request, res: Response) => {
 
     const project = await prisma.project.findUnique({ where: { id } });
     if (project) {
-      // Simple delete: images and description images
-      const allUrls = [...(project.images || [])];
-      if (project.description) {
-        const descUrls = project.description.match(/https?:\/\/[^\s)]+/g) || [];
-        allUrls.push(...descUrls);
+      // 1. Delete array of images
+      if (Array.isArray(project.images)) {
+        for (const url of project.images) {
+          const pids = getPublicIds(url);
+          for (const pid of pids) {
+            await deleteImage(pid);
+          }
+        }
       }
 
-      for (const url of allUrls) {
-        const pids = getPublicIds(url);
-        if (pids.length > 0) await deleteImage(pids[0]);
+      // 2. Delete description images (Markdown)
+      if (project.description) {
+        const descPids = getPublicIds(project.description);
+        for (const pid of descPids) {
+          await deleteImage(pid);
+        }
       }
     }
 
     await prisma.project.delete({ where: { id } });
     res.json({ message: "Project deleted" });
   } catch (error) {
+    console.error("Error deleting project:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

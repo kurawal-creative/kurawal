@@ -23,6 +23,7 @@ export default function CreatePostPage() {
 	const [tags, setTags] = useState<Tag[]>([]);
 	const [saving, setSaving] = useState(false);
 	const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+	const [uploadingContent, setUploadingContent] = useState(false);
 	const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
 
 	const [formData, setFormData] = useState({
@@ -71,6 +72,21 @@ export default function CreatePostPage() {
 	const handleThumbnailRemove = () => {
 		setFormData((prev) => ({ ...prev, thumbnail: "" }));
 		setThumbnailPreview("");
+	};
+
+	const handleContentImageUpload = async (file: File) => {
+		try {
+			setUploadingContent(true);
+			const response = await uploadToCloudinary(file);
+			const imageUrl = `\n![image](${response.secure_url})\n`;
+			setFormData((prev) => ({ ...prev, content: prev.content + imageUrl }));
+			toast.success("Image inserted into content");
+		} catch (error: any) {
+			console.error("Error uploading image:", error);
+			toast.error("Failed to upload image");
+		} finally {
+			setUploadingContent(false);
+		}
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -195,9 +211,31 @@ export default function CreatePostPage() {
 
 					{/* Content Card */}
 					<Card>
-						<CardHeader>
-							<CardTitle>Content</CardTitle>
-							<CardDescription>Write your post content using Markdown syntax</CardDescription>
+						<CardHeader className="flex flex-row items-center justify-between">
+							<div>
+								<CardTitle>Content</CardTitle>
+								<CardDescription>Write your post content using Markdown syntax</CardDescription>
+							</div>
+							<div className="flex items-center gap-2">
+								<label className="cursor-pointer">
+									<Button type="button" variant="outline" size="sm" asChild disabled={uploadingContent}>
+										<span>{uploadingContent ? "Uploading..." : "Insert Image"}</span>
+									</Button>
+									<input
+										type="file"
+										accept="image/*"
+										multiple
+										onChange={async (e) => {
+											const files = e.target.files;
+											if (!files) return;
+											for (const file of Array.from(files)) {
+												await handleContentImageUpload(file);
+											}
+										}}
+										className="hidden"
+									/>
+								</label>
+							</div>
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<Label htmlFor="content">Content *</Label>
