@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import path from "path";
 import { fileURLToPath } from "url";
+import { apiReference } from "@scalar/express-api-reference";
 
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
@@ -12,16 +13,10 @@ import tagRoutes from "./routes/tagRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
-import { generateSignature } from "./utils/cloudinary.js";
 
 const app: Express = express();
 
 app.use(compression());
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const staticDir = path.join(__dirname, "..", "..", "frontend", "dist");
-
-app.use(express.static(staticDir));
 
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 
@@ -35,21 +30,12 @@ app.use("/api/media", mediaRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/projects", projectRoutes);
 
-app.get("/api/upload-signature", (req, res) => {
-  const folder = "tmp";
-  const data = generateSignature(folder);
-  res.json(data);
-});
+app.use("/api-docs", apiReference({ url: "/swagger.json" }));
 
-// app.get('/api', async (req: Request, res: Response) => {
-//     try {
-//         const { apiReference } = await import('@scalar/express-api-reference');
-//         apiReference({ url: '/swagger.json', theme: 'kepler' })(req, res);
-//     } catch (error) {
-//         console.error('Error loading API documentation:', error);
-//         res.status(500).json({ error: 'Failed to load API documentation' });
-//     }
-// });
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const staticDir = path.join(__dirname, "..", "..", "frontend", "dist");
+
+app.use(express.static(staticDir));
 
 app.use((_req, res, _next) => {
   return res.sendFile(path.join(staticDir, "index.html"));

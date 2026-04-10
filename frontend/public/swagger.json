@@ -12,91 +12,6 @@
         }
     ],
     "paths": {
-        "/api/auth/login": {
-            "post": {
-                "summary": "Login with email and password",
-                "tags": [
-                    "Authentication"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "example": "admin@kurawal.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "example": "admin123"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Login successful"
-                    },
-                    "400": {
-                        "description": "Email and password are required"
-                    },
-                    "401": {
-                        "description": "Invalid credentials"
-                    },
-                    "500": {
-                        "description": "Server error"
-                    }
-                }
-            }
-        },
-        "/api/auth/logout": {
-            "post": {
-                "summary": "Logout user",
-                "tags": [
-                    "Authentication"
-                ],
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Logged out successfully"
-                    }
-                }
-            }
-        },
-        "/api/auth/me": {
-            "get": {
-                "summary": "Get current user info",
-                "tags": [
-                    "Authentication"
-                ],
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Current user information"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
         "/api/envs": {
             "get": {
                 "summary": "Get all environment variables",
@@ -282,6 +197,19 @@
                     },
                     "404": {
                         "description": "Environment variable not found"
+                    }
+                }
+            }
+        },
+        "/api/media/upload-signature": {
+            "get": {
+                "summary": "Get simple upload signature for tmp folder",
+                "tags": [
+                    "Media"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Signature generated successfully"
                     }
                 }
             }

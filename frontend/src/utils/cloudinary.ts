@@ -7,7 +7,7 @@ import api from "./api";
 export const uploadToCloudinary = async (file: File) => {
 	try {
 		// 1. Get signature from backend
-		const { data: sig } = await api.get("/upload-signature");
+		const { data: sig } = await api.get("/media/upload-signature");
 
 		// 2. Prepare FormData for Cloudinary
 		const cloudFormData = new FormData();

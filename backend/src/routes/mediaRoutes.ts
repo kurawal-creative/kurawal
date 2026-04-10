@@ -1,8 +1,21 @@
-import { Router } from 'express';
-import { getUploadSignature } from '../controllers/mediaController.js';
-import { authenticate } from '../middlewares/authMiddleware.js';
+import { Router } from "express";
+import { getUploadSignature, getSimpleUploadSignature } from "../controllers/mediaController.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
 
 const router: Router = Router();
+
+/**
+ * @swagger
+ * /api/media/upload-signature:
+ *   get:
+ *     summary: Get simple upload signature for tmp folder
+ *     tags:
+ *       - Media
+ *     responses:
+ *       200:
+ *         description: Signature generated successfully
+ */
+router.get("/upload-signature", getSimpleUploadSignature);
 
 /**
  * @swagger
@@ -138,6 +151,6 @@ const router: Router = Router();
  *         description: Unauthorized
  */
 
-router.post('/signature', authenticate, getUploadSignature);
+router.post("/signature", authenticate, getUploadSignature);
 
 export default router;
