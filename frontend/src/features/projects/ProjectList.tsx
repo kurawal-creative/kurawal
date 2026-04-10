@@ -5,6 +5,7 @@ import api from "@/utils/api";
 interface Project {
 	id: string;
 	name: string;
+	image: string;
 	link_github: string;
 	link_demo: string;
 	status: string;
@@ -43,45 +44,66 @@ export default function ProjectList() {
 
 	return (
 		<div className="p-4">
-			<div className="flex justify-between items-center mb-4">
+			<div className="mb-4 flex items-center justify-between">
 				<h1 className="text-xl font-bold uppercase">Project List</h1>
-				<Link 
-					to="/admin/project/create" 
-					className="border border-black px-4 py-1 hover:bg-gray-100"
-				>
+				<Link to="/admin/project/create" className="border border-black px-4 py-1 hover:bg-gray-100">
 					Add New
 				</Link>
 			</div>
 
-			<div className="border border-black overflow-x-auto">
-				<table className="w-full text-left border-collapse">
+			<div className="overflow-x-auto border border-black">
+				<table className="w-full border-collapse text-left">
 					<thead>
 						<tr className="border-b border-black bg-gray-50">
-							<th className="p-2 border-r border-black font-bold uppercase text-xs">Name</th>
-							<th className="p-2 border-r border-black font-bold uppercase text-xs">GitHub</th>
-							<th className="p-2 border-r border-black font-bold uppercase text-xs">Demo</th>
-							<th className="p-2 border-r border-black font-bold uppercase text-xs">Status</th>
-							<th className="p-2 font-bold uppercase text-xs text-right">Actions</th>
+							<th className="w-16 border-r border-black p-2 text-center text-xs font-bold uppercase">Img</th>
+							<th className="border-r border-black p-2 text-xs font-bold uppercase">Name</th>
+							<th className="border-r border-black p-2 text-xs font-bold uppercase">GitHub</th>
+							<th className="border-r border-black p-2 text-xs font-bold uppercase">Demo</th>
+							<th className="border-r border-black p-2 text-xs font-bold uppercase">Status</th>
+							<th className="p-2 text-right text-xs font-bold uppercase">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
 						{projects.length === 0 ? (
-							<tr><td colSpan={5} className="p-4 text-center italic">No projects found.</td></tr>
+							<tr>
+								<td colSpan={6} className="p-4 text-center italic">
+									No projects found.
+								</td>
+							</tr>
 						) : (
 							projects.map((p) => (
 								<tr key={p.id} className="border-b border-black last:border-0 hover:bg-gray-50">
-									<td className="p-2 border-r border-black font-medium">{p.name}</td>
-									<td className="p-2 border-r border-black text-xs truncate max-w-[150px]">
-										{p.link_github ? <a href={p.link_github} target="_blank" className="underline">{p.link_github}</a> : "-"}
+									<td className="flex items-center justify-center border-r border-black p-2">{p.image ? <img src={p.image} alt={p.name} className="h-10 w-10 border border-black object-cover grayscale transition-all group-hover:grayscale-0" /> : <div className="flex h-10 w-10 items-center justify-center border border-black bg-gray-100 text-[10px] opacity-30">N/A</div>}</td>
+									<td className="border-r border-black p-2 font-medium">{p.name}</td>
+									<td className="max-w-[150px] truncate border-r border-black p-2 text-xs">
+										{p.link_github ? (
+											<a href={p.link_github} target="_blank" className="underline">
+												{p.link_github}
+											</a>
+										) : (
+											"-"
+										)}
 									</td>
-									<td className="p-2 border-r border-black text-xs truncate max-w-[150px]">
-										{p.link_demo ? <a href={p.link_demo} target="_blank" className="underline">{p.link_demo}</a> : "-"}
+									<td className="max-w-[150px] truncate border-r border-black p-2 text-xs">
+										{p.link_demo ? (
+											<a href={p.link_demo} target="_blank" className="underline">
+												{p.link_demo}
+											</a>
+										) : (
+											"-"
+										)}
 									</td>
-									<td className="p-2 border-r border-black text-xs font-bold uppercase">{p.status}</td>
-									<td className="p-2 space-x-2 text-xs text-right">
-										<Link to={`/admin/project/${p.id}/edit`} className="underline text-blue-800">EDIT</Link>
-										<Link to={`/admin/project/${p.id}`} className="underline text-black">DETAIL</Link>
-										<button onClick={() => handleDelete(p.id)} className="underline text-red-600">DELETE</button>
+									<td className="border-r border-black p-2 text-xs font-bold uppercase">{p.status}</td>
+									<td className="space-x-2 p-2 text-right text-xs">
+										<Link to={`/admin/project/${p.id}/edit`} className="text-blue-800 underline">
+											EDIT
+										</Link>
+										<Link to={`/admin/project/${p.id}`} className="text-black underline">
+											DETAIL
+										</Link>
+										<button onClick={() => handleDelete(p.id)} className="text-red-600 underline">
+											DELETE
+										</button>
 									</td>
 								</tr>
 							))

@@ -71,6 +71,7 @@ model Project {
     id          String   @id @default(auto()) @map("_id") @db.ObjectId
     name        String
     description String?
+    image       String?
     link_github String?
     link_demo   String?
     status      String   @default("Preview")

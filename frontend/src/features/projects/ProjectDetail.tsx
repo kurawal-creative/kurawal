@@ -5,6 +5,7 @@ import api from "@/utils/api";
 interface Project {
 	id: string;
 	name: string;
+	image: string | null;
 	description: string | null;
 	link_github: string | null;
 	link_demo: string | null;
@@ -34,20 +35,25 @@ export default function ProjectDetail() {
 	}, [id]);
 
 	if (loading) return <div className="p-4">LOADING DETAIL...</div>;
-	if (!project) return <div className="p-4 uppercase border border-red-500">Project Not Found</div>;
+	if (!project) return <div className="border border-red-500 p-4 uppercase">Project Not Found</div>;
 
 	return (
-		<div className="p-4 uppercase tracking-tighter">
-			<div className="flex justify-between items-center mb-6 border-b border-black pb-2">
+		<div className="p-4 tracking-tighter uppercase">
+			<div className="mb-6 flex items-center justify-between border-b border-black pb-2">
 				<h1 className="text-xl font-bold">Project / Details / {project.name}</h1>
 				<Link to="/admin/project" className="border border-black px-4 py-1 hover:bg-gray-100">
 					Back to List
 				</Link>
 			</div>
 
-			<div className="border border-black p-4 space-y-4">
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="border-b md:border-b-0 md:border-r border-black pb-4 md:pb-0 md:pr-4">
+			<div className="space-y-4 border border-black p-4">
+				{project.image && (
+					<div className="flex items-center justify-center border border-black bg-gray-50 p-2">
+						<img src={project.image} alt={project.name} className="max-h-[300px] cursor-crosshair border border-black grayscale transition-all hover:grayscale-0" />
+					</div>
+				)}
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<div className="border-b border-black pb-4 md:border-r md:border-b-0 md:pr-4 md:pb-0">
 						<p className="text-sm font-bold opacity-50">Project Name</p>
 						<p className="text-lg">{project.name}</p>
 					</div>
@@ -55,13 +61,13 @@ export default function ProjectDetail() {
 						<p className="text-sm font-bold opacity-50">Status</p>
 						<p className="text-lg">{project.status}</p>
 					</div>
-					<div className="border-b md:border-b-0 md:border-r border-black pb-4 md:pb-0 md:pr-4">
+					<div className="border-b border-black pb-4 md:border-r md:border-b-0 md:pr-4 md:pb-0">
 						<p className="text-sm font-bold opacity-50">GitHub URL</p>
-						<p className="underline truncate lowercase">{project.link_github || "-"}</p>
+						<p className="truncate lowercase underline">{project.link_github || "-"}</p>
 					</div>
 					<div>
 						<p className="text-sm font-bold opacity-50">Demo URL</p>
-						<p className="underline truncate lowercase">{project.link_demo || "-"}</p>
+						<p className="truncate lowercase underline">{project.link_demo || "-"}</p>
 					</div>
 					<div className="col-span-full border-t border-black pt-4">
 						<p className="text-sm font-bold opacity-50">Description</p>
@@ -69,22 +75,15 @@ export default function ProjectDetail() {
 					</div>
 					<div className="col-span-full border-t border-black pt-4">
 						<p className="text-sm font-bold opacity-50">Environment Variables (ENV)</p>
-						<textarea 
-							className="mt-2 w-full border border-black p-2 h-32 font-mono text-sm normal-case bg-gray-50 cursor-text" 
-							readOnly 
-							defaultValue={project.env || ""}
-						/>
+						<textarea className="mt-2 h-32 w-full cursor-text border border-black bg-gray-50 p-2 font-mono text-sm normal-case" readOnly defaultValue={project.env || ""} />
 					</div>
 				</div>
 
-				<div className="mt-6 flex gap-4 pt-4 border-t border-black">
-					<Link 
-						to={`/admin/project/${id}/edit`} 
-						className="border border-black px-6 py-2 bg-black text-white hover:bg-gray-800"
-					>
+				<div className="mt-6 flex gap-4 border-t border-black pt-4">
+					<Link to={`/admin/project/${id}/edit`} className="border border-black bg-black px-6 py-2 text-white hover:bg-gray-800">
 						Edit Project
 					</Link>
-					<p className="text-[10px] items-center flex opacity-50">Last update: {new Date(project.updatedAt).toLocaleString()}</p>
+					<p className="flex items-center text-[10px] opacity-50">Last update: {new Date(project.updatedAt).toLocaleString()}</p>
 				</div>
 			</div>
 		</div>
