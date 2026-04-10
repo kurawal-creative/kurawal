@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { uploadToCloudinary } from "@/utils/cloudinary";
 
 export default function UserProfile() {
 	const { data: session, isPending } = authClient.useSession();
 	const user = session?.user;
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [name, setName] = useState(user?.name || "");
+	const [image, setImage] = useState(user?.image || "");
 	const [email, setEmail] = useState(user?.email || "");
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
@@ -15,9 +18,29 @@ export default function UserProfile() {
 
 	const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 	const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+	const [isUploading, setIsUploading] = useState(false);
 
 	if (isPending) return <div className="p-4 text-xs font-bold uppercase">Loading...</div>;
 	if (!user) return <div className="p-4 text-xs font-bold text-red-500 uppercase">Not logged in</div>;
+
+	const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		setIsUploading(true);
+		try {
+			const res = await uploadToCloudinary(file);
+			await authClient.updateUser({
+				image: res.secure_url,
+			});
+			setImage(res.secure_url);
+			toast.success("IMAGE UPLOADED TO TMP");
+		} catch (error: any) {
+			toast.error("UPLOAD FAILED");
+		} finally {
+			setIsUploading(false);
+		}
+	};
 
 	const handleUpdateProfile = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -29,9 +52,12 @@ export default function UserProfile() {
 				});
 				toast.success("EMAIL CHANGE REQUESTED / UPDATED");
 			}
-			if (name !== user.name) {
-				await authClient.updateUser({ name });
-				toast.success("NAME UPDATED");
+			if (name !== user.name || image !== user.image) {
+				await authClient.updateUser({
+					name,
+					image: image || undefined,
+				});
+				toast.success("PROFILE UPDATED");
 			}
 		} catch (error: any) {
 			toast.error(error.message || "FAILED TO UPDATE PROFILE");
@@ -83,6 +109,21 @@ export default function UserProfile() {
 						<div className="flex flex-col gap-1">
 							<label className="text-[10px] font-bold text-gray-400 uppercase">Email Address (Locked)</label>
 							<input value={user.email} disabled className="border border-black bg-gray-50 px-2 py-1.5 text-xs text-gray-400 grayscale outline-none" />
+						</div>
+						<div className="flex flex-col gap-2">
+							<label className="text-[10px] font-bold uppercase">Profile Picture</label>
+							<div className="flex items-center gap-4">
+								<div className="h-20 w-20 flex-none overflow-hidden border-2 border-black bg-gray-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+									<img src={image || `https://ui-avatars.com/api/?name=${name || "?"}&background=random`} alt="Avatar" className="h-full w-full object-cover" />
+								</div>
+								<div className="flex flex-col gap-2">
+									<input type="file" className="hidden" ref={fileInputRef} accept="image/*" onChange={handleImageUpload} />
+									<button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="border border-black px-3 py-1.5 text-[10px] font-bold uppercase hover:bg-gray-100 disabled:opacity-50">
+										{isUploading ? "Uploading..." : "Click to Upload"}
+									</button>
+									<p className="text-[9px] text-gray-400">SELECT IMAGE TO UPLOAD</p>
+								</div>
+							</div>
 						</div>
 						<div className="flex flex-col gap-1">
 							<label className="text-[10px] font-bold uppercase">Display Name</label>

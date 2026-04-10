@@ -9,6 +9,7 @@ import postRoutes from "./routes/postRoutes.js";
 import envRoutes from "./routes/envRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
+import { getUploadSignature } from "./utils/cloudinary.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
 
@@ -25,6 +26,15 @@ app.use("/api/posts", postRoutes);
 app.use("/api/envs", envRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/projects", projectRoutes);
+
+app.get("/api/media/upload-signature", (_req, res) => {
+  try {
+    const signatureData = getUploadSignature();
+    return res.status(200).json(signatureData);
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message });
+  }
+});
 
 app.use(
   "/api-docs",

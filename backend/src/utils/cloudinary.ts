@@ -20,8 +20,14 @@ export const generateSignature = (folder: string = "tmp") => {
 
 // Generate signature untuk upload ke folder 'tmp' (Legacy support)
 export const getUploadSignature = () => {
-  const { timestamp, signature } = generateSignature("tmp");
-  return { timestamp, signature, folder: "tmp" };
+  const data = generateSignature("tmp");
+  return {
+    timestamp: data.timestamp,
+    signature: data.signature,
+    folder: "tmp",
+    apiKey: data.apiKey,
+    cloudName: data.cloudName,
+  };
 };
 
 // Pindah file dari 'tmp' ke 'posts'
