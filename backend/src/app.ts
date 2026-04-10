@@ -9,6 +9,7 @@ import postRoutes from './routes/postRoutes.js';
 import envRoutes from './routes/envRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
 import tagRoutes from './routes/tagRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './lib/auth.js';
 
@@ -31,6 +32,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/envs', envRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/tags', tagRoutes);
+app.use('/api/projects', projectRoutes);
 
 // app.get('/api', async (req: Request, res: Response) => {
 //     try {
