@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getTags, getTag, createTag, updateTag, deleteTag } from '../controllers/tagController.js';
 import { authenticate } from '../middlewares/authMiddleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @swagger

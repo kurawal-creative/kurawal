@@ -8,15 +8,15 @@ import {
 } from "../controllers/projectController.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 
-const router = Router();
+const router: Router = Router();
 
-// Public routes
+// Apply authentication to all project routes
+router.use(authenticate);
+
 router.get("/", getProjects);
 router.get("/:id", getProjectById);
-
-// Protected routes (Admin only)
-router.post("/", authenticate, createProject);
-router.put("/:id", authenticate, updateProject);
-router.delete("/:id", authenticate, deleteProject);
+router.post("/", createProject);
+router.put("/:id", updateProject);
+router.delete("/:id", deleteProject);
 
 export default router;

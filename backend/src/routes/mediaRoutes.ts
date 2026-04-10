@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getUploadSignature } from '../controllers/mediaController.js';
 import { authenticate } from '../middlewares/authMiddleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @swagger

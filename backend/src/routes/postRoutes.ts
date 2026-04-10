@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getPosts, getPost, createPost, updatePost, deletePost } from '../controllers/postController.js';
 import { authenticate } from '../middlewares/authMiddleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @swagger

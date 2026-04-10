@@ -15,6 +15,7 @@ export const getProjects = async (req: Request, res: Response) => {
 export const getProjectById = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
+		if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 		const project = await prisma.project.findUnique({
 			where: { id },
 		});
@@ -40,6 +41,7 @@ export const createProject = async (req: Request, res: Response) => {
 export const updateProject = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
+		if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 		const { name, description, link_github, link_demo, status, env } = req.body;
 		const project = await prisma.project.update({
 			where: { id },
@@ -54,6 +56,7 @@ export const updateProject = async (req: Request, res: Response) => {
 export const deleteProject = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
+		if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 		await prisma.project.delete({
 			where: { id },
 		});

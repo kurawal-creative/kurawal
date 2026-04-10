@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getEnvs, getEnv, createEnv, updateEnv, deleteEnv } from '../controllers/envController.js';
 import { authenticate } from '../middlewares/authMiddleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @swagger
