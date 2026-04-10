@@ -20,7 +20,9 @@ export default function ProjectList() {
 		const fetchProjects = async () => {
 			try {
 				const response = await api.get("/projects");
-				setProjects(response.data);
+				// Backend returns { success: true, data: [...], pagination: {...} }
+				const projectsData = Array.isArray(response.data) ? response.data : response.data.data;
+				setProjects(Array.isArray(projectsData) ? projectsData : []);
 			} catch (error) {
 				console.error("Failed to fetch projects", error);
 			} finally {

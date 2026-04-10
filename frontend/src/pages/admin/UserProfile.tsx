@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { uploadToCloudinary } from "@/utils/cloudinary";
 
 export default function UserProfile() {
-	const { data: session, isPending } = authClient.useSession();
+	const { data: session, isPending, refetch } = authClient.useSession();
 	const user = session?.user;
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +33,7 @@ export default function UserProfile() {
 			await authClient.updateUser({
 				image: res.secure_url,
 			});
-			setImage(res.secure_url);
+			file.arrayBuffer().then((buf) => setImage(`data:${file.type};base64,${btoa(new Uint8Array(buf).reduce((d, b) => d + String.fromCharCode(b), ""))}`));
 			toast.success("IMAGE UPLOADED TO TMP");
 		} catch (error: any) {
 			toast.error("UPLOAD FAILED");

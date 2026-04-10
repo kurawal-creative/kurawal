@@ -26,11 +26,11 @@ const items = [
 		url: "/admin/tags",
 		icon: Tags,
 	},
-	{
-		title: "Media",
-		url: "/admin/media",
-		icon: Image,
-	},
+	// {
+	// 	title: "Media",
+	// 	url: "/admin/media",
+	// 	icon: Image,
+	// },
 	{
 		title: "Users",
 		url: "/admin/users",
