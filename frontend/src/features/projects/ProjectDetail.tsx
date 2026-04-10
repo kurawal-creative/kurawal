@@ -5,7 +5,10 @@ import api from "@/utils/api";
 interface Project {
 	id: string;
 	name: string;
-	image: string | null;
+	images: string[];
+	stack: string[];
+	startDate: string | null;
+	endDate: string | null;
 	description: string | null;
 	link_github: string | null;
 	link_demo: string | null;
@@ -47,9 +50,13 @@ export default function ProjectDetail() {
 			</div>
 
 			<div className="space-y-4 border border-black p-4">
-				{project.image && (
-					<div className="flex items-center justify-center border border-black bg-gray-50 p-2">
-						<img src={project.image} alt={project.name} className="max-h-[300px] cursor-crosshair border border-black grayscale transition-all hover:grayscale-0" />
+				{project.images && project.images.length > 0 && (
+					<div className="grid grid-cols-2 gap-2 border border-black bg-gray-50 p-2 sm:grid-cols-3 md:grid-cols-4">
+						{project.images.map((url, idx) => (
+							<div key={idx} className="aspect-square border border-black bg-white">
+								<img src={url} alt={`${project.name} ${idx}`} className="h-full w-full object-cover grayscale transition-all hover:grayscale-0" />
+							</div>
+						))}
 					</div>
 				)}
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -61,11 +68,31 @@ export default function ProjectDetail() {
 						<p className="text-sm font-bold opacity-50">Status</p>
 						<p className="text-lg">{project.status}</p>
 					</div>
-					<div className="border-b border-black pb-4 md:border-r md:border-b-0 md:pr-4 md:pb-0">
+					<div className="col-span-full border-t border-black pt-4">
+						<p className="text-sm font-bold opacity-50">Tech Stack</p>
+						<div className="mt-1 flex flex-wrap gap-2">
+							{project.stack && project.stack.length > 0
+								? project.stack.map((s, i) => (
+										<span key={i} className="border border-black px-2 py-0.5 text-xs">
+											{s}
+										</span>
+									))
+								: "-"}
+						</div>
+					</div>
+					<div className="border-b border-black pt-4 pb-4 md:border-t md:border-r md:border-b-0 md:pr-4 md:pb-0">
+						<p className="text-sm font-bold opacity-50">Timeline</p>
+						<p className="text-sm">
+							{project.startDate ? new Date(project.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "?"}
+							{" — "}
+							{project.endDate ? new Date(project.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Present"}
+						</p>
+					</div>
+					<div className="border-t border-black pt-4 md:pl-0">
 						<p className="text-sm font-bold opacity-50">GitHub URL</p>
 						<p className="truncate lowercase underline">{project.link_github || "-"}</p>
 					</div>
-					<div>
+					<div className="border-t border-black pt-4">
 						<p className="text-sm font-bold opacity-50">Demo URL</p>
 						<p className="truncate lowercase underline">{project.link_demo || "-"}</p>
 					</div>

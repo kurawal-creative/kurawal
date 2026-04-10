@@ -39,24 +39,26 @@ export const getProjectById = async (req: Request, res: Response) => {
 
 export const createProject = async (req: Request, res: Response) => {
   try {
-    let { name, description, image, link_github, link_demo, status, env } = req.body;
+    let { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = req.body;
 
-    // Handle thumbnail image
-    if (image) {
-      const projectIds = getPublicIds(image);
-      if (projectIds.length > 0) {
-        const id = projectIds[0];
-        if (id.startsWith("tmp/")) {
-          const finalizedId = await finalizeImage(id, "projects");
-          image = image.replace(id, finalizedId);
-        }
-      }
+    // Finalize multiple images from tmp to projects
+    if (Array.isArray(images) && images.length > 0) {
+      images = await Promise.all(
+        images.map(async (url: string) => {
+          const ids = getPublicIds(url);
+          if (ids.length > 0 && ids[0].startsWith("tmp/")) {
+            const finalizedId = await finalizeImage(ids[0], "projects");
+            return url.replace(ids[0], finalizedId);
+          }
+          return url;
+        }),
+      );
     }
 
-    // Handle images in description (Markdown)
+    // Finalize images in description (Markdown)
     if (description) {
-      const projectIds = getPublicIds(description);
-      for (const id of projectIds) {
+      const descIds = getPublicIds(description);
+      for (const id of descIds) {
         if (id.startsWith("tmp/")) {
           const finalizedId = await finalizeImage(id, "projects");
           description = description.replace(id, finalizedId);
@@ -65,7 +67,18 @@ export const createProject = async (req: Request, res: Response) => {
     }
 
     const project = await prisma.project.create({
-      data: { name, description, image, link_github, link_demo, status, env },
+      data: {
+        name,
+        description,
+        images,
+        stack: Array.isArray(stack) ? stack : [],
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        link_github,
+        link_demo,
+        status,
+        env,
+      },
     });
     res.status(201).json(project);
   } catch (error) {
@@ -79,65 +92,51 @@ export const updateProject = async (req: Request, res: Response) => {
     const { id } = req.params;
     if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 
+    let { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = req.body;
+
     const oldProject = await prisma.project.findUnique({ where: { id } });
     if (!oldProject) return res.status(404).json({ message: "Project not found" });
 
-    let { name, description, image, link_github, link_demo, status, env } = req.body;
-
-    // 0. Handle thumbnail image lifecycle
-    if (oldProject.image !== image) {
-      // Delete old thumbnail if it exists
-      if (oldProject.image) {
-        const oldThumbId = getPublicIds(oldProject.image)[0];
-        if (oldThumbId) {
-          try {
-            await deleteImage(oldThumbId);
-          } catch (err) {
-            console.error(`Failed to delete old thumbnail ${oldThumbId}`, err);
+    // 1. Handle images array lifecycle
+    if (Array.isArray(images)) {
+      // Finalize new images from tmp to projects
+      images = await Promise.all(
+        images.map(async (url: string) => {
+          const publicIds = getPublicIds(url);
+          if (publicIds.length > 0 && publicIds[0].startsWith("tmp/")) {
+            const finalizedId = await finalizeImage(publicIds[0], "projects");
+            return url.replace(publicIds[0], finalizedId);
           }
-        }
-      }
-
-      // Finalize new thumbnail if it's in tmp
-      if (image) {
-        const newThumbIds = getPublicIds(image);
-        if (newThumbIds.length > 0) {
-          const nId = newThumbIds[0];
-          if (nId.startsWith("tmp/")) {
-            const finalizedId = await finalizeImage(nId, "projects");
-            image = image.replace(nId, finalizedId);
-          }
-        }
-      }
+          return url;
+        }),
+      );
     }
 
-    // Lifecycle management untuk gambar di Markdown
-    const oldIds = getPublicIds(oldProject.description || "");
-    const newIds = getPublicIds(description || "");
-
-    // 1. Hapus gambar yang dihilangkan dari markdown
-    const deletedIds = oldIds.filter((x) => !newIds.includes(x));
-    for (const dId of deletedIds) {
-      try {
-        await deleteImage(dId);
-      } catch (err) {
-        console.error(`Failed to delete image ${dId}`, err);
-      }
-    }
-
-    // 2. Pindahkan gambar baru (tmp) ke permanent (projects) & update content string
+    // 2. Handle description images
     if (description) {
-      for (const nId of newIds) {
-        if (nId.startsWith("tmp/")) {
-          const finalizedId = await finalizeImage(nId, "projects");
-          description = description.replace(nId, finalizedId);
+      const newDescIds = getPublicIds(description);
+      for (const pid of newDescIds) {
+        if (pid.startsWith("tmp/")) {
+          const finalizedId = await finalizeImage(pid, "projects");
+          description = description.replace(pid, finalizedId);
         }
       }
     }
 
     const project = await prisma.project.update({
       where: { id },
-      data: { name, description, image, link_github, link_demo, status, env },
+      data: {
+        name,
+        description,
+        images,
+        stack: Array.isArray(stack) ? stack : [],
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        link_github,
+        link_demo,
+        status,
+        env,
+      },
     });
     res.json(project);
   } catch (error) {
@@ -153,24 +152,22 @@ export const deleteProject = async (req: Request, res: Response) => {
 
     const project = await prisma.project.findUnique({ where: { id } });
     if (project) {
-      // Hapus semua gambar terkait di markdown sebelum hapus project
-      const ids = getPublicIds(project.description || "");
-      for (const imgId of ids) {
-        await deleteImage(imgId);
+      // Simple delete: images and description images
+      const allUrls = [...(project.images || [])];
+      if (project.description) {
+        const descUrls = project.description.match(/https?:\/\/[^\s)]+/g) || [];
+        allUrls.push(...descUrls);
       }
-      // Hapus juga thumbnail utama jika ada
-      if (project.image) {
-        const thumbId = getPublicIds(project.image)[0] || project.image.split("/").pop()?.split(".")[0];
-        if (thumbId) await deleteImage(thumbId);
+
+      for (const url of allUrls) {
+        const pids = getPublicIds(url);
+        if (pids.length > 0) await deleteImage(pids[0]);
       }
     }
 
-    await prisma.project.delete({
-      where: { id },
-    });
-    res.json({ message: "Project deleted successfully" });
+    await prisma.project.delete({ where: { id } });
+    res.json({ message: "Project deleted" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

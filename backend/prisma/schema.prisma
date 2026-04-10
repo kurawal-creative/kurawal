@@ -68,16 +68,19 @@ model Tag {
 }
 
 model Project {
-    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
     name        String
     description String?
-    image       String?
+    images      String[]
+    stack       String[]
+    startDate   DateTime?
+    endDate     DateTime?
     link_github String?
     link_demo   String?
-    status      String   @default("Preview")
+    status      String    @default("Preview")
     env         String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 }
 
 model User {

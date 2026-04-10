@@ -13,7 +13,10 @@ export default function ProjectForm() {
 	const [formData, setFormData] = useState({
 		name: "",
 		description: "",
-		image: "",
+		images: [] as string[],
+		stack: [] as string[],
+		startDate: "",
+		endDate: "",
 		link_github: "",
 		link_demo: "",
 		status: "Preview",
@@ -25,11 +28,14 @@ export default function ProjectForm() {
 			const fetchProject = async () => {
 				try {
 					const response = await api.get(`/projects/${id}`);
-					const { name, description, image, link_github, link_demo, status, env } = response.data;
+					const { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = response.data;
 					setFormData({
 						name: name || "",
 						description: description || "",
-						image: image || "",
+						images: images || [],
+						stack: stack || [],
+						startDate: startDate ? new Date(startDate).toISOString().split("T")[0] : "",
+						endDate: endDate ? new Date(endDate).toISOString().split("T")[0] : "",
 						link_github: link_github || "",
 						link_demo: link_demo || "",
 						status: status || "Preview",
@@ -48,18 +54,30 @@ export default function ProjectForm() {
 	}, [id, isEdit, navigate]);
 
 	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
+		const files = e.target.files;
+		if (!files || files.length === 0) return;
 
 		setUploading(true);
 		try {
-			const result = await uploadToCloudinary(file);
-			setFormData((prev) => ({ ...prev, image: result.secure_url }));
+			const uploadPromises = Array.from(files).map((file) => uploadToCloudinary(file));
+			const results = await Promise.all(uploadPromises);
+			const newUrls = results.map((res) => res.secure_url);
+			setFormData((prev) => ({
+				...prev,
+				images: [...prev.images, ...newUrls],
+			}));
 		} catch (error) {
 			alert("Gagal upload gambar");
 		} finally {
 			setUploading(false);
 		}
+	};
+
+	const removeImage = (index: number) => {
+		setFormData((prev) => ({
+			...prev,
+			images: prev.images.filter((_, i) => i !== index),
+		}));
 	};
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -101,15 +119,51 @@ export default function ProjectForm() {
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<label className="text-sm font-bold opacity-50">Project Image</label>
-						<div className="flex items-center gap-4">
-							{formData.image && <img src={formData.image} alt="Preview" className="h-24 w-24 border border-black object-cover" />}
-							<div className="flex flex-col gap-2">
-								<input type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="text-xs uppercase" />
-								{uploading && <span className="animate-pulse text-[10px]">Uploading...</span>}
-								<input type="text" name="image" value={formData.image} onChange={handleChange} placeholder="Atau masukkan URL gambar..." className="w-full border-b border-black p-1 text-xs normal-case focus:outline-none" />
-							</div>
+						<label className="text-sm font-bold opacity-50">Stack (Comma separated)</label>
+						<input
+							type="text"
+							name="stack"
+							value={formData.stack.join(", ")}
+							onChange={(e) => {
+								const val = e.target.value;
+								setFormData((prev) => ({
+									...prev,
+									stack: val.split(",").map((s) => s.trim()),
+								}));
+							}}
+							placeholder="React, TypeScript, Node.js..."
+							className="border-b border-black p-2 uppercase focus:bg-gray-50 focus:outline-none"
+						/>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-bold opacity-50">Start Date</label>
+							<input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="border-b border-black p-2 uppercase focus:bg-gray-50 focus:outline-none" />
 						</div>
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-bold opacity-50">End Date</label>
+							<input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="border-b border-black p-2 uppercase focus:bg-gray-50 focus:outline-none" />
+						</div>
+					</div>
+
+					<div className="flex flex-col gap-2">
+						<label className="text-sm font-bold opacity-50">Project Images</label>
+						<div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+							{formData.images.map((url, idx) => (
+								<div key={idx} className="relative aspect-square border border-black">
+									<img src={url} alt={`Preview ${idx}`} className="h-full w-full object-cover" />
+									<button type="button" onClick={() => removeImage(idx)} className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] text-white hover:bg-red-700">
+										✕
+									</button>
+								</div>
+							))}
+							<label className="flex aspect-square cursor-pointer items-center justify-center border border-dashed border-black text-4xl text-black hover:bg-gray-50">
+								+
+								<input type="file" accept="image/*" multiple onChange={handleImageChange} disabled={uploading} className="hidden" />
+							</label>
+						</div>
+						{uploading && <span className="animate-pulse text-[10px] text-black">Uploading...</span>}
 					</div>
 
 					<div className="flex flex-col gap-2">
@@ -121,14 +175,16 @@ export default function ProjectForm() {
 									id="desc-image-upload"
 									className="hidden"
 									accept="image/*"
+									multiple
 									onChange={async (e) => {
-										const file = e.target.files?.[0];
-										if (!file) return;
+										const files = e.target.files;
+										if (!files || files.length === 0) return;
 										setUploading(true);
 										try {
-											const result = await uploadToCloudinary(file);
-											const markdownImage = `\n![image](${result.secure_url})\n`;
-											setFormData((prev) => ({ ...prev, description: prev.description + markdownImage }));
+											const uploadPromises = Array.from(files).map((file) => uploadToCloudinary(file));
+											const results = await Promise.all(uploadPromises);
+											const markdownImages = results.map((res) => `\n![image](${res.secure_url})\n`).join("");
+											setFormData((prev) => ({ ...prev, description: prev.description + markdownImages }));
 										} catch (error) {
 											alert("Gagal upload gambar deskripsi");
 										} finally {
@@ -141,7 +197,7 @@ export default function ProjectForm() {
 								</label>
 							</div>
 						</div>
-						<textarea name="description" value={formData.description} onChange={handleChange} placeholder="Project Description..." className="h-64 border border-black p-2 text-sm normal-case focus:bg-gray-50 focus:outline-none" required />
+						<textarea name="description" value={formData.description} onChange={handleChange} placeholder="Project Description..." className="h-64 border border-black p-2 text-sm normal-case focus:bg-gray-50 focus:outline-none" />
 					</div>
 
 					<div className="flex flex-col gap-2">
