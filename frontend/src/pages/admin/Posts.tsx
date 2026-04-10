@@ -63,12 +63,20 @@ export default function AdminPostsPage() {
 
 	useEffect(() => {
 		fetchTags();
+		fetchPosts(currentPage);
 	}, []);
 
 	useEffect(() => {
-		setCurrentPage(1);
-		fetchPosts(1);
+		if (currentPage !== 1) {
+			setCurrentPage(1);
+		} else {
+			fetchPosts(1);
+		}
 	}, [searchTerm, selectedTag]);
+
+	useEffect(() => {
+		fetchPosts(currentPage);
+	}, [currentPage]);
 
 	const handleDelete = async () => {
 		if (!deletePostId) return;
@@ -114,18 +122,7 @@ export default function AdminPostsPage() {
 							}}
 						/>
 
-						<PostsPagination
-							currentPage={currentPage}
-							totalPages={totalPages}
-							onPreviousClick={() => {
-								setCurrentPage(currentPage - 1);
-								fetchPosts(currentPage - 1);
-							}}
-							onNextClick={() => {
-								setCurrentPage(currentPage + 1);
-								fetchPosts(currentPage + 1);
-							}}
-						/>
+						<PostsPagination currentPage={currentPage} totalPages={totalPages} onPreviousClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} onNextClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} />
 					</CardContent>
 				</Card>
 			</div>

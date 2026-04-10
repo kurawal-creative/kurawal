@@ -44,10 +44,10 @@ model Post {
     content     String
     thumbnail   String?
     description String?
-    link_github String?
+    // link_github String?
     status      PostStatus @default(DRAFT)
     title       String
-    type_post   PostType   @default(POST)
+    // type_post   PostType   @default(POST)
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @updatedAt
 

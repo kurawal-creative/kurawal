@@ -21,7 +21,7 @@ export const postsApi = {
 		return response.data;
 	},
 
-	create: async (data: { title: string; description?: string; content: string; type_post?: "POST" | "PROJECT"; link_github?: string; thumbnail?: string; tagId: string; status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) => {
+	create: async (data: { title: string; description?: string; content: string; thumbnail?: string; tagId: string; status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) => {
 		const response = await apiClient.post("/posts", data);
 		return response.data;
 	},
@@ -32,8 +32,6 @@ export const postsApi = {
 			title: string;
 			description: string;
 			content: string;
-			type_post: "POST" | "PROJECT";
-			link_github: string;
 			thumbnail: string;
 			tagId: string;
 			status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
