@@ -5,10 +5,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { apiReference } from "@scalar/express-api-reference";
 
-import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import envRoutes from "./routes/envRoutes.js";
-import mediaRoutes from "./routes/mediaRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import { toNodeHandler } from "better-auth/node";
@@ -23,14 +21,20 @@ app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/user", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/envs", envRoutes);
-app.use("/api/media", mediaRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/projects", projectRoutes);
 
-app.use("/api-docs", apiReference({ url: "/swagger.json" }));
+app.use(
+  "/api-docs",
+  apiReference({
+    sources: [
+      { url: "/swagger.json", title: "API" },
+      { url: "/api/auth/open-api/generate-schema", title: "Auth" },
+    ],
+  }),
+);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const staticDir = path.join(__dirname, "..", "..", "frontend", "dist");

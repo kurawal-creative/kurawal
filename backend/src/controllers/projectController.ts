@@ -14,11 +14,40 @@ const getPublicIds = (content: string) => {
 
 export const getProjects = async (req: Request, res: Response) => {
   try {
-    const projects = await prisma.project.findMany({
-      orderBy: { createdAt: "desc" },
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const skip = (page - 1) * limit;
+
+    const [projects, totalProjects] = await Promise.all([
+      prisma.project.findMany({
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.project.count(),
+    ]);
+
+    const totalPages = Math.ceil(totalProjects / limit);
+
+    // If authenticated (admin request), include the 'env' field.
+    // Otherwise, omit it for public listings.
+    const isAuth = !!(req as any).user;
+    const sanitizedProjects = isAuth ? projects : projects.map(({ env, ...p }) => p);
+
+    res.json({
+      success: true,
+      data: sanitizedProjects,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalProjects,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
     });
-    res.json(projects);
   } catch (error) {
+    console.error("Error fetching projects:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -31,7 +60,16 @@ export const getProjectById = async (req: Request, res: Response) => {
       where: { id },
     });
     if (!project) return res.status(404).json({ message: "Project not found" });
-    res.json(project);
+
+    // If authenticated (admin request), include the 'env' field.
+    // Otherwise, omit it for public view.
+    const isAuth = !!(req as any).user;
+    if (isAuth) {
+      return res.json(project);
+    }
+
+    const { env, ...sanitizedProject } = project as any;
+    res.json(sanitizedProject);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

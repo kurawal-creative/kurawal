@@ -22,6 +22,7 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
 
     const search = (req.query.search as string) || "";
     const tagId = (req.query.tagId as string) || "";
+    const tagName = (req.query.tagName as string) || "";
 
     const where: any = {};
 
@@ -31,6 +32,10 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
 
     if (tagId) {
       where.tagId = tagId;
+    } else if (tagName) {
+      where.tag = {
+        name: { equals: tagName, mode: "insensitive" },
+      };
     }
 
     const [posts, totalPosts] = await Promise.all([

@@ -17,7 +17,7 @@ const swaggerSpec = swaggerJSDoc({
       },
     ],
   },
-  apis: ["src/routes/*.ts"],
+  apis: [path.join(__dirname, "../src/routes/*.ts")],
 });
 
 const distDir = path.join(__dirname, "../../frontend/public");
