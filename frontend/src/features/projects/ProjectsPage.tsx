@@ -1,3 +1,9 @@
+import ProjectsHero from "@/components/projects/ProjectsHero";
+
 export default function ProjectsPage() {
-	return <div>ProjectsPage</div>;
+	return (
+		<>
+			<ProjectsHero />
+		</>
+	);
 }
