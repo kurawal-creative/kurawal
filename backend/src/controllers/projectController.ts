@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { finalizeImage, deleteImage } from "../utils/cloudinary.js";
+import { auth } from "../lib/auth.js";
+import { fromNodeHeaders } from "better-auth/node";
 
 // Helper scan public_id dari markdown
 const getPublicIds = (content: string) => {
@@ -31,7 +33,10 @@ export const getProjects = async (req: Request, res: Response) => {
 
     // If authenticated (admin request), include the 'env' field.
     // Otherwise, omit it for public listings.
-    const isAuth = !!(req as any).user;
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+    const isAuth = !!session;
     const sanitizedProjects = isAuth ? projects : projects.map(({ env, ...p }) => p);
 
     res.json({
@@ -63,12 +68,15 @@ export const getProjectById = async (req: Request, res: Response) => {
 
     // If authenticated (admin request), include the 'env' field.
     // Otherwise, omit it for public view.
-    const isAuth = !!(req as any).user;
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+    const isAuth = !!session;
     if (isAuth) {
       return res.json(project);
     }
 
-    const { env, ...sanitizedProject } = project as any;
+    const { env, ...sanitizedProject } = project;
     res.json(sanitizedProject);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
