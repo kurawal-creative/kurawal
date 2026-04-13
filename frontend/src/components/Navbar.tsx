@@ -8,9 +8,9 @@ import logoLight from "@/assets/svg/logo-light-mode.svg";
 import logoDark from "@/assets/svg/logo-dark-mode.svg";
 
 const navbarItems = [
-	{ title: "Projects", href: "/projects" },
-	{ title: "Blog", href: "/blog" },
-	{ title: "Resources", href: "/resources" },
+	{ title: "Works", href: "/works" },
+	{ title: "Blogs", href: "/blogs" },
+	{ title: "Services", href: "/services" },
 	{ title: "About Us", href: "/about-us" },
 ];
 

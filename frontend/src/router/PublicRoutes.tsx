@@ -3,8 +3,10 @@ import Login from "../features/auth/Login";
 import Register from "../features/auth/Register";
 import AboutUsPage from "@/features/about-us/AboutUsPage";
 import ContactUsPage from "@/features/contact-us/ContactUsPage";
-import ProjectsPage from "@/features/projects/ProjectsPage";
+import WorksPage from "@/features/works/WorksPage";
 import Layout from "@/layouts/layout";
+import BlogsPage from "@/features/blogs/BlogsPage";
+import ServicesPage from "@/features/services/ServicesPage";
 
 export default [
 	{
@@ -25,10 +27,26 @@ export default [
 		element: <Register />,
 	},
 	{
-		path: "/projects",
+		path: "/works",
 		element: (
 			<Layout>
-				<ProjectsPage />
+				<WorksPage />
+			</Layout>
+		),
+	},
+	{
+		path: "/blogs",
+		element: (
+			<Layout>
+				<BlogsPage />
+			</Layout>
+		),
+	},
+	{
+		path: "/services",
+		element: (
+			<Layout>
+				<ServicesPage />
 			</Layout>
 		),
 	},
