@@ -2,7 +2,7 @@ import { OrbitingCircles } from "./ui/orbiting-circles";
 
 export function OrbitingCirclesGrid() {
 	return (
-		<div className="relative flex h-[300px] w-full flex-col items-center justify-center overflow-hidden">
+		<div className="relative flex h-75 w-full flex-col items-center justify-center overflow-hidden">
 			{/* Tools & Infra */}
 			<OrbitingCircles iconSize={30} radius={110} reverse speed={1.6}>
 				<Icons.docker />
