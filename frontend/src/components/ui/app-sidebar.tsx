@@ -1,5 +1,5 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BookOpen, FolderGit2, HomeIcon, Image, Tags, LogOut } from "lucide-react";
+import { BookOpen, FolderGit2, HomeIcon, Image, Tags, LogOut, User, Users } from "lucide-react";
 import kurawalSidebar from "@/assets/kurawal-sidebar.svg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,10 +26,20 @@ const items = [
 		url: "/admin/tags",
 		icon: Tags,
 	},
+	// {
+	// 	title: "Media",
+	// 	url: "/admin/media",
+	// 	icon: Image,
+	// },
 	{
-		title: "Media",
-		url: "/admin/media",
-		icon: Image,
+		title: "Users",
+		url: "/admin/users",
+		icon: Users,
+	},
+	{
+		title: "Profile",
+		url: "/admin/profile",
+		icon: User,
 	},
 ];
 

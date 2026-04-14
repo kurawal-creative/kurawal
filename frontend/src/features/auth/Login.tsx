@@ -17,7 +17,7 @@ export default function Login() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [rememberMe, setRememberMe] = useState(false);
 
-	const { data: session } = authClient.useSession();
+	const { data: session, isPending } = authClient.useSession();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const redirectTo = searchParams.get("redirect") || "/admin";
@@ -27,6 +27,10 @@ export default function Login() {
 			navigate(redirectTo);
 		}
 	}, [session, navigate, redirectTo]);
+
+    if (isPending || session) {
+        return null; 
+    }
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

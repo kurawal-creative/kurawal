@@ -18,6 +18,8 @@ import AdminProjectCreatePage from "@/pages/admin/ProjectCreate.tsx";
 import AdminProjectEditPage from "@/pages/admin/ProjectEdit.tsx";
 import CreatePostPage from "@/pages/admin/CreatePost";
 import EditPostPage from "@/pages/admin/EditPost";
+import UserProfilePage from "@/pages/admin/UserProfile";
+import AdminUsersPage from "@/pages/admin/Users";
 import { NuqsAdapter } from "nuqs/adapters/react";
 
 export default function AppRouter() {
@@ -126,6 +128,24 @@ export default function AppRouter() {
 				element={
 					<ProtectedRoute>
 						<AdminProjectEditPage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/admin/users"
+				element={
+					<ProtectedRoute>
+						<AdminUsersPage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/admin/profile"
+				element={
+					<ProtectedRoute>
+						<UserProfilePage />
 					</ProtectedRoute>
 				}
 			/>

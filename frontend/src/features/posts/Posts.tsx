@@ -29,7 +29,9 @@ export default function Posts() {
 	const fetchPosts = async () => {
 		try {
 			const response = await api.get("/posts");
-			setPosts(response.data);
+			// Backend returns { success: true, data: [...], pagination: {...} }
+			const postsData = Array.isArray(response.data) ? response.data : response.data.data;
+			setPosts(Array.isArray(postsData) ? postsData : []);
 		} catch (err: any) {
 			setError(err.response?.data?.message || "Failed to fetch posts");
 		} finally {

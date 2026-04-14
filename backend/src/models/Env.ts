@@ -18,25 +18,28 @@ export interface IEnvVar {
 }
 
 // Sub-schema untuk env vars (tanpa _id biar clean)
-const EnvVarSchema: Schema = new Schema({
-  key: {
-    type: String,
+const EnvVarSchema: Schema = new Schema(
+  {
+    key: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+    env_description: {
+      type: String,
+    },
+    optional: {
+      type: Boolean,
+      default: false,
+    },
+    sensitive: {
+      type: Boolean,
+      default: false,
+    },
   },
-  value: {
-    type: String,
-  },
-  env_description: {
-    type: String,
-  },
-  optional: {
-    type: Boolean,
-    default: false,
-  },
-  sensitive: {
-    type: Boolean,
-    default: false,
-  },
-}, { _id: false }); // Tambah ini: Hindari _id di sub-doc
+  { _id: false },
+); // Tambah ini: Hindari _id di sub-doc
 
 const EnvSchema: Schema = new Schema(
   {
@@ -60,7 +63,7 @@ const EnvSchema: Schema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Hapus index title (duplikat), cuma biarin yang lain

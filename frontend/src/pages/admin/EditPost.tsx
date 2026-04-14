@@ -4,7 +4,8 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { postsApi, tagsApi, mediaApi } from "@/utils/adminApi";
+import { postsApi, tagsApi } from "@/utils/adminApi";
+import { uploadToCloudinary } from "@/utils/cloudinary";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,7 +13,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 import { ArrowLeft, Upload, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
 
 interface Tag {
 	id: string;
@@ -24,8 +24,6 @@ interface Post {
 	title: string;
 	description?: string;
 	content: string;
-	type_post: "POST" | "PROJECT";
-	link_github?: string;
 	thumbnail?: string;
 	tagId: string;
 	status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -38,6 +36,7 @@ export default function EditPostPage() {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+	const [uploadingContent, setUploadingContent] = useState(false);
 	const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
 	const [postData, setPostData] = useState<Post | null>(null);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -46,8 +45,6 @@ export default function EditPostPage() {
 		title: "",
 		description: "",
 		content: "",
-		type_post: "POST" as "POST" | "PROJECT",
-		link_github: "",
 		thumbnail: "",
 		tagId: "",
 		status: "DRAFT" as "DRAFT" | "PUBLISHED" | "ARCHIVED",
@@ -71,8 +68,6 @@ export default function EditPostPage() {
 						title: post.title || "",
 						description: post.description || "",
 						content: post.content || "",
-						type_post: post.type_post || "POST",
-						link_github: post.link_github || "",
 						thumbnail: post.thumbnail || "",
 						tagId: post.tagId || "",
 						status: post.status || "DRAFT",
@@ -96,22 +91,11 @@ export default function EditPostPage() {
 		try {
 			setUploadingThumbnail(true);
 
-			// Get upload signature
-			const signatureData = await mediaApi.getUploadSignature(file.name, "post-thumbnails");
-
-			// Upload to Cloudinary
-			const formDataUpload = new FormData();
-			formDataUpload.append("file", file);
-			formDataUpload.append("timestamp", signatureData.timestamp);
-			formDataUpload.append("signature", signatureData.signature);
-			formDataUpload.append("api_key", signatureData.api_key);
-			formDataUpload.append("folder", signatureData.folder);
-			formDataUpload.append("public_id", signatureData.public_id);
-
-			const response = await axios.post(signatureData.cloudinary_url, formDataUpload);
+			// Upload to Cloudinary using common utility
+			const response = await uploadToCloudinary(file);
 
 			// Set thumbnail URL
-			const thumbnailUrl = response.data.secure_url;
+			const thumbnailUrl = response.secure_url;
 			setFormData((prev) => ({ ...prev, thumbnail: thumbnailUrl }));
 			setThumbnailPreview(thumbnailUrl);
 			toast.success("Thumbnail uploaded successfully");
@@ -126,6 +110,21 @@ export default function EditPostPage() {
 	const handleThumbnailRemove = () => {
 		setFormData((prev) => ({ ...prev, thumbnail: "" }));
 		setThumbnailPreview("");
+	};
+
+	const handleContentImageUpload = async (file: File) => {
+		try {
+			setUploadingContent(true);
+			const response = await uploadToCloudinary(file);
+			const imageUrl = `\n![image](${response.secure_url})\n`;
+			setFormData((prev) => ({ ...prev, content: prev.content + imageUrl }));
+			toast.success("Image inserted into content");
+		} catch (error: any) {
+			console.error("Error uploading image:", error);
+			toast.error("Failed to upload image");
+		} finally {
+			setUploadingContent(false);
+		}
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -256,20 +255,6 @@ export default function EditPostPage() {
 								<Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of your post" rows={2} />
 							</div>
 
-							{/* Type */}
-							<div className="space-y-2">
-								<Label htmlFor="type">Type *</Label>
-								<Select value={formData.type_post} onValueChange={(val: any) => setFormData({ ...formData, type_post: val })}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="POST">Post</SelectItem>
-										<SelectItem value="PROJECT">Project</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
 							{/* Tag */}
 							<div className="space-y-2">
 								<Label htmlFor="tag">Tag *</Label>
@@ -285,12 +270,6 @@ export default function EditPostPage() {
 										))}
 									</SelectContent>
 								</Select>
-							</div>
-
-							{/* GitHub Link */}
-							<div className="space-y-2">
-								<Label htmlFor="github">GitHub Link</Label>
-								<Input id="github" type="url" value={formData.link_github} onChange={(e) => setFormData({ ...formData, link_github: e.target.value })} placeholder="https://github.com/..." />
 							</div>
 
 							{/* Status */}
@@ -312,9 +291,31 @@ export default function EditPostPage() {
 
 					{/* Content Card */}
 					<Card>
-						<CardHeader>
-							<CardTitle>Content</CardTitle>
-							<CardDescription>Edit your post content using Markdown syntax</CardDescription>
+						<CardHeader className="flex flex-row items-center justify-between">
+							<div>
+								<CardTitle>Content</CardTitle>
+								<CardDescription>Write your post content using Markdown syntax</CardDescription>
+							</div>
+							<div className="flex items-center gap-2">
+								<label className="cursor-pointer">
+									<Button type="button" variant="outline" size="sm" asChild disabled={uploadingContent}>
+										<span>{uploadingContent ? "Uploading..." : "Insert Image"}</span>
+									</Button>
+									<input
+										type="file"
+										accept="image/*"
+										multiple
+										onChange={async (e) => {
+											const files = e.target.files;
+											if (!files) return;
+											for (const file of Array.from(files)) {
+												await handleContentImageUpload(file);
+											}
+										}}
+										className="hidden"
+									/>
+								</label>
+							</div>
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<Label htmlFor="content">Content *</Label>
