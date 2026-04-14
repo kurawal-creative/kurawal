@@ -1,26 +1,20 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home } from "lucide-react";
+
+import notFoundImage from "@/assets/images/not-found-image.png";
 
 export default function NotFound() {
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-gray-50 p-6 dark:bg-gray-900">
-			<Card className="w-full max-w-md">
-				<CardHeader className="text-center">
-					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-2xl font-semibold text-red-600 dark:bg-red-900 dark:text-red-400">404</div>
-					<CardTitle className="text-2xl">Halaman Tidak Ditemukan</CardTitle>
-				</CardHeader>
-				<CardContent className="text-center">
-					<p className="text-muted-foreground mb-6">Maaf, halaman yang Anda cari tidak tersedia atau mungkin telah dipindahkan.</p>
-					<Button asChild className="w-full">
-						<Link to="/">
-							<Home className="mr-2 h-4 w-4" />
-							Kembali ke Beranda
-						</Link>
-					</Button>
-				</CardContent>
-			</Card>
-		</div>
+		<section className="flex min-h-screen w-full flex-col items-center justify-center px-4 text-center">
+			<img src={notFoundImage} alt="404 Not Found" width={400} height={300} />
+
+			<div className="space-y-0.5">
+				<h2 className="text-2xl font-bold text-neutral-800">Halaman tidak ditemukan</h2>
+
+				<p className="max-w-md text-neutral-600">Halaman yang Anda cari mungkin telah dipindahkan, dihapus, atau URL yang dimasukkan tidak tepat.</p>
+			</div>
+			<Link to="/" className="mt-4 rounded-full text-lg font-semibold text-neutral-800 underline underline-offset-3 transition hover:text-neutral-600">
+				kembali ke beranda
+			</Link>
+		</section>
 	);
 }
