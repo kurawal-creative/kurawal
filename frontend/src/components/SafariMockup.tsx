@@ -5,7 +5,7 @@ import { Cursor, CursorFollow, CursorProvider } from "./ui/shadcn-io/animated-cu
 
 const SafariMockups = () => (
 	<div className="relative w-full">
-		<Safari url="https://kurawal.site" videoSrc={daunesiaVideo} mode="default" className="size-full h-auto w-full" />
+		<Safari url="https://daunesia.vercel.app" videoSrc={daunesiaVideo} mode="default" className="size-full h-auto w-full" />
 
 		<CursorProvider>
 			<Cursor>

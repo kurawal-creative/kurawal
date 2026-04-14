@@ -1,6 +1,5 @@
 import Home from "../features/home/Home";
 import Login from "../features/auth/Login";
-import Register from "../features/auth/Register";
 import AboutUsPage from "@/features/about-us/AboutUsPage";
 import ContactUsPage from "@/features/contact-us/ContactUsPage";
 import WorksPage from "@/features/works/WorksPage";
@@ -21,10 +20,6 @@ export default [
 	{
 		path: "/login",
 		element: <Login />,
-	},
-	{
-		path: "/register",
-		element: <Register />,
 	},
 	{
 		path: "/works",

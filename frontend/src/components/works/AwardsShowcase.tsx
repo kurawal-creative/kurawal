@@ -1,3 +1,38 @@
+import aitherwayImage from "@/assets/images/aitherway.jpg";
+import chatbotImage from "@/assets/images/chatbot.jpg";
+import daunesiaImage from "@/assets/images/daunesia.jpg";
+import { Badge } from "../ui/badge";
+
+const achievements = [
+	{
+		title: "Top Digital Product Experience 2025",
+		institution: "Indonesia Product Design Forum",
+		date: "12 March 2025",
+		location: "Jakarta",
+		category: "UX & Product",
+		image: aitherwayImage,
+		description: "Awarded for successfully designing a digital product flow that improved user retention and client satisfaction.",
+	},
+	{
+		title: "Best Innovation in Web Engineering",
+		institution: "ASEAN Technology Summit",
+		date: "08 November 2024",
+		location: "Singapore",
+		category: "Engineering",
+		image: chatbotImage,
+		description: "Recognized for implementing a modern frontend architecture that accelerated app performance and time-to-market.",
+	},
+	{
+		title: "Creative Impact Award",
+		institution: "Nusantara Creative Council",
+		date: "21 July 2024",
+		location: "Bandung",
+		category: "Brand & Visual",
+		image: daunesiaImage,
+		description: "Acknowledged for delivering a strong and consistent visual experience that contributed to higher brand conversion.",
+	},
+];
+
 export default function AwardsShowcase() {
 	return (
 		<>
@@ -10,18 +45,29 @@ export default function AwardsShowcase() {
 				</div>
 				<div className="mx-auto w-full max-w-7xl">
 					<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-						<div className="flex flex-col items-center border border-dashed p-6">
-							<h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Best UX Design</h3>
-							<p className="mt-2 text-center text-sm text-neutral-600 dark:text-neutral-400">Awarded for creating intuitive and engaging user experiences that delight users and drive engagement.</p>
-						</div>
-						<div className="flex flex-col items-center border border-dashed p-6">
-							<h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Innovation in Technology</h3>
-							<p className="mt-2 text-center text-sm text-neutral-600 dark:text-neutral-400">Recognized for leveraging cutting-edge technologies to deliver innovative solutions that solve complex challenges.</p>
-						</div>
-						<div className="flex flex-col items-center border border-dashed p-6">
-							<h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Excellence in Design</h3>
-							<p className="mt-2 text-center text-sm text-neutral-600 dark:text-neutral-400">Honored for crafting visually stunning designs that elevate brands and create memorable digital experiences.</p>
-						</div>
+						{achievements.map((item) => (
+							<article key={item.title} className="overflow-hidden border border-dashed">
+								<div className="relative h-48 w-full overflow-hidden">
+									<img src={item.image} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
+									<Badge variant={"default"} className="absolute top-3 left-3">
+										{item.category}
+									</Badge>
+								</div>
+								<div className="space-y-2 p-4 text-left">
+									<p className="text-xs text-neutral-500 dark:text-neutral-400">{item.date}</p>
+									<h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">{item.title}</h3>
+									<p className="line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p>
+									<div className="space-y-1 border-t border-dashed border-neutral-300 pt-3 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
+										<p>
+											<span className="font-semibold text-neutral-800 dark:text-neutral-100">Institution:</span> {item.institution}
+										</p>
+										<p>
+											<span className="font-semibold text-neutral-800 dark:text-neutral-100">Location:</span> {item.location}
+										</p>
+									</div>
+								</div>
+							</article>
+						))}
 					</div>
 				</div>
 			</section>

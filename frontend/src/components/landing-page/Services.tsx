@@ -11,7 +11,7 @@ const ServicesSection = () => {
 		<>
 			<hr className="-mb-px w-full border-dashed" />
 			<section className="relative mx-auto max-w-350 border-dashed py-12 min-[1400px]:border-x min-[1800px]:max-w-384">
-				<div className="flex flex-col lg:flex-row lg:gap-12">
+				<div className="flex flex-col items-center lg:flex-row lg:gap-12">
 					{/* Left */}
 					<div className="flex-1 items-center justify-start p-6 text-center lg:text-start">
 						<p className="font-caveat text-xl text-neutral-800 dark:text-neutral-400">
@@ -40,8 +40,10 @@ const ServicesSection = () => {
 							{/* Mobile App */}
 							<div className="overflow-hidden border-b border-dashed p-4 md:col-span-2 lg:col-span-2 lg:border-r">
 								<h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">Mobile App Development</h2>
+
 								<p className="text-neutral-600 dark:text-neutral-400">High-performance mobile apps for iOS & Android.</p>
-								<div className="mt-4 flex justify-center gap-4 lg:justify-start">
+
+								<div className="mx-auto mt-4 flex items-center justify-center gap-2">
 									<AndroidMockup />
 									<IphoneMockup />
 								</div>

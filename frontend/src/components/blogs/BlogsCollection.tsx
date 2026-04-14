@@ -3,6 +3,8 @@ import { Badge } from "../ui/badge";
 import aitherwayImage from "@/assets/images/aitherway.jpg";
 import chatbotImage from "@/assets/images/chatbot.jpg";
 import daunesiaImage from "@/assets/images/daunesia.jpg";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 const blogFilters = [
 	{ label: "All Articles", count: 12 },
@@ -12,21 +14,27 @@ const blogFilters = [
 
 const articles = [
 	{
+		date: "June 15, 2024",
 		title: "Design Systems That Scale With Teams",
 		description: "Learn how a strong design system improves consistency, speeds up delivery, and helps product teams build with confidence.",
 		image: aitherwayImage,
+		category: "Updates",
 		alt: "Design systems planning board",
 	},
 	{
+		date: "June 10, 2024",
 		title: "Building Faster Frontends With Vite",
 		description: "A practical look at how modern tooling can cut build time, improve DX, and keep large projects maintainable.",
 		image: chatbotImage,
+		category: "Spotlight",
 		alt: "Developer workflow interface",
 	},
 	{
+		date: "June 5, 2024",
 		title: "Crafting Better User Journeys",
 		description: "Explore simple UX strategies to reduce friction, improve engagement, and turn first-time visitors into loyal users.",
 		image: daunesiaImage,
+		category: "Updates",
 		alt: "User journey wireframe overview",
 	},
 ];
@@ -67,13 +75,28 @@ export default function BlogsCollection() {
 					</div>
 					<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 						{articles.map((article) => (
-							<div key={article.title} className="flex flex-col items-center border border-dashed text-center">
-								<div className="w-full overflow-hidden border-b border-dashed">
-									<img src={article.image} alt={article.alt} className="h-44 w-full object-cover" loading="lazy" />
+							<div key={article.title} className="flex flex-col items-center border border-dashed">
+								<div className="relative w-full overflow-hidden">
+									<img src={article.image} alt={article.alt} className="h-56 w-full object-cover" loading="lazy" />
+									<Badge variant={"default"} className="absolute top-4 left-4">
+										{article.category}
+									</Badge>
 								</div>
-								<div className="p-6">
+								<div className="space-y-2 p-4">
+									<p className="text-muted-foreground text-xs">{article.date}</p>
 									<h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">{article.title}</h3>
-									<p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{article.description}</p>
+									<p className="line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{article.description}</p>
+								</div>
+								<div className="w-full px-4 pb-4">
+									<Link
+										to={"/"}
+										className="group inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-neutral-50 px-2.5 py-1.5 text-xs text-neutral-800 transition-all hover:-translate-y-0.5 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:border-neutral-100 dark:hover:bg-neutral-100 dark:hover:text-neutral-950"
+									>
+										<span>Read More</span>
+										<span className="transition-transform group-hover:translate-x-0.5">
+											<ArrowRight size={14} />
+										</span>
+									</Link>
 								</div>
 							</div>
 						))}

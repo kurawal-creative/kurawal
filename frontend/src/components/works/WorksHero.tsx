@@ -13,12 +13,12 @@ type WorksHeroProps = {
 
 export default function WorksHero({ worksStats, activeFilter, onFilterChange }: WorksHeroProps) {
 	return (
-		<section className="relative mx-auto min-h-[60vh] w-full max-w-350 border-dashed px-0.5 pb-12 min-[1400px]:border-x min-[1800px]:max-w-384">
+		<section className="relative mx-auto min-h-[40vh] w-full max-w-350 overflow-hidden border-dashed px-0.5 pb-12 min-[1400px]:border-x min-[1800px]:max-w-384">
 			{/* Background Ripple */}
 			<BackgroundRippleEffect />
 
 			{/* Content */}
-			<div className="relative overflow-hidden px-6 py-20 sm:px-10 sm:py-24">
+			<div className="relative overflow-hidden px-6 py-16 sm:px-10 sm:py-19">
 				<div className="pointer-events-none absolute -top-12 left-10 h-44 w-44 rounded-full border border-dashed opacity-30" />
 				<div className="pointer-events-none absolute right-12 -bottom-16 h-56 w-56 rounded-full border border-dashed opacity-20" />
 
