@@ -174,121 +174,121 @@ export default function CreatePost() {
 	const [editorState, setEditorState] = useState<SerializedEditorState>(initialValue);
 
 	return (
-		<AdminLayout>
-			<div className="container mx-auto w-full max-w-4xl">
-				{/* Section: Cover Image + Crop */}
-				<div className="mb-6 space-y-3">
-					<div className="not-prose flex flex-col gap-4">
-						{!croppedUrl ? (
-							<div onClick={handlePickClick} className="border-input bg-background hover:bg-accent flex cursor-pointer flex-col items-center gap-4 rounded-lg border-2 border-dashed p-10 text-center text-sm transition-colors">
-								<CloudUploadIcon className="text-muted-foreground size-8" />
-								<div>
-									<p className="font-semibold">Upload cover image</p>
-									<p className="text-muted-foreground text-sm">Click here or drag and drop to upload</p>
+		// <AdminLayout>
+		<div className="container mx-auto w-full max-w-4xl">
+			{/* Section: Cover Image + Crop */}
+			<div className="mb-6 space-y-3">
+				<div className="not-prose flex flex-col gap-4">
+					{!croppedUrl ? (
+						<div onClick={handlePickClick} className="border-input bg-background hover:bg-accent flex cursor-pointer flex-col items-center gap-4 rounded-lg border-2 border-dashed p-10 text-center text-sm transition-colors">
+							<CloudUploadIcon className="text-muted-foreground size-8" />
+							<div>
+								<p className="font-semibold">Upload cover image</p>
+								<p className="text-muted-foreground text-sm">Click here or drag and drop to upload</p>
+							</div>
+						</div>
+					) : (
+						<div className="overflow-hidden rounded-lg border">
+							<div className="aspect-video w-full overflow-hidden">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img src={croppedUrl} alt="Cover preview" className="h-full w-full object-cover" />
+							</div>
+							<div className="flex items-center justify-between p-4">
+								<p className="text-sm font-medium">Cover Image</p>
+								<div className="flex gap-2">
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											setCropSrc(croppedUrl);
+											setCropOpen(true);
+										}}
+									>
+										<Crop className="mr-2 size-4" />
+										Crop Ulang
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={() => {
+											if (croppedUrl) URL.revokeObjectURL(croppedUrl);
+											setCroppedUrl(null);
+											setCroppedBlob(null);
+										}}
+									>
+										<Trash2Icon className="size-4" />
+									</Button>
 								</div>
 							</div>
-						) : (
-							<div className="overflow-hidden rounded-lg border">
-								<div className="aspect-video w-full overflow-hidden">
-									{/* eslint-disable-next-line @next/next/no-img-element */}
-									<img src={croppedUrl} alt="Cover preview" className="h-full w-full object-cover" />
-								</div>
-								<div className="flex items-center justify-between p-4">
-									<p className="text-sm font-medium">Cover Image</p>
-									<div className="flex gap-2">
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={() => {
-												setCropSrc(croppedUrl);
-												setCropOpen(true);
-											}}
-										>
-											<Crop className="mr-2 size-4" />
-											Crop Ulang
-										</Button>
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											onClick={() => {
-												if (croppedUrl) URL.revokeObjectURL(croppedUrl);
-												setCroppedUrl(null);
-												setCroppedBlob(null);
-											}}
-										>
-											<Trash2Icon className="size-4" />
-										</Button>
-									</div>
-								</div>
-							</div>
-						)}
-						<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFilePicked} />
-					</div>
+						</div>
+					)}
+					<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFilePicked} />
 				</div>
+			</div>
 
-				{/* Modal cropper */}
-				<EasyCrop open={cropOpen} onOpenChange={setCropOpen} imageSrc={cropSrc ?? croppedUrl ?? null} aspect={16 / 9} onCropped={handleCropped} />
+			{/* Modal cropper */}
+			<EasyCrop open={cropOpen} onOpenChange={setCropOpen} imageSrc={cropSrc ?? croppedUrl ?? null} aspect={16 / 9} onCropped={handleCropped} />
 
-				{/* Title live preview */}
-				<Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="rounded-none border-0 border-b-2 pb-2 pl-0 text-2xl! font-medium shadow-none" required placeholder="Enter post title" />
-				{/* <h1 id="title-placeholder" className="border-b text-2xl font-semibold">
+			{/* Title live preview */}
+			<Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="rounded-none border-0 border-b-2 pb-2 pl-0 text-2xl! font-medium shadow-none" required placeholder="Enter post title" />
+			{/* <h1 id="title-placeholder" className="border-b text-2xl font-semibold">
 					{title || "Title"}
 				</h1> */}
 
-				<form onSubmit={handleSubmit} className="space-y-4">
-					{/* <MultiImages /> */}
-					<div className="w-2xl">{/* <EasyCrop /> */}</div>
-					<div className="flex gap-8">
-						<p className="text-sm text-gray-400">
-							Status : <span className="font-semibold text-gray-800">Published</span>
-						</p>
-						<p className="text-sm text-gray-400">
-							Last Modified : <span className="font-semibold text-gray-800">May 28th 2025, 4:47 PM</span>
-						</p>
-						<p className="text-sm text-gray-400">
-							Created : <span className="font-semibold text-gray-800">May 28th 2025, 4:45 PM</span>
-						</p>
-					</div>
-					<div className="space-y-2">
-						<div className="flex gap-4">
-							<div className="flex-1">
-								<Label className="mb-2" htmlFor="type_post">
-									Tipe Postingan<span className="text-red-500">*</span>{" "}
-								</Label>
-								<Select onValueChange={setTipe}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Pilih tipe" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="Showcase">Showcase</SelectItem>
-										<SelectItem value="article">Article</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="flex-1">
-								<Label className="mb-2" htmlFor="type_post">
-									Author<span className="text-red-500">*</span>{" "}
-								</Label>
-								<Select>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Pilih Author" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="Ozan">Ozan</SelectItem>
-										<SelectItem value="Iyan">Iyan</SelectItem>
-										<SelectItem value="Dhodo">Dhodo</SelectItem>
-										<SelectItem value="Gilang">Gilang</SelectItem>
-										<SelectItem value="Wirman">Wirman</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
+			<form onSubmit={handleSubmit} className="space-y-4">
+				{/* <MultiImages /> */}
+				<div className="w-2xl">{/* <EasyCrop /> */}</div>
+				<div className="flex gap-8">
+					<p className="text-sm text-gray-400">
+						Status : <span className="font-semibold text-gray-800">Published</span>
+					</p>
+					<p className="text-sm text-gray-400">
+						Last Modified : <span className="font-semibold text-gray-800">May 28th 2025, 4:47 PM</span>
+					</p>
+					<p className="text-sm text-gray-400">
+						Created : <span className="font-semibold text-gray-800">May 28th 2025, 4:45 PM</span>
+					</p>
+				</div>
+				<div className="space-y-2">
+					<div className="flex gap-4">
+						<div className="flex-1">
+							<Label className="mb-2" htmlFor="type_post">
+								Tipe Postingan<span className="text-red-500">*</span>{" "}
+							</Label>
+							<Select onValueChange={setTipe}>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Pilih tipe" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="Showcase">Showcase</SelectItem>
+									<SelectItem value="article">Article</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="flex-1">
+							<Label className="mb-2" htmlFor="type_post">
+								Author<span className="text-red-500">*</span>{" "}
+							</Label>
+							<Select>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Pilih Author" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="Ozan">Ozan</SelectItem>
+									<SelectItem value="Iyan">Iyan</SelectItem>
+									<SelectItem value="Dhodo">Dhodo</SelectItem>
+									<SelectItem value="Gilang">Gilang</SelectItem>
+									<SelectItem value="Wirman">Wirman</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
-					<div className="flex gap-4">
-						<AddTags />
-						{/* <div className="flex-1">
+				</div>
+				<div className="flex gap-4">
+					<AddTags />
+					{/* <div className="flex-1">
 							<Label className="mb-2" htmlFor="title">
 								Tag<span className="text-red-500">*</span>{" "}
 							</Label>
@@ -367,35 +367,35 @@ export default function CreatePost() {
 							</TagInput.Root>
 						</div> */}
 
-						{/* Tech Stack input */}
-						<div className={`${tipe === "Showcase" ? "" : "hidden"} flex-1`}>
-							<AddTechs />
-						</div>
+					{/* Tech Stack input */}
+					<div className={`${tipe === "Showcase" ? "" : "hidden"} flex-1`}>
+						<AddTechs />
 					</div>
+				</div>
 
-					<div className="space-y-2">
-						<Label htmlFor="content">Description</Label>
-						{/* <Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required placeholder="Write your post content here..." rows={6} /> */}
-						<Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required placeholder="Write your post content here..." rows={6} />
-					</div>
+				<div className="space-y-2">
+					<Label htmlFor="content">Description</Label>
+					{/* <Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required placeholder="Write your post content here..." rows={6} /> */}
+					<Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required placeholder="Write your post content here..." rows={6} />
+				</div>
 
-					<Label htmlFor="content">Content</Label>
-					<Editor editorSerializedState={editorState} onSerializedChange={(value) => setEditorState(value)} />
-					{error && (
-						<Alert variant="destructive">
-							<AlertDescription>{error}</AlertDescription>
-						</Alert>
-					)}
-					<div className="flex gap-4">
-						<Button type="submit" variant={"outline"} className="w-full">
-							Save Draft
-						</Button>
-						<Button type="submit" className="w-full">
-							Create Post
-						</Button>
-					</div>
-				</form>
-			</div>
-		</AdminLayout>
+				<Label htmlFor="content">Content</Label>
+				<Editor editorSerializedState={editorState} onSerializedChange={(value) => setEditorState(value)} />
+				{error && (
+					<Alert variant="destructive">
+						<AlertDescription>{error}</AlertDescription>
+					</Alert>
+				)}
+				<div className="flex gap-4">
+					<Button type="submit" variant={"outline"} className="w-full">
+						Save Draft
+					</Button>
+					<Button type="submit" className="w-full">
+						Create Post
+					</Button>
+				</div>
+			</form>
+		</div>
+		// </AdminLayout>
 	);
 }

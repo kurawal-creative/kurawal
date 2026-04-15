@@ -8,13 +8,13 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 	const { user, loading } = useAuth();
+	const location = useLocation();
 
 	if (loading) {
 		return null;
 	}
 
 	if (!user) {
-		const location = useLocation();
 		return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
 	}
 

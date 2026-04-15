@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import nprogress from "nprogress";
 import "nprogress/nprogress.css";
@@ -11,6 +11,10 @@ import TestProgress from "../features/TestProgress";
 import Admin from "@/pages/admin/Admin";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import UploadMedia from "@/pages/admin/media/UploadMedia";
+import AdminLayout from "@/components/layouts/AdminLayout";
+import Posts from "@/features/posts/Posts";
+import CreatePost from "@/features/posts/CreatePost";
+import EditPost from "@/features/posts/EditPost";
 
 export default function AppRouter() {
 	const location = useLocation();
@@ -29,16 +33,6 @@ export default function AppRouter() {
 				<Route key={path} path={path} element={element} />
 			))}
 
-			{/* Atmin */}
-			<Route
-				path="/admin"
-				element={
-					<ProtectedRoute>
-						<Admin />
-					</ProtectedRoute>
-				}
-			/>
-
 			{/* Medie */}
 			<Route
 				path="/media"
@@ -52,10 +46,21 @@ export default function AppRouter() {
 				}
 			/>
 
-			{/* Private */}
-			{privateRoutes.map(({ path, element }) => (
-				<Route key={path} path={path} element={<ProtectedRoute>{element}</ProtectedRoute>} />
-			))}
+			{/* Nested admin routes dari pr ivateRoutes */}
+			<Route
+				path="/admin"
+				element={
+					<ProtectedRoute>
+						<AdminLayout>
+							<Outlet />
+						</AdminLayout>
+					</ProtectedRoute>
+				}
+			>
+				<Route path="posts" element={<Posts />} />
+				<Route path="create-post" element={<CreatePost />} />
+				<Route path="edit-post/:id" element={<EditPost />} />
+			</Route>
 
 			{/* Utility */}
 			<Route path="/test-progress" element={<TestProgress />} />
