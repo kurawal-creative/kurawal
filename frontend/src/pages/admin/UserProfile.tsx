@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
-import AdminLayout from "@/layouts/adminLayout";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/utils/cloudinary";
+import AdminLayout from "@/layouts/adminLayout";
 
 export default function UserProfile() {
 	const { data: session, isPending, refetch } = authClient.useSession();

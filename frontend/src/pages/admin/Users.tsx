@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import AdminLayout from "@/layouts/adminLayout";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import AdminLayout from "@/layouts/adminLayout";
 
 type User = {
 	id: string;

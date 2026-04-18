@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "@/layouts/adminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { postsApi, tagsApi } from "@/utils/adminApi";
 import PostsHeader from "@/components/admin/PostsHeader";
@@ -7,6 +6,7 @@ import PostsFilters from "@/components/admin/PostsFilters";
 import PostsTable from "@/components/admin/PostsTable";
 import PostsPagination from "@/components/admin/PostsPagination";
 import PostsDeleteDialog from "@/components/admin/PostsDeleteDialog";
+import AdminLayout from "@/layouts/adminLayout";
 import { toast } from "sonner";
 
 interface Post {

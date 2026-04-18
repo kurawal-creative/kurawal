@@ -1,12 +1,10 @@
 "Use Client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { Ellipsis, EllipsisVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Ellipsis } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { deleteMedia, pathToUrl } from "@/helpers/media";
 
 export type Media = {
@@ -62,7 +60,7 @@ export const columns: ColumnDef<Media>[] = [
 						</DialogContent>
 					</Dialog>
 
-					{row.original.publicId && <span className="text-muted-foreground max-w-[220px] truncate text-xs">{src}</span>}
+					{row.original.publicId && <span className="text-muted-foreground max-w-55 truncate text-xs">{src}</span>}
 				</div>
 			);
 		},
@@ -77,7 +75,7 @@ export const columns: ColumnDef<Media>[] = [
 		header: "",
 		enableSorting: false,
 		enableHiding: false,
-		cell: ({ getValue, row }) => {
+		cell: ({ row }) => {
 			return (
 				<div className="flex justify-center">
 					<DropdownMenu>

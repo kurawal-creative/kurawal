@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 	if (isPending) {
 		return (
 			<div className="flex h-screen items-center justify-center">
-				<p>Loading...</p>
+				<p>Aduh...</p>
 			</div>
 		);
 	}

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminLayout from "@/layouts/adminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { ArrowLeft, X } from "lucide-react";
 import { toast } from "sonner";
 import { TagInput, type Tag as TagOption } from "@/components/tag-input";
 import { ImageUploader } from "@/components/ImageUploader";
+import AdminLayout from "@/layouts/adminLayout";
 
 interface Tag {
 	id: string;

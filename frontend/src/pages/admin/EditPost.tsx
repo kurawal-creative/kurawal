@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AdminLayout from "@/layouts/adminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ArrowLeft, Upload, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TagInput, type Tag as TagOption } from "@/components/tag-input";
+import AdminLayout from "@/layouts/adminLayout";
 
 interface Tag {
 	id: string;

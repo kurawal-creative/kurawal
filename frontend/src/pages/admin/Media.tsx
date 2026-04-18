@@ -1,5 +1,4 @@
 import AdminLayout from "@/layouts/adminLayout";
-import { useState } from "react";
 import UploadMedia from "@/pages/admin/media/UploadMedia";
 
 export default function AdminMediaPage() {
