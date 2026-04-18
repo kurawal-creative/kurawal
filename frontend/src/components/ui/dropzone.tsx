@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { createContext, forwardRef, useCallback, useContext, useId, useMemo, useReducer, useState } from "react";
-import { type Accept, type FileRejection, useDropzone as rootUseDropzone } from "react-dropzone";
-import { Button, type ButtonProps } from "./button";
+import { Accept, FileRejection, useDropzone as rootUseDropzone } from "react-dropzone";
+import { Button, ButtonProps } from "./button";
+// import { Button, ButtonProps } from "./ui/button";
 
 type DropzoneResult<TUploadRes, TUploadError> =
 	| {

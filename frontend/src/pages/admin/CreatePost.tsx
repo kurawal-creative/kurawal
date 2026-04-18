@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { toast } from "sonner";
+import { TagInput, type Tag as TagOption } from "@/components/tag-input";
+import { ImageUploader } from "@/components/ImageUploader";
 
 interface Tag {
 	id: string;
@@ -25,13 +27,15 @@ export default function CreatePostPage() {
 	const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
 	const [uploadingContent, setUploadingContent] = useState(false);
 	const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
+	const allTagOptions = useMemo<TagOption<string>[]>(() => tags.map((t) => ({ label: t.name, value: t.id })), [tags]);
+	const [selectedTagOptions, setSelectedTagOptions] = useState<TagOption<string>[]>([]);
 
 	const [formData, setFormData] = useState({
 		title: "",
 		description: "",
 		content: "",
 		thumbnail: "",
-		tagId: "",
+		tagIds: [] as string[],
 		status: "DRAFT" as "DRAFT" | "PUBLISHED" | "ARCHIVED",
 	});
 
@@ -93,8 +97,8 @@ export default function CreatePostPage() {
 		e.preventDefault();
 
 		try {
-			if (!formData.title || !formData.content || !formData.tagId) {
-				toast.error("Title, content, and tag are required");
+			if (!formData.title || !formData.content || formData.tagIds.length === 0) {
+				toast.error("Title, content, and at least one tag are required");
 				return;
 			}
 
@@ -109,10 +113,9 @@ export default function CreatePostPage() {
 			setSaving(false);
 		}
 	};
-
 	return (
 		<AdminLayout>
-			<div className="space-y-6 pb-8">
+			<div className="min-w-0 space-y-6">
 				<div className="flex items-center gap-4">
 					<Button variant="outline" size="sm" onClick={() => navigate("/admin/posts")}>
 						<ArrowLeft className="mr-2 h-4 w-4" />
@@ -126,91 +129,75 @@ export default function CreatePostPage() {
 
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Main Content Card */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Post Details</CardTitle>
-							<CardDescription>Basic information about your post</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							{/* Thumbnail Section */}
+					<label>Post Details</label>
+					<label>Basic information about your post</label>
+					{/* Thumbnail Section */}
+					<div className="space-y-2">
+						<Label>Thumbnail Image *</Label>
+						{thumbnailPreview ? (
+							<div className="relative inline-block">
+								<img src={thumbnailPreview} alt="Thumbnail preview" className="h-40 w-auto rounded-lg border object-cover" />
+								<button type="button" onClick={handleThumbnailRemove} className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600">
+									<X className="h-4 w-4" />
+								</button>
+							</div>
+						) : (
 							<div className="space-y-2">
-								<Label>Thumbnail Image *</Label>
-								{thumbnailPreview ? (
-									<div className="relative inline-block">
-										<img src={thumbnailPreview} alt="Thumbnail preview" className="h-40 w-auto rounded-lg border object-cover" />
-										<button type="button" onClick={handleThumbnailRemove} className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600">
-											<X className="h-4 w-4" />
-										</button>
-									</div>
-								) : (
-									<label className="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-6 hover:border-gray-400">
-										<Upload className="h-5 w-5 text-gray-500" />
-										<span className="text-sm text-gray-600">Click to upload thumbnail</span>
-										<input
-											type="file"
-											accept="image/*"
-											onChange={(e) => {
-												const file = e.target.files?.[0];
-												if (file) {
-													handleThumbnailUpload(file);
-												}
-											}}
-											disabled={uploadingThumbnail}
-											className="hidden"
-										/>
-									</label>
-								)}
+								<ImageUploader
+									aspectRatio={16 / 9}
+									maxSize={10 * 1024 * 1024} // 10MB
+									acceptedFileTypes={["image/jpeg", "image/png", "image/webp"]}
+									onImageCropped={(blob) => {
+										const file = new File([blob], `thumbnail-${Date.now()}.jpg`, {
+											type: blob.type || "image/jpeg",
+										});
+										void handleThumbnailUpload(file);
+									}}
+								/>
 								{uploadingThumbnail && <p className="text-sm text-gray-500">Uploading...</p>}
 							</div>
+						)}
+					</div>
+					{/* Title */}
+					<div className="space-y-2">
+						<Label htmlFor="title">Title *</Label>
+						<Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Enter post title" required />
+					</div>
+					{/* Description */}
+					<div className="space-y-2">
+						<Label htmlFor="description">Description</Label>
+						<Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of your post" rows={2} />
+					</div>
 
-							{/* Title */}
-							<div className="space-y-2">
-								<Label htmlFor="title">Title *</Label>
-								<Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Enter post title" required />
-							</div>
-
-							{/* Description */}
-							<div className="space-y-2">
-								<Label htmlFor="description">Description</Label>
-								<Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of your post" rows={2} />
-							</div>
-
-							{/* Tag */}
-							<div className="space-y-2">
-								<Label htmlFor="tag">Tag *</Label>
-								<Select value={formData.tagId} onValueChange={(val) => setFormData({ ...formData, tagId: val })}>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a tag" />
-									</SelectTrigger>
-									<SelectContent>
-										{tags.map((tag) => (
-											<SelectItem key={tag.id} value={tag.id}>
-												{tag.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-
-							{/* Status */}
-							<div className="space-y-2">
-								<Label htmlFor="status">Status *</Label>
-								<Select value={formData.status} onValueChange={(val: any) => setFormData({ ...formData, status: val })}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="DRAFT">Draft</SelectItem>
-										<SelectItem value="PUBLISHED">Published</SelectItem>
-										<SelectItem value="ARCHIVED">Archived</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						</CardContent>
-					</Card>
-
+					<div className="space-y-2">
+						<Label htmlFor="description">Tag</Label>
+						{/* Tag */}
+						<TagInput
+							tags={selectedTagOptions}
+							setTags={(next) => {
+								setSelectedTagOptions(next);
+								setFormData((prev) => ({ ...prev, tagIds: next.map((t) => t.value) }));
+							}}
+							allTags={allTagOptions}
+							placeholder="Search tag..."
+						/>
+					</div>
+					{/* Status */}
+					<div className="space-y-2">
+						<Label htmlFor="status">Status *</Label>
+						<Select value={formData.status} onValueChange={(val: any) => setFormData({ ...formData, status: val })}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="DRAFT">Draft</SelectItem>
+								<SelectItem value="PUBLISHED">Published</SelectItem>
+								<SelectItem value="ARCHIVED">Archived</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 					{/* Content Card */}
-					<Card>
+					<Card className="w-full min-w-0">
 						<CardHeader className="flex flex-row items-center justify-between">
 							<div>
 								<CardTitle>Content</CardTitle>
@@ -240,10 +227,10 @@ export default function CreatePostPage() {
 						<CardContent className="space-y-2">
 							<Label htmlFor="content">Content *</Label>
 							<Textarea id="content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder="Write your content here. Supports Markdown syntax..." rows={12} className="font-mono text-sm" required />
+							{/* <Editor /> */}
 							<p className="text-muted-foreground text-xs">Supports Markdown: **bold**, *italic*, `code`, [links](url), # Headings, - Lists, etc.</p>
 						</CardContent>
 					</Card>
-
 					{/* Actions */}
 					<div className="flex gap-2">
 						<Button type="button" variant="outline" onClick={() => navigate("/admin/posts")}>
