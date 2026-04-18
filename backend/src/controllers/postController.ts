@@ -1,7 +1,13 @@
 import { Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { prisma } from "../lib/prisma.js";
-import { extractPublicIdFromUrl, deleteFullMedia, extractCloudinaryUrlsFromContent, linkMediaToPost, linkMultipleMediaToPost } from "../utils/mediaHelpers.js";
+import {
+  extractPublicIdFromUrl,
+  deleteFullMedia,
+  extractCloudinaryUrlsFromContent,
+  linkMediaToPost,
+  linkMultipleMediaToPost,
+} from "../utils/mediaHelpers.js";
 import { finalizeImage } from "../utils/cloudinary.js";
 
 // Helper scan public_id dari markdown
@@ -14,10 +20,16 @@ const getPublicIds = (content: string) => {
   });
 };
 
-export const getPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getPosts = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
   try {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(req.query.limit as string) || 10),
+    );
     const skip = (page - 1) * limit;
 
     const search = (req.query.search as string) || "";
@@ -27,15 +39,45 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
     const where: any = {};
 
     if (search) {
-      where.OR = [{ title: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }];
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
     }
 
     if (tagId) {
-      where.tagId = tagId;
+      where.tagIds = { has: tagId };
     } else if (tagName) {
-      where.tag = {
-        name: { equals: tagName, mode: "insensitive" },
-      };
+      const tag = await prisma.tag.findFirst({
+        where: {
+          OR: [
+            { slug: { equals: tagName, mode: "insensitive" } },
+            { name: { equals: tagName, mode: "insensitive" } },
+          ],
+        },
+        select: { id: true },
+      });
+
+      if (!tag) {
+        return void res.json({
+          success: true,
+          data: [],
+          pagination: {
+            currentPage: page,
+            totalPages: 0,
+            totalItems: 0,
+            itemsPerPage: limit,
+            hasNextPage: false,
+            hasPrevPage: page > 1,
+          },
+          filters: {
+            search: search || null,
+            tagId: null,
+          },
+        });
+      }
+
+      where.tagIds = { has: tag.id };
     }
 
     const [posts, totalPosts] = await Promise.all([
@@ -97,22 +139,50 @@ export const getPost = async (req: AuthRequest, res: Response) => {
 
 export const createPost = async (req: AuthRequest, res: Response) => {
   try {
-    let { title, description, content, thumbnail, tagId, status } = req.body;
+    let { title, description, content, thumbnail, tagIds, tagId, status } =
+      req.body;
 
-    if (!title || !content || !tagId) {
-      return res.status(400).json({ message: "title, content, and tagId are required" });
+    const normalizedTagIds: string[] = Array.isArray(tagIds)
+      ? tagIds
+      : typeof tagId === "string"
+        ? [tagId]
+        : [];
+
+    if (!title || !content || normalizedTagIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "title, content, and tagIds are required" });
     }
+
+    if (
+      !normalizedTagIds.every((t) => typeof t === "string" && t.trim() !== "")
+    ) {
+      return res
+        .status(400)
+        .json({ message: "tagIds must be an array of non-empty strings" });
+    }
+
+    const uniqueTagIds = Array.from(
+      new Set(normalizedTagIds.map((t) => t.trim())),
+    );
 
     if (status && !["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) {
-      return res.status(400).json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
+      return res
+        .status(400)
+        .json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
     }
 
-    const existingTag = await prisma.tag.findUnique({
-      where: { id: tagId },
+    const existingTags = await prisma.tag.findMany({
+      where: { id: { in: uniqueTagIds } },
+      select: { id: true },
     });
 
-    if (!existingTag) {
-      return res.status(400).json({ message: "Tag not found" });
+    if (existingTags.length !== uniqueTagIds.length) {
+      const found = new Set(existingTags.map((t) => t.id));
+      const missing = uniqueTagIds.filter((id) => !found.has(id));
+      return res
+        .status(400)
+        .json({ message: "Some tags not found", missingTagIds: missing });
     }
 
     // Finalize thumbnail from tmp to posts
@@ -139,7 +209,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       data: {
         title,
         content,
-        tagId,
+        tagIds: uniqueTagIds,
         userId: req.user!.id,
         description: description ?? null,
         thumbnail: thumbnail ?? null,
@@ -167,7 +237,10 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
     // Link media to post
     if (publicIds.size > 0) {
-      const linkedCount = await linkMultipleMediaToPost(Array.from(publicIds), post.id);
+      const linkedCount = await linkMultipleMediaToPost(
+        Array.from(publicIds),
+        post.id,
+      );
       console.log(`Linked ${linkedCount} media to post ${post.id}`);
     }
 
@@ -181,7 +254,8 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 export const updatePost = async (req: AuthRequest, res: Response) => {
   try {
     const id = req.params.id as string;
-    let { title, description, content, thumbnail, tagId, status } = req.body;
+    let { title, description, content, thumbnail, tagIds, tagId, status } =
+      req.body;
 
     const post = await prisma.post.findUnique({
       where: { id },
@@ -192,21 +266,60 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     }
 
     if (post.userId !== req.user!.id) {
-      return res.status(403).json({ message: "Unauthorized: You can only edit your own posts" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized: You can only edit your own posts" });
     }
 
-    if (status !== undefined && !["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) {
-      return res.status(400).json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
+    if (
+      status !== undefined &&
+      !["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)
+    ) {
+      return res
+        .status(400)
+        .json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
     }
 
-    if (tagId !== undefined) {
-      const tag = await prisma.tag.findUnique({
-        where: { id: tagId },
+    const tagIdsProvided = tagIds !== undefined || tagId !== undefined;
+    const normalizedTagIds: string[] | undefined = tagIdsProvided
+      ? Array.isArray(tagIds)
+        ? tagIds
+        : typeof tagId === "string"
+          ? [tagId]
+          : []
+      : undefined;
+
+    if (normalizedTagIds !== undefined) {
+      if (normalizedTagIds.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "tagIds must contain at least one tag" });
+      }
+      if (
+        !normalizedTagIds.every((t) => typeof t === "string" && t.trim() !== "")
+      ) {
+        return res
+          .status(400)
+          .json({ message: "tagIds must be an array of non-empty strings" });
+      }
+
+      const uniqueTagIds = Array.from(
+        new Set(normalizedTagIds.map((t) => t.trim())),
+      );
+      const existingTags = await prisma.tag.findMany({
+        where: { id: { in: uniqueTagIds } },
+        select: { id: true },
       });
 
-      if (!tag) {
-        return res.status(400).json({ message: "Tag not found" });
+      if (existingTags.length !== uniqueTagIds.length) {
+        const found = new Set(existingTags.map((t) => t.id));
+        const missing = uniqueTagIds.filter((tid) => !found.has(tid));
+        return res
+          .status(400)
+          .json({ message: "Some tags not found", missingTagIds: missing });
       }
+
+      tagIds = uniqueTagIds;
     }
 
     // Finalize new thumbnail from tmp to posts
@@ -277,7 +390,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     if (description !== undefined) updateData.description = description;
     if (content !== undefined) updateData.content = content;
     if (thumbnail !== undefined) updateData.thumbnail = thumbnail;
-    if (tagId !== undefined) updateData.tagId = tagId;
+    if (tagIds !== undefined) updateData.tagIds = tagIds;
     if (status !== undefined) updateData.status = status;
 
     const updatedPost = await (prisma.post as any).update({
@@ -305,7 +418,9 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
     }
 
     if (post.userId !== req.user!.id) {
-      return res.status(403).json({ message: "Unauthorized: You can only delete your own posts" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized: You can only delete your own posts" });
     }
 
     if (post.thumbnail) {

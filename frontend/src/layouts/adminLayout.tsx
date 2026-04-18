@@ -34,9 +34,9 @@ export default function AdminLayout(props: { children: ReactNode }) {
 		<>
 			<SidebarProvider className="bg-gray-50!">
 				<AppSidebar />
-				<main className="mt-2 mr-2 mb-2 w-full rounded-xl border-[0.5px] bg-white shadow-xs">
+				<main className="mt-2 mr-2 mb-2 flex min-w-0 flex-1 flex-col rounded-xl border-[0.5px] bg-white shadow-xs">
 					{/* Header */}
-					<div className="sticky top-0 flex h-16 items-center gap-2 rounded-xl bg-white/50 px-6 backdrop-blur-lg">
+					<div className="sticky top-0 flex h-16 shrink-0 items-center gap-2 rounded-xl bg-white/50 px-6 backdrop-blur-lg">
 						<SidebarTrigger />
 						<Breadcrumb>
 							<BreadcrumbList>
@@ -53,7 +53,7 @@ export default function AdminLayout(props: { children: ReactNode }) {
 							</BreadcrumbList>
 						</Breadcrumb>
 					</div>
-					<div className="px-8 pb-8">{props.children}</div>
+					<div className="min-w-0 px-8 pb-8">{props.children}</div>
 				</main>
 			</SidebarProvider>
 		</>

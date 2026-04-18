@@ -21,7 +21,7 @@ export const postsApi = {
 		return response.data;
 	},
 
-	create: async (data: { title: string; description?: string; content: string; thumbnail?: string; tagId: string; status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) => {
+	create: async (data: { title: string; description?: string; content: string; thumbnail?: string; tagIds: string[]; status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" }) => {
 		const response = await apiClient.post("/posts", data);
 		return response.data;
 	},
@@ -33,7 +33,7 @@ export const postsApi = {
 			description: string;
 			content: string;
 			thumbnail: string;
-			tagId: string;
+			tagIds: string[];
 			status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 		}>,
 	) => {
