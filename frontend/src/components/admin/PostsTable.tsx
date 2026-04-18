@@ -11,7 +11,7 @@ interface Post {
 	status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 	type_post: "POST" | "PROJECT";
 	createdAt: string;
-	tagId: string;
+	tagIds?: string[];
 }
 
 interface PostsTableProps {

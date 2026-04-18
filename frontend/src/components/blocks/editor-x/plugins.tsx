@@ -109,12 +109,12 @@ export function Plugins({}) {
 	};
 
 	return (
-		<div className="relative">
+		<div className="relative w-full min-w-0">
 			<ToolbarPlugin>
 				{({ blockType }) => (
-					<div className="vertical-align-middle sticky top-0 z-10 flex items-center gap-2 overflow-auto border-b p-1">
+					<div className="vertical-align-middle sticky top-0 z-10 flex w-full min-w-0 items-center gap-2 overflow-auto border-b p-1">
 						<HistoryToolbarPlugin />
-						<Separator orientation="vertical" className="!h-7" />
+						<Separator orientation="vertical" className="h-7!" />
 						<BlockFormatDropDown>
 							<FormatParagraph />
 							<FormatHeading levels={["h1", "h2", "h3"]} />
@@ -130,19 +130,19 @@ export function Plugins({}) {
 							<>
 								<FontFamilyToolbarPlugin />
 								<FontSizeToolbarPlugin />
-								<Separator orientation="vertical" className="!h-7" />
+								<Separator orientation="vertical" className="h-7!" />
 								<FontFormatToolbarPlugin />
-								<Separator orientation="vertical" className="!h-7" />
+								<Separator orientation="vertical" className="h-7!" />
 								<SubSuperToolbarPlugin />
 								<LinkToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
-								<Separator orientation="vertical" className="!h-7" />
+								<Separator orientation="vertical" className="h-7!" />
 								<ClearFormattingToolbarPlugin />
-								<Separator orientation="vertical" className="!h-7" />
+								<Separator orientation="vertical" className="h-7!" />
 								<FontColorToolbarPlugin />
 								<FontBackgroundToolbarPlugin />
-								<Separator orientation="vertical" className="!h-7" />
+								<Separator orientation="vertical" className="h-7!" />
 								<ElementFormatToolbarPlugin />
-								<Separator orientation="vertical" className="!h-7" />
+								<Separator orientation="vertical" className="h-7!" />
 								<BlockInsertPlugin>
 									<InsertHorizontalRule />
 									<InsertImage />
@@ -159,8 +159,8 @@ export function Plugins({}) {
 				<AutoFocusPlugin />
 				<RichTextPlugin
 					contentEditable={
-						<div className="">
-							<div className="" ref={onRef}>
+						<div className="w-full min-w-0">
+							<div className="w-full min-w-0" ref={onRef}>
 								<ContentEditable placeholder={placeholder} className="ContentEditable__root relative block h-[calc(100vh-90px)] min-h-72 overflow-auto px-8 py-4 focus:outline-none" />
 							</div>
 						</div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 import { ArrowLeft, Upload, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { TagInput, type Tag as TagOption } from "@/components/tag-input";
 
 interface Tag {
 	id: string;
@@ -25,7 +26,8 @@ interface Post {
 	description?: string;
 	content: string;
 	thumbnail?: string;
-	tagId: string;
+	tagIds?: string[];
+	tagId?: string;
 	status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 }
 
@@ -39,6 +41,8 @@ export default function EditPostPage() {
 	const [uploadingContent, setUploadingContent] = useState(false);
 	const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
 	const [postData, setPostData] = useState<Post | null>(null);
+	const allTagOptions = useMemo<TagOption<string>[]>(() => tags.map((t) => ({ label: t.name, value: t.id })), [tags]);
+	const [selectedTagOptions, setSelectedTagOptions] = useState<TagOption<string>[]>([]);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [formData, setFormData] = useState({
@@ -46,7 +50,7 @@ export default function EditPostPage() {
 		description: "",
 		content: "",
 		thumbnail: "",
-		tagId: "",
+		tagIds: [] as string[],
 		status: "DRAFT" as "DRAFT" | "PUBLISHED" | "ARCHIVED",
 	});
 
@@ -57,21 +61,26 @@ export default function EditPostPage() {
 
 				// Fetch tags
 				const tagsData = await tagsApi.getAll(1, 100);
-				setTags(tagsData.data || []);
+				const fetchedTags: Tag[] = tagsData.data || [];
+				setTags(fetchedTags);
 
 				// Fetch post
 				if (id) {
 					const postResponse = await postsApi.getById(id);
 					const post = postResponse.data || postResponse;
 					setPostData(post);
+					const initialTagIds: string[] = Array.isArray(post.tagIds) ? post.tagIds : post.tagId ? [post.tagId] : [];
 					setFormData({
 						title: post.title || "",
 						description: post.description || "",
 						content: post.content || "",
 						thumbnail: post.thumbnail || "",
-						tagId: post.tagId || "",
+						tagIds: initialTagIds,
 						status: post.status || "DRAFT",
 					});
+
+					const tagOptions: TagOption<string>[] = fetchedTags.map((t) => ({ label: t.name, value: t.id }));
+					setSelectedTagOptions(tagOptions.filter((opt) => initialTagIds.includes(opt.value)));
 					if (post.thumbnail) {
 						setThumbnailPreview(post.thumbnail);
 					}
@@ -131,8 +140,8 @@ export default function EditPostPage() {
 		e.preventDefault();
 
 		try {
-			if (!formData.title || !formData.content || !formData.tagId) {
-				toast.error("Title, content, and tag are required");
+			if (!formData.title || !formData.content || formData.tagIds.length === 0) {
+				toast.error("Title, content, and at least one tag are required");
 				return;
 			}
 
@@ -255,21 +264,18 @@ export default function EditPostPage() {
 								<Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of your post" rows={2} />
 							</div>
 
-							{/* Tag */}
+							{/* Tags */}
 							<div className="space-y-2">
-								<Label htmlFor="tag">Tag *</Label>
-								<Select value={formData.tagId} onValueChange={(val) => setFormData({ ...formData, tagId: val })}>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a tag" />
-									</SelectTrigger>
-									<SelectContent>
-										{tags.map((tag) => (
-											<SelectItem key={tag.id} value={tag.id}>
-												{tag.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+								<Label>Tags *</Label>
+								<TagInput
+									tags={selectedTagOptions}
+									setTags={(next) => {
+										setSelectedTagOptions(next);
+										setFormData((prev) => ({ ...prev, tagIds: next.map((t) => t.value) }));
+									}}
+									allTags={allTagOptions}
+									placeholder="Search tag..."
+								/>
 							</div>
 
 							{/* Status */}
