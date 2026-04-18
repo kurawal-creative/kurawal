@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
@@ -19,7 +19,12 @@ export default function Users() {
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [status, setStatus] = useState<string | null>(null);
 
-	const [newUser, setNewUser] = useState({ email: "", password: "", name: "", role: "user" });
+	const [newUser, setNewUser] = useState<{ email: string; password: string; name: string; role: "user" | "admin" }>({
+		email: "",
+		password: "",
+		name: "",
+		role: "user",
+	});
 
 	const updateStatus = (msg: string) => {
 		setStatus(msg);
@@ -215,7 +220,7 @@ export default function Users() {
 								</div>
 								<div className="space-y-1">
 									<label className="text-[10px] font-bold">ROLE</label>
-									<select className="w-full appearance-none border border-black bg-white p-2 text-sm ring-black outline-none focus:ring-1" value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
+									<select className="w-full appearance-none border border-black bg-white p-2 text-sm ring-black outline-none focus:ring-1" value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value as "user" | "admin" })}>
 										<option value="user">USER</option>
 										<option value="admin">ADMIN</option>
 									</select>

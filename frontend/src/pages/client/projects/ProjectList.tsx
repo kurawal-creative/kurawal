@@ -77,7 +77,7 @@ export default function ProjectList() {
 								<tr key={p.id} className="border-b border-black last:border-0 hover:bg-gray-50">
 									<td className="flex items-center justify-center border-r border-black p-2">{p.images && p.images.length > 0 ? <img src={p.images[0]} alt={p.name} className="h-10 w-10 border border-black object-cover grayscale transition-all group-hover:grayscale-0" /> : <div className="flex h-10 w-10 items-center justify-center border border-black bg-gray-100 text-[10px] opacity-30">N/A</div>}</td>
 									<td className="border-r border-black p-2 font-medium">{p.name}</td>
-									<td className="max-w-[150px] truncate border-r border-black p-2 text-xs">
+									<td className="max-w-37.5 truncate border-r border-black p-2 text-xs">
 										{p.link_github ? (
 											<a href={p.link_github} target="_blank" className="underline">
 												{p.link_github}
@@ -86,7 +86,7 @@ export default function ProjectList() {
 											"-"
 										)}
 									</td>
-									<td className="max-w-[150px] truncate border-r border-black p-2 text-xs">
+									<td className="max-w-37.5 truncate border-r border-black p-2 text-xs">
 										{p.link_demo ? (
 											<a href={p.link_demo} target="_blank" className="underline">
 												{p.link_demo}

@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { useState } from "react";
 import UploadMedia from "@/pages/admin/media/UploadMedia";
 

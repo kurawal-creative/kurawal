@@ -1,6 +1,6 @@
 "use client";
 
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { useState } from "react";
 import { type SerializedEditorState } from "lexical";
 

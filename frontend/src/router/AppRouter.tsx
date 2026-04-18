@@ -6,16 +6,16 @@ import "nprogress/nprogress.css";
 import publicRoutes from "./PublicRoutes";
 import privateRoutes from "./PrivateRoutes";
 import ProtectedRoute from "../components/ProtectedRoute";
-import NotFound from "../features/not-found/NotFound";
-import TestProgress from "../features/TestProgress";
+import NotFound from "../pages/client/NotFound";
+import { TopbarProgress } from "@/components/TopbarProgress";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminPostsPage from "@/pages/admin/Posts";
 import AdminTagsPage from "@/pages/admin/Tags";
 import AdminMediaPage from "@/pages/admin/Media";
-import AdminProjectPage from "@/pages/admin/Project";
-import AdminProjectDetailPage from "@/pages/admin/ProjectDetail.tsx";
-import AdminProjectCreatePage from "@/pages/admin/ProjectCreate.tsx";
-import AdminProjectEditPage from "@/pages/admin/ProjectEdit.tsx";
+import AdminProjectPage from "@/pages/admin/works/Project";
+import AdminProjectDetailPage from "@/pages/admin/works/ProjectDetail";
+import AdminProjectCreatePage from "@/pages/admin/works/ProjectCreate";
+import AdminProjectEditPage from "@/pages/admin/works/ProjectEdit";
 import CreatePostPage from "@/pages/admin/CreatePost";
 import EditPostPage from "@/pages/admin/EditPost";
 import UserProfilePage from "@/pages/admin/UserProfile";
@@ -156,7 +156,7 @@ export default function AppRouter() {
 			))}
 
 			{/* Utility */}
-			<Route path="/test-progress" element={<TestProgress />} />
+			<Route path="/test-progress" element={<TopbarProgress />} />
 			<Route path="*" element={<NotFound />} />
 		</Routes>
 	);

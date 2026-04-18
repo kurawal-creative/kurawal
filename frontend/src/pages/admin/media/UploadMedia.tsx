@@ -1,6 +1,6 @@
 "use client";
 
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { FileUpload, FileUploadDropzone, FileUploadItem, FileUploadItemDelete, FileUploadItemMetadata, FileUploadItemPreview, FileUploadItemProgress, FileUploadList, FileUploadTrigger, type FileUploadProps } from "@/components/ui/file-upload";
 import { toast, Toaster } from "sonner";
 import * as React from "react";

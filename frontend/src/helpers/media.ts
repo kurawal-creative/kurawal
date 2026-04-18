@@ -33,7 +33,7 @@ export async function uploadMedia(file: File, onProgress: (file: File, progress:
 
 		const unique = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
 
-		const extension = file.name.split(".").pop() || "";
+		// const extension = file.name.split(".").pop() || "";
 		const public_id = `${safeBase}-${unique}`;
 		const result = await api.post("/media/signature", {
 			public_id: public_id,

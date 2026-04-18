@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { postsApi, tagsApi } from "@/utils/adminApi";
 import { Skeleton } from "@/components/ui/skeleton";

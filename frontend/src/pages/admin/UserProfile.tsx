@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/utils/cloudinary";

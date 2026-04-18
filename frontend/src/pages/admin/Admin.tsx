@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "@/components/layouts/AdminLayout";
+import AdminLayout from "@/layouts/adminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { postsApi, tagsApi } from "@/utils/adminApi";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,7 +27,7 @@ export default function Admin() {
 				const [postsData, tagsData] = await Promise.all([postsApi.getAll(1, 100), tagsApi.getAll(1, 100)]);
 
 				const posts = postsData.data || [];
-				const tags = tagsData.data || [];
+				// const tags = tagsData.data || [];
 
 				const publishedCount = posts.filter((p: any) => p.status === "PUBLISHED").length;
 				const draftCount = posts.filter((p: any) => p.status === "DRAFT").length;

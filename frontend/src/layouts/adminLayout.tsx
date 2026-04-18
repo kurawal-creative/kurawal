@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
-import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
-import { AppSidebar } from "../ui/app-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
+import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
+import { AppSidebar } from "../components/ui/app-sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../components/ui/breadcrumb";
 import { Link } from "react-router-dom";
 import { userBreadcrumbs } from "@/utils/generateBreadcrumbs";
 export default function AdminLayout(props: { children: ReactNode }) {

@@ -1,6 +1,6 @@
-import Posts from "../features/posts/Posts";
-import CreatePost from "../features/posts/CreatePost";
-import EditPost from "../features/posts/EditPost";
+import Posts from "../pages/client/posts/Posts";
+import CreatePost from "../pages/client/posts/CreatePost";
+import EditPost from "../pages/client/posts/EditPost";
 // import Layout from "../layouts/layout";
 
 export default [
