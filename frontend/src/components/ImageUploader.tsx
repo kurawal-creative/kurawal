@@ -1,12 +1,10 @@
 import { cn } from "@/lib/utils";
-import { Check, Copy, Trash2, Upload, ZoomIn, ZoomOut } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { Upload, ZoomIn, ZoomOut } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Cropper from "react-easy-crop";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Slider } from "./ui/slider";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 interface Point {
 	x: number;
@@ -51,6 +49,17 @@ interface ImageUploaderProps {
 	 * Callback function that returns the cropped image as a blob or file
 	 */
 	onImageCropped?: (blob: Blob) => void;
+
+	/**
+	 * Controls whether the drag-and-drop upload zone is rendered
+	 * @default true
+	 */
+	showDropzone?: boolean;
+
+	/**
+	 * Exposes a function to open the native file picker programmatically
+	 */
+	registerOpenFileDialog?: (openFileDialog: () => void) => void;
 }
 
 /**
@@ -62,6 +71,8 @@ export function ImageUploader({
 	acceptedFileTypes = ["image/jpeg", "image/png", "image/webp"],
 	className,
 	onImageCropped,
+	showDropzone = true,
+	registerOpenFileDialog,
 }: ImageUploaderProps) {
 	const [image, setImage] = useState<string | null>(null);
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -70,9 +81,19 @@ export function ImageUploader({
 	const [error, setError] = useState<string | null>(null);
 	const [previewImage, setPreviewImage] = useState<string | null>(null);
 	const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
-	const [isCopied, setIsCopied] = useState(false);
 
 	const inputRef = useRef<HTMLInputElement>(null);
+
+	const openFileDialog = useCallback(() => {
+		if (!inputRef.current) return;
+		inputRef.current.value = "";
+		inputRef.current.click();
+	}, []);
+
+	useEffect(() => {
+		if (!registerOpenFileDialog) return;
+		registerOpenFileDialog(openFileDialog);
+	}, [registerOpenFileDialog, openFileDialog]);
 
 	// We're not using a drop library like react-dropzone, so this is handled manually with DOM events
 
@@ -140,37 +161,6 @@ export function ImageUploader({
 		}
 	}, [image, croppedAreaPixels]);
 
-	const copyComponentCode = () => {
-		const code = `import { ImageUploader } from "@/components/ImageUploader";
-
-// Basic usage
-<ImageUploader onImageCropped={(blob) => console.log(blob)} />
-
-// With options
-<ImageUploader 
-  aspectRatio={16/9}
-  maxSize={10 * 1024 * 1024} // 10MB
-  acceptedFileTypes={['image/jpeg', 'image/png']}
-  onImageCropped={(blob) => {
-    // Do something with the blob
-    console.log(blob);
-  }} 
-/>`;
-
-		navigator.clipboard.writeText(code).then(() => {
-			setIsCopied(true);
-			setTimeout(() => setIsCopied(false), 2000);
-		});
-	};
-
-	const clearImage = () => {
-		setPreviewImage(null);
-		setImage(null);
-		setCroppedAreaPixels(null);
-		setCrop({ x: 0, y: 0 });
-		setZoom(1);
-	};
-
 	const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -197,50 +187,43 @@ export function ImageUploader({
 
 	return (
 		<div className={cn("w-full", className)}>
-			<Card className="w-full">
+			<input ref={inputRef} type="file" className="hidden" accept={acceptedFileTypes.join(",")} onChange={(e) => handleFileSelect(e.target.files ? e.target.files[0] : null)} />
+
+			{/* <Card className="w-full">
 				<CardHeader>
-					<CardTitle className="flex items-center justify-between">
-						Image Uploader
-						<div className="flex gap-2">
-							{previewImage && (
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<Button size="icon" variant="outline" onClick={clearImage}>
-												<Trash2 size={16} />
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>Clear image</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-							)}
-						</div>
-					</CardTitle>
+					<CardTitle className="flex items-center justify-between">Thumbnail Image</CardTitle>
 				</CardHeader>
-				<CardContent>
-					{!previewImage ? (
-						<div className="hover:bg-muted/20 cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors" onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={() => inputRef.current?.click()}>
-							<input ref={inputRef} type="file" className="hidden" accept={acceptedFileTypes.join(",")} onChange={(e) => handleFileSelect(e.target.files ? e.target.files[0] : null)} />
-							<Upload className="text-muted-foreground mx-auto h-12 w-12" />
-							<p className="text-muted-foreground mt-2 text-sm">Drag and drop an image here or click to browse</p>
-							<p className="text-muted-foreground mt-1 text-xs">{`Accepted formats: ${acceptedFileTypes.map((type) => type.replace("image/", ".")).join(", ")}`}</p>
-							<p className="text-muted-foreground mt-1 text-xs">{`Max size: ${maxSize / (1024 * 1024)}MB`}</p>
-							{error && <p className="text-destructive mt-2 text-sm">{error}</p>}
-						</div>
-					) : (
-						<div className="relative overflow-hidden rounded-lg">
-							<img src={previewImage} alt="Cropped preview" className="aspect-ratio-1/1 h-auto w-full rounded-lg object-cover" style={{ aspectRatio: aspectRatio }} />
-							<Button className="absolute right-4 bottom-4" onClick={() => setIsCropDialogOpen(true)}>
-								Edit
-							</Button>
-						</div>
-					)}
-				</CardContent>
+				<CardContent></CardContent>
 				<CardFooter className="flex justify-between">
 					<p className="text-muted-foreground text-xs">Upload an image to preview and crop</p>
 				</CardFooter>
-			</Card>
+			</Card> */}
 
+			{/* <div className="flex w-full items-end justify-end">
+				{previewImage && (
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button size="icon" variant="outline" onClick={clearImage}>
+									<Trash2 size={16} />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Clear image</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				)}
+			</div> */}
+			{showDropzone && !previewImage ? (
+				<div className="hover:bg-muted/20 cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors" onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={() => inputRef.current?.click()}>
+					<Upload className="text-muted-foreground mx-auto h-12 w-12" />
+					<p className="text-muted-foreground mt-2 text-sm">Drag and drop an image here or click to browse</p>
+					<p className="text-muted-foreground mt-1 text-xs">{`Accepted formats: ${acceptedFileTypes.map((type) => type.replace("image/", ".")).join(", ")}`}</p>
+					<p className="text-muted-foreground mt-1 text-xs">{`Max size: ${maxSize / (1024 * 1024)}MB`}</p>
+					{error && <p className="text-destructive mt-2 text-sm">{error}</p>}
+				</div>
+			) : showDropzone ? (
+				<div className="relative overflow-hidden rounded-lg"></div>
+			) : null}
 			<Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
 				<DialogContent className="sm:max-w-lg">
 					<DialogHeader>
