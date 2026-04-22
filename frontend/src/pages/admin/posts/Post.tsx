@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { postsApi, tagsApi } from "@/utils/adminApi";
 import PostsHeader from "@/components/admin/PostsHeader";
 import PostsFilters from "@/components/admin/PostsFilters";
 import PostsTable from "@/components/admin/PostsTable";
-import PostsPagination from "@/components/admin/PostsPagination";
 import PostsDeleteDialog from "@/components/admin/PostsDeleteDialog";
 import AdminLayout from "@/layouts/adminLayout";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutGrid, Table } from "lucide-react";
+import PostsGrid from "@/components/admin/PostsGrid";
 
 interface Post {
 	id: string;
 	title: string;
+	thumbnail?: string;
 	description?: string;
 	status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 	type_post: "POST" | "PROJECT";
@@ -31,7 +33,6 @@ export default function AdminPostsPage() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedTag, setSelectedTag] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 	const [deletePostId, setDeletePostId] = useState<string | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -42,7 +43,6 @@ export default function AdminPostsPage() {
 			const tagFilter = selectedTag === "all" ? "" : selectedTag;
 			const data = await postsApi.getAll(page, 10, searchTerm, tagFilter);
 			setPosts(data.data || []);
-			setTotalPages(data.pagination?.totalPages || 1);
 		} catch (error) {
 			console.error("Error fetching posts:", error);
 			toast.error("Failed to fetch posts");
@@ -100,19 +100,20 @@ export default function AdminPostsPage() {
 		<AdminLayout>
 			<div className="space-y-6 pb-8">
 				<PostsHeader />
-
 				{/* Filters */}
 				<PostsFilters searchTerm={searchTerm} onSearchChange={setSearchTerm} selectedTag={selectedTag} onTagChange={setSelectedTag} tags={tags} />
 
-				{/* Table */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Posts</CardTitle>
-						<CardDescription>
-							Showing {posts.length} of {posts.length} posts
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
+				<Tabs defaultValue="tables" className="">
+					<TabsList>
+						<TabsTrigger value="tables">
+							<Table />{" "}
+						</TabsTrigger>
+						<TabsTrigger value="grid">
+							<LayoutGrid />
+						</TabsTrigger>
+					</TabsList>
+					<TabsContent value="tables">
+						{/* Table */}
 						<PostsTable
 							posts={posts}
 							loading={loading}
@@ -121,13 +122,20 @@ export default function AdminPostsPage() {
 								setIsDeleteOpen(true);
 							}}
 						/>
-
-						<PostsPagination currentPage={currentPage} totalPages={totalPages} onPreviousClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} onNextClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} />
-					</CardContent>
-				</Card>
+					</TabsContent>
+					<TabsContent value="grid">
+						<PostsGrid
+							posts={posts}
+							loading={loading}
+							onDeleteClick={(postId) => {
+								setDeletePostId(postId);
+								setIsDeleteOpen(true);
+							}}
+						/>
+					</TabsContent>
+				</Tabs>
+				<PostsDeleteDialog isOpen={isDeleteOpen} onOpenChange={setIsDeleteOpen} onConfirm={handleDelete} isDeleting={isDeleting} />
 			</div>
-
-			<PostsDeleteDialog isOpen={isDeleteOpen} onOpenChange={setIsDeleteOpen} onConfirm={handleDelete} isDeleting={isDeleting} />
 		</AdminLayout>
 	);
 }

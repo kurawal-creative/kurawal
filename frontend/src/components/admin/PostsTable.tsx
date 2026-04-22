@@ -3,10 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pencil, Trash2 } from "lucide-react";
+import { Label } from "../ui/label";
 
 interface Post {
 	id: string;
 	title: string;
+	thumbnail?: string;
 	description?: string;
 	status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 	type_post: "POST" | "PROJECT";
@@ -47,12 +49,12 @@ export default function PostsTable({ posts, loading, onDeleteClick }: PostsTable
 	}
 
 	return (
-		<div className="overflow-x-auto">
+		<div className="overflow-x-auto rounded-md border p-2">
 			<Table>
 				<TableHeader>
 					<TableRow>
+						<TableHead>Thumbnail</TableHead>
 						<TableHead>Title</TableHead>
-						<TableHead>Type</TableHead>
 						<TableHead>Status</TableHead>
 						<TableHead>Created</TableHead>
 						<TableHead className="text-right">Actions</TableHead>
@@ -61,17 +63,19 @@ export default function PostsTable({ posts, loading, onDeleteClick }: PostsTable
 				<TableBody>
 					{posts.length === 0 ? (
 						<TableRow>
-							<TableCell colSpan={5} className="text-muted-foreground py-8 text-center">
+							<TableCell colSpan={6} className="text-muted-foreground py-8 text-center">
 								No posts found
 							</TableCell>
 						</TableRow>
 					) : (
 						posts.map((post) => (
 							<TableRow key={post.id}>
-								<TableCell className="font-medium">{post.title}</TableCell>
 								<TableCell>
-									<span className="rounded bg-blue-100 px-2 py-1 text-sm text-blue-800">{post.type_post}</span>
+									<div className="h-12 w-20 overflow-hidden rounded-md border">
+										<img src={post.thumbnail || "https://images.unsplash.com/photo-1504805572947-34fad45aed93?q=80&w=600&auto=format&fit=crop"} alt={post.title} className="h-full w-full object-cover" loading="lazy" />
+									</div>
 								</TableCell>
+								<TableCell className="font-medium">{post.title}</TableCell>
 								<TableCell>
 									<span className={`rounded px-2 py-1 text-sm ${getStatusColor(post.status)}`}>{post.status}</span>
 								</TableCell>
@@ -91,6 +95,9 @@ export default function PostsTable({ posts, loading, onDeleteClick }: PostsTable
 					)}
 				</TableBody>
 			</Table>
+			<Label className="px-2 py-4">
+				Showing {posts.length} of {posts.length} posts
+			</Label>
 		</div>
 	);
 }
