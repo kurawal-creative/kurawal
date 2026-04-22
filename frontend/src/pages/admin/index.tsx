@@ -12,7 +12,7 @@ interface DashboardStats {
 	draftPosts: number;
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboardPage() {
 	const [stats, setStats] = useState<DashboardStats>({
 		totalPosts: 0,
 		totalTags: 0,

@@ -8,7 +8,7 @@ import privateRoutes from "./PrivateRoutes";
 import ProtectedRoute from "../components/ProtectedRoute";
 import NotFound from "../pages/NotFound";
 import { TopbarProgress } from "@/components/TopbarProgress";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminDashboardPage from "@/pages/admin/index";
 import AdminPostsPage from "@/pages/admin/posts/Post";
 import AdminTagsPage from "@/pages/admin/Tags";
 import AdminMediaPage from "@/pages/admin/Media";
@@ -18,8 +18,8 @@ import AdminProjectCreatePage from "@/pages/admin/works/ProjectCreate";
 import AdminProjectEditPage from "@/pages/admin/works/ProjectEdit";
 import CreatePostPage from "@/pages/admin/posts/PostCreate";
 import EditPostPage from "@/pages/admin/posts/PostEdit";
-import UserProfilePage from "@/pages/admin/UserProfile";
-import AdminUsersPage from "@/pages/admin/Users";
+import UserProfilePage from "@/pages/admin/profile/index";
+import AdminUsersPage from "@/pages/admin/users/index";
 import { NuqsAdapter } from "nuqs/adapters/react";
 
 export default function AppRouter() {
@@ -44,7 +44,7 @@ export default function AppRouter() {
 				path="/admin"
 				element={
 					<ProtectedRoute>
-						<AdminDashboard />
+						<AdminDashboardPage />
 					</ProtectedRoute>
 				}
 			/>

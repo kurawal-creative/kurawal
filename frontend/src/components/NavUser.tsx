@@ -25,7 +25,7 @@ export function NavUser() {
 	const handleLogout = async () => {
 		try {
 			await authClient.signOut();
-			navigate("/");
+			navigate("/login");
 		} catch (error) {
 			console.error("Logout failed:", error);
 		}
@@ -40,7 +40,7 @@ export function NavUser() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Avatar className="size-8 cursor-pointer">
+				<Avatar className="size-9.5 cursor-pointer">
 					<AvatarImage src={user.avatar} alt={user.name} />
 					<AvatarFallback>{initials}</AvatarFallback>
 				</Avatar>
@@ -54,7 +54,7 @@ export function NavUser() {
 						</Avatar>
 						<div>
 							<span className="text-foreground font-medium">{user.name}</span> <br />
-							<div className="text-muted-foreground max-w-full overflow-hidden text-xs overflow-ellipsis whitespace-nowrap">{user.email}</div>
+							<div className="text-muted-foreground max-w-full overflow-hidden text-xs text-ellipsis whitespace-nowrap">{user.email}</div>
 						</div>
 					</DropdownMenuLabel>
 				</DropdownMenuItem>

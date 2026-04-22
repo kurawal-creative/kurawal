@@ -1,32 +1,34 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useMemo } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { authClient } from "@/lib/auth-client"; // Sesuaikan path ini
+import { authClient } from "@/lib/auth-client";
 
 interface ProtectedRouteProps {
 	children?: ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-	// Menggunakan hook bawaan Better Auth secara langsung
 	const { data: session, isPending } = authClient.useSession();
 	const location = useLocation();
 
-	// 1. Handle Loading State
-	// Kamu bisa return null atau loading spinner agar tidak "flicker"
+	// Memoize auth state (biar stabil & tidak recompute tiap render)
+	const isAuthenticated = useMemo(() => {
+		return !!session;
+	}, [session]);
+
+	const redirectUrl = useMemo(() => {
+		return `/login?redirect=${encodeURIComponent(location.pathname)}`;
+	}, [location.pathname]);
+
+	// 1. Loading state (hindari flicker + unnecessary render)
 	if (isPending) {
-		return (
-			<div className="flex h-screen items-center justify-center">
-				<p>Aduh...</p>
-			</div>
-		);
+		return null; // lebih clean daripada render div loading
 	}
 
-	// 2. Handle Unauthenticated State
-	// Jika session tidak ada (null), arahkan ke login
-	if (!session) {
-		return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+	// 2. Jika tidak login → redirect
+	if (!isAuthenticated) {
+		return <Navigate to={redirectUrl} replace />;
 	}
 
-	// 3. Render Children jika terautentikasi
+	// 3. Jika login → render children
 	return <>{children}</>;
 }
