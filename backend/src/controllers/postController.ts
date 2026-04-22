@@ -12,12 +12,10 @@ import { finalizeImage } from "../utils/cloudinary.js";
 
 // Helper scan public_id dari markdown
 const getPublicIds = (content: string) => {
-  const regex = /res\.cloudinary\.com\/.*\/image\/upload\/v\d+\/([^\s)]+)/g;
-  return [...content.matchAll(regex)].map((m) => {
-    const raw = m[1];
-    // Hilangkan ekstensi jika ada (.jpg, .png, dll)
-    return raw.split(".")[0];
-  });
+  const cloudinaryUrls = extractCloudinaryUrlsFromContent(content);
+  return cloudinaryUrls
+    .map((url) => extractPublicIdFromUrl(url))
+    .filter((pid): pid is string => Boolean(pid));
 };
 
 export const getPosts = async (
@@ -221,18 +219,13 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     const publicIds = new Set<string>();
 
     if (thumbnail) {
-      const publicId = extractPublicIdFromUrl(thumbnail);
-      if (publicId) {
+      for (const publicId of getPublicIds(thumbnail)) {
         publicIds.add(publicId);
       }
     }
 
-    const contentUrls = extractCloudinaryUrlsFromContent(content);
-    for (const url of contentUrls) {
-      const publicId = extractPublicIdFromUrl(url);
-      if (publicId) {
-        publicIds.add(publicId);
-      }
+    for (const publicId of getPublicIds(content)) {
+      publicIds.add(publicId);
     }
 
     // Link media to post

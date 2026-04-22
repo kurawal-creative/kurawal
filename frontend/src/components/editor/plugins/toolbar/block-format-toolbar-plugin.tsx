@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectGroup, SelectTrigger } from "@/components/
 
 export function BlockFormatDropDown({ children }: { children: React.ReactNode }) {
 	const { activeEditor, blockType, setBlockType } = useToolbarContext();
+	const resolvedBlockType = blockType in blockTypeToBlockName ? blockType : "paragraph";
+	const activeBlockMeta = blockTypeToBlockName[resolvedBlockType] ?? blockTypeToBlockName.paragraph;
 
 	function $updateToolbar(selection: BaseSelection) {
 		if ($isRangeSelection(selection)) {
@@ -49,14 +51,14 @@ export function BlockFormatDropDown({ children }: { children: React.ReactNode })
 
 	return (
 		<Select
-			value={blockType}
+			value={resolvedBlockType}
 			onValueChange={(value) => {
-				setBlockType(value as keyof typeof blockTypeToBlockName);
+				setBlockType(value in blockTypeToBlockName ? (value as keyof typeof blockTypeToBlockName) : "paragraph");
 			}}
 		>
-			<SelectTrigger className="!h-8 w-min gap-1">
-				{blockTypeToBlockName[blockType].icon}
-				<span>{blockTypeToBlockName[blockType].label}</span>
+			<SelectTrigger className="h-8! w-min gap-1">
+				{activeBlockMeta.icon}
+				<span>{activeBlockMeta.label}</span>
 			</SelectTrigger>
 			<SelectContent>
 				<SelectGroup>{children}</SelectGroup>

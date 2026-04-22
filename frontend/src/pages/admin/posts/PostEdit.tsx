@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { postsApi, tagsApi } from "@/utils/adminApi";
 import { uploadToCloudinary } from "@/utils/cloudinary";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,10 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-import { ArrowLeft, Upload, X, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TagInput, type Tag as TagOption } from "@/components/tag-input";
 import AdminLayout from "@/layouts/adminLayout";
+import { ImageUploader } from "@/components/ImageUploader";
+import { Badge } from "@/components/ui/badge";
+import { DateTimePicker24h } from "@/components/date-picker";
+import { Editor } from "@/components/blocks/editor-x/editor";
+import type { SerializedEditorState } from "lexical";
 
 interface Tag {
 	id: string;
@@ -38,9 +43,12 @@ export default function EditPostPage() {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
-	const [uploadingContent, setUploadingContent] = useState(false);
+	const [thumbnailUploadProgress, setThumbnailUploadProgress] = useState(0);
 	const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
+	const [localThumbnailPreview, setLocalThumbnailPreview] = useState<string | null>(null);
 	const [postData, setPostData] = useState<Post | null>(null);
+	const formRef = useRef<HTMLFormElement | null>(null);
+	const openThumbnailPickerRef = useRef<(() => void) | null>(null);
 	const allTagOptions = useMemo<TagOption<string>[]>(() => tags.map((t) => ({ label: t.name, value: t.id })), [tags]);
 	const [selectedTagOptions, setSelectedTagOptions] = useState<TagOption<string>[]>([]);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -53,6 +61,16 @@ export default function EditPostPage() {
 		tagIds: [] as string[],
 		status: "DRAFT" as "DRAFT" | "PUBLISHED" | "ARCHIVED",
 	});
+
+	const editorSerializedState = useMemo<SerializedEditorState | undefined>(() => {
+		if (!formData.content) return undefined;
+
+		try {
+			return JSON.parse(formData.content) as SerializedEditorState;
+		} catch {
+			return undefined;
+		}
+	}, [formData.content]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -96,20 +114,48 @@ export default function EditPostPage() {
 		fetchData();
 	}, [id]);
 
+	useEffect(() => {
+		return () => {
+			if (localThumbnailPreview) {
+				URL.revokeObjectURL(localThumbnailPreview);
+			}
+		};
+	}, [localThumbnailPreview]);
+
 	const handleThumbnailUpload = async (file: File) => {
+		const localPreviewUrl = URL.createObjectURL(file);
+		setThumbnailPreview(localPreviewUrl);
+		setLocalThumbnailPreview(localPreviewUrl);
+		setThumbnailUploadProgress(0);
+
 		try {
 			setUploadingThumbnail(true);
 
 			// Upload to Cloudinary using common utility
-			const response = await uploadToCloudinary(file);
+			const response = await uploadToCloudinary(file, {
+				onProgress: ({ percent }) => {
+					setThumbnailUploadProgress(percent);
+				},
+			});
 
 			// Set thumbnail URL
 			const thumbnailUrl = response.secure_url;
 			setFormData((prev) => ({ ...prev, thumbnail: thumbnailUrl }));
 			setThumbnailPreview(thumbnailUrl);
+			if (localPreviewUrl) {
+				URL.revokeObjectURL(localPreviewUrl);
+				setLocalThumbnailPreview(null);
+			}
+			setThumbnailUploadProgress(100);
 			toast.success("Thumbnail uploaded successfully");
 		} catch (error: any) {
 			console.error("Error uploading thumbnail:", error);
+			if (localPreviewUrl) {
+				URL.revokeObjectURL(localPreviewUrl);
+				setLocalThumbnailPreview(null);
+			}
+			setThumbnailPreview("");
+			setThumbnailUploadProgress(0);
 			toast.error("Failed to upload thumbnail");
 		} finally {
 			setUploadingThumbnail(false);
@@ -117,36 +163,38 @@ export default function EditPostPage() {
 	};
 
 	const handleThumbnailRemove = () => {
+		if (localThumbnailPreview) {
+			URL.revokeObjectURL(localThumbnailPreview);
+			setLocalThumbnailPreview(null);
+		}
 		setFormData((prev) => ({ ...prev, thumbnail: "" }));
 		setThumbnailPreview("");
+		setThumbnailUploadProgress(0);
 	};
 
-	const handleContentImageUpload = async (file: File) => {
-		try {
-			setUploadingContent(true);
-			const response = await uploadToCloudinary(file);
-			const imageUrl = `\n![image](${response.secure_url})\n`;
-			setFormData((prev) => ({ ...prev, content: prev.content + imageUrl }));
-			toast.success("Image inserted into content");
-		} catch (error: any) {
-			console.error("Error uploading image:", error);
-			toast.error("Failed to upload image");
-		} finally {
-			setUploadingContent(false);
-		}
+	const handleThumbnailEdit = () => {
+		openThumbnailPickerRef.current?.();
 	};
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
+	const submitPost = async (status: "DRAFT" | "PUBLISHED" | "ARCHIVED") => {
 		try {
 			if (!formData.title || !formData.content || formData.tagIds.length === 0) {
 				toast.error("Title, content, and at least one tag are required");
 				return;
 			}
 
+			if (!formData.thumbnail) {
+				toast.error("Thumbnail is required");
+				return;
+			}
+
 			setSaving(true);
-			await postsApi.update(id!, formData);
+			const payload = {
+				...formData,
+				status,
+			};
+
+			await postsApi.update(id!, payload);
 			toast.success("Post updated successfully");
 			navigate("/admin/posts");
 		} catch (error: any) {
@@ -155,6 +203,25 @@ export default function EditPostPage() {
 		} finally {
 			setSaving(false);
 		}
+	};
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		await submitPost(formData.status);
+	};
+
+	const handleDraftClick = () => {
+		setFormData((prev) => ({ ...prev, status: "DRAFT" }));
+		queueMicrotask(() => {
+			formRef.current?.requestSubmit();
+		});
+	};
+
+	const handlePublishClick = () => {
+		setFormData((prev) => ({ ...prev, status: "PUBLISHED" }));
+		queueMicrotask(() => {
+			formRef.current?.requestSubmit();
+		});
 	};
 
 	const handleDelete = async () => {
@@ -194,79 +261,110 @@ export default function EditPostPage() {
 
 	return (
 		<AdminLayout>
-			<div className="space-y-6 pb-8">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-4">
-						<Button variant="outline" size="sm" onClick={() => navigate("/admin/posts")}>
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Back
-						</Button>
-						<div>
-							<h1 className="text-3xl font-bold tracking-tight">Edit Post</h1>
-							<p className="text-muted-foreground mt-2">Update your post details</p>
-						</div>
+			<div className="min-w-0 space-y-6">
+				<div className="flex items-center justify-between gap-4">
+					<div>
+						<h1 className="text-3xl font-bold tracking-tight">Edit Post</h1>
+						<p className="text-muted-foreground mt-2">Update your post details</p>
 					</div>
-
-					<Button variant="destructive" size="sm" onClick={() => setIsDeleteOpen(true)}>
-						<Trash2 className="mr-2 h-4 w-4" />
-						Delete
-					</Button>
+					<div className="flex items-center gap-2">
+						<Select value={formData.status} onValueChange={(val: any) => setFormData({ ...formData, status: val })}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="DRAFT">Draft</SelectItem>
+								<SelectItem value="PUBLISHED">Published</SelectItem>
+								<SelectItem value="ARCHIVED">Archived</SelectItem>
+							</SelectContent>
+						</Select>
+						<Button variant="destructive" size="sm" onClick={() => setIsDeleteOpen(true)}>
+							<Trash2 className="mr-2 h-4 w-4" />
+							Delete
+						</Button>
+					</div>
 				</div>
 
-				<form onSubmit={handleSubmit} className="space-y-6">
-					{/* Main Content Card */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Post Details</CardTitle>
-							<CardDescription>Update information about your post</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							{/* Thumbnail Section */}
+				<form ref={formRef} onSubmit={handleSubmit} className="space-y-6 pb-28">
+					<div className="flex gap-8">
+						<div className="w-full">
 							<div className="space-y-2">
-								<Label>Thumbnail Image *</Label>
+								<ImageUploader
+									showDropzone={false}
+									aspectRatio={16 / 9}
+									maxSize={10 * 1024 * 1024}
+									acceptedFileTypes={["image/jpeg", "image/png", "image/webp"]}
+									registerOpenFileDialog={(openDialog) => {
+										openThumbnailPickerRef.current = openDialog;
+									}}
+									onImageCropped={(blob) => {
+										const file = new File([blob], `thumbnail-${Date.now()}.jpg`, {
+											type: blob.type || "image/jpeg",
+										});
+										void handleThumbnailUpload(file);
+									}}
+								/>
+
 								{thumbnailPreview ? (
-									<div className="relative inline-block">
-										<img src={thumbnailPreview} alt="Thumbnail preview" className="h-40 w-auto rounded-lg border object-cover" />
-										<button type="button" onClick={handleThumbnailRemove} className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600">
-											<X className="h-4 w-4" />
-										</button>
+									<div className="group relative inline-block overflow-hidden rounded-lg border">
+										<img src={thumbnailPreview} alt="Thumbnail preview" className={`h-40 w-auto rounded-lg object-cover transition-opacity duration-300 ${uploadingThumbnail ? "opacity-80" : "opacity-100"}`} />
+
+										<div className={`absolute inset-0 z-10 flex items-center justify-center bg-black/55 backdrop-blur-[1px] transition-opacity duration-300 ${uploadingThumbnail ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+											<div className="flex min-w-24 flex-col items-center gap-2 text-white">
+												<div className="relative h-12 w-12">
+													<svg className="h-12 w-12 -rotate-90" viewBox="0 0 36 36" aria-label={`Thumbnail upload progress ${thumbnailUploadProgress}%`} role="img">
+														<path d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831a15.9155 15.9155 0 1 1 0-31.831" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="3" />
+														<path d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831a15.9155 15.9155 0 1 1 0-31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={`${thumbnailUploadProgress}, 100`} strokeLinecap="round" />
+													</svg>
+													<span className="absolute inset-0 flex items-center justify-center text-xs font-semibold">{thumbnailUploadProgress}%</span>
+												</div>
+												<p className="text-xs text-white/85">Uploading...</p>
+											</div>
+										</div>
+										<div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+											<Button type="button" variant="ghost" size="icon" onClick={handleThumbnailEdit} disabled={uploadingThumbnail} className="h-8 w-8 rounded-full bg-black/45 text-white backdrop-blur-sm hover:bg-black/65" aria-label="Edit thumbnail">
+												<Pencil className="h-4 w-4" />
+											</Button>
+											<Button type="button" variant="ghost" size="icon" onClick={handleThumbnailRemove} disabled={uploadingThumbnail} className="h-8 w-8 rounded-full bg-black/45 text-white backdrop-blur-sm hover:bg-red-600/85" aria-label="Delete thumbnail">
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
 									</div>
 								) : (
-									<label className="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-6 hover:border-gray-400">
-										<Upload className="h-5 w-5 text-gray-500" />
-										<span className="text-sm text-gray-600">Click to upload thumbnail</span>
-										<input
-											type="file"
-											accept="image/*"
-											onChange={(e) => {
-												const file = e.target.files?.[0];
-												if (file) {
-													handleThumbnailUpload(file);
-												}
+									<div className="space-y-2">
+										<ImageUploader
+											aspectRatio={16 / 9}
+											maxSize={10 * 1024 * 1024}
+											acceptedFileTypes={["image/jpeg", "image/png", "image/webp"]}
+											onImageCropped={(blob) => {
+												const file = new File([blob], `thumbnail-${Date.now()}.jpg`, {
+													type: blob.type || "image/jpeg",
+												});
+												void handleThumbnailUpload(file);
 											}}
-											disabled={uploadingThumbnail}
-											className="hidden"
 										/>
-									</label>
+									</div>
 								)}
-								{uploadingThumbnail && <p className="text-sm text-gray-500">Uploading...</p>}
 							</div>
 
-							{/* Title */}
-							<div className="space-y-2">
-								<Label htmlFor="title">Title *</Label>
+							<div className="mt-4">
+								<Label className="mb-2" htmlFor="title">
+									Title *
+								</Label>
 								<Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Enter post title" required />
 							</div>
 
-							{/* Description */}
-							<div className="space-y-2">
-								<Label htmlFor="description">Description</Label>
+							<div className="mt-4">
+								<Label className="mb-2" htmlFor="description">
+									Description
+								</Label>
 								<Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of your post" rows={2} />
 							</div>
 
-							{/* Tags */}
-							<div className="space-y-2">
-								<Label>Tags *</Label>
+							<div className="mt-4">
+								<Label className="mb-2" htmlFor="description">
+									Tag
+								</Label>
 								<TagInput
 									tags={selectedTagOptions}
 									setTags={(next) => {
@@ -277,67 +375,54 @@ export default function EditPostPage() {
 									placeholder="Search tag..."
 								/>
 							</div>
-
-							{/* Status */}
-							<div className="space-y-2">
-								<Label htmlFor="status">Status *</Label>
-								<Select value={formData.status} onValueChange={(val: any) => setFormData({ ...formData, status: val })}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="DRAFT">Draft</SelectItem>
-										<SelectItem value="PUBLISHED">Published</SelectItem>
-										<SelectItem value="ARCHIVED">Archived</SelectItem>
-									</SelectContent>
-								</Select>
+						</div>
+						<Card className="relative mx-auto max-w-sm overflow-hidden pt-0">
+							<div className="relative aspect-video">
+								<img src={thumbnailPreview || "https://images.unsplash.com/photo-1504805572947-34fad45aed93?q=80&w=1200&auto=format&fit=crop"} alt="Post cover preview" className="h-full w-full object-cover" />
+								<div className="absolute inset-0 bg-black/25" />
 							</div>
-						</CardContent>
-					</Card>
+							<CardHeader className="space-y-2">
+								<div className="flex items-center justify-between">
+									<Badge variant={formData.status === "PUBLISHED" ? "default" : "secondary"}>{formData.status}</Badge>
+								</div>
+								<CardTitle className="line-clamp-2">{formData.title.trim() || "Judul post akan tampil di sini"}</CardTitle>
+								<CardDescription className="line-clamp-2">{formData.description.trim() || "Deskripsi singkat post akan tampil di sini"}</CardDescription>
+							</CardHeader>
+							<CardFooter>
+								<Button type="button" variant="outline" className="w-full" disabled>
+									Live Preview
+								</Button>
+							</CardFooter>
+						</Card>
+					</div>
 
-					{/* Content Card */}
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between">
-							<div>
-								<CardTitle>Content</CardTitle>
-								<CardDescription>Write your post content using Markdown syntax</CardDescription>
-							</div>
-							<div className="flex items-center gap-2">
-								<label className="cursor-pointer">
-									<Button type="button" variant="outline" size="sm" asChild disabled={uploadingContent}>
-										<span>{uploadingContent ? "Uploading..." : "Insert Image"}</span>
-									</Button>
-									<input
-										type="file"
-										accept="image/*"
-										multiple
-										onChange={async (e) => {
-											const files = e.target.files;
-											if (!files) return;
-											for (const file of Array.from(files)) {
-												await handleContentImageUpload(file);
-											}
-										}}
-										className="hidden"
-									/>
-								</label>
-							</div>
-						</CardHeader>
-						<CardContent className="space-y-2">
-							<Label htmlFor="content">Content *</Label>
-							<Textarea id="content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder="Write your content here. Supports Markdown syntax..." rows={12} className="font-mono text-sm" required />
-							<p className="text-muted-foreground text-xs">Supports Markdown: **bold**, *italic*, `code`, [links](url), # Headings, - Lists, etc.</p>
-						</CardContent>
-					</Card>
+					<Editor
+						editorSerializedState={editorSerializedState}
+						onSerializedChange={(nextEditorSerializedState) => {
+							setFormData((prev) => ({
+								...prev,
+								content: JSON.stringify(nextEditorSerializedState),
+							}));
+						}}
+					/>
 
-					{/* Actions */}
-					<div className="flex gap-2">
-						<Button type="button" variant="outline" onClick={() => navigate("/admin/posts")}>
-							Cancel
-						</Button>
-						<Button type="submit" disabled={saving}>
-							{saving ? "Updating..." : "Update Post"}
-						</Button>
+					<div className="fixed inset-x-0 bottom-4 z-50 px-4">
+						<div className="bg-background/95 supports-backdrop-filter:bg-background/80 mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 rounded-2xl border p-3 shadow-xl backdrop-blur">
+							<div className="order-2 w-full sm:order-1 sm:w-auto">
+								<DateTimePicker24h />
+							</div>
+							<div className="order-1 flex w-full flex-wrap items-center justify-end gap-2 sm:order-2 sm:w-auto">
+								<Button type="button" variant="outline" className="border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => navigate("/admin/posts")}>
+									Cancel
+								</Button>
+								<Button type="button" variant="secondary" disabled={saving} onClick={handleDraftClick}>
+									{saving && formData.status === "DRAFT" ? "Saving..." : "Save Draft"}
+								</Button>
+								<Button type="button" disabled={saving} onClick={handlePublishClick}>
+									{saving ? "Updating..." : "Update & Publish"}
+								</Button>
+							</div>
+						</div>
 					</div>
 				</form>
 			</div>

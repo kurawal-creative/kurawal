@@ -29,12 +29,13 @@ export default function CreatePostPage() {
 	const [saving, setSaving] = useState(false);
 	const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
 	const [thumbnailUploadProgress, setThumbnailUploadProgress] = useState(0);
-	const [uploadingContent, setUploadingContent] = useState(false);
 	const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
 	const [localThumbnailPreview, setLocalThumbnailPreview] = useState<string | null>(null);
+	const formRef = useRef<HTMLFormElement | null>(null);
 	const openThumbnailPickerRef = useRef<(() => void) | null>(null);
 	const allTagOptions = useMemo<TagOption<string>[]>(() => tags.map((t) => ({ label: t.name, value: t.id })), [tags]);
 	const [selectedTagOptions, setSelectedTagOptions] = useState<TagOption<string>[]>([]);
+	const [submittedPayload, setSubmittedPayload] = useState<string>("");
 
 	const [formData, setFormData] = useState({
 		title: "",
@@ -44,17 +45,6 @@ export default function CreatePostPage() {
 		tagIds: [] as string[],
 		status: "DRAFT" as "DRAFT" | "PUBLISHED" | "ARCHIVED",
 	});
-
-	const previewContent = useMemo(() => {
-		const plainText = formData.content
-			.replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-			.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-			.replace(/[`*_>#-]/g, " ")
-			.replace(/\s+/g, " ")
-			.trim();
-
-		return plainText || "Konten preview akan tampil di sini saat kamu menulis isi post.";
-	}, [formData.content]);
 
 	useEffect(() => {
 		const fetchTags = async () => {
@@ -132,40 +122,60 @@ export default function CreatePostPage() {
 		openThumbnailPickerRef.current?.();
 	};
 
-	const handleContentImageUpload = async (file: File) => {
-		try {
-			setUploadingContent(true);
-			const response = await uploadToCloudinary(file);
-			const imageUrl = `\n![image](${response.secure_url})\n`;
-			setFormData((prev) => ({ ...prev, content: prev.content + imageUrl }));
-			toast.success("Image inserted into content");
-		} catch (error: any) {
-			console.error("Error uploading image:", error);
-			toast.error("Failed to upload image");
-		} finally {
-			setUploadingContent(false);
-		}
-	};
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
+	const submitPost = async (status: "DRAFT" | "PUBLISHED" | "ARCHIVED") => {
 		try {
 			if (!formData.title || !formData.content || formData.tagIds.length === 0) {
 				toast.error("Title, content, and at least one tag are required");
 				return;
 			}
 
+			if (!formData.thumbnail) {
+				toast.error("Thumbnail is required");
+				return;
+			}
+
 			setSaving(true);
-			await postsApi.create(formData);
-			toast.success("Post created successfully");
+			const payload = {
+				...formData,
+				status,
+			};
+
+			await postsApi.create(payload);
+
+			const parsedContent = (() => {
+				try {
+					return JSON.parse(payload.content);
+				} catch {
+					return payload.content;
+				}
+			})();
+
+			const payloadForDisplay = {
+				...payload,
+				content: parsedContent,
+			};
+
+			setSubmittedPayload(JSON.stringify(payloadForDisplay, null, 2));
+			toast.success("Post published successfully");
 			navigate("/admin/posts");
 		} catch (error: any) {
-			console.error("Error creating post:", error);
-			toast.error(error.response?.data?.message || "Failed to create post");
+			console.error("Error publishing post:", error);
+			toast.error(error?.response?.data?.message || "Failed to publish post");
 		} finally {
 			setSaving(false);
 		}
+	};
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		await submitPost(formData.status);
+	};
+
+	const handlePublishClick = () => {
+		setFormData((prev) => ({ ...prev, status: "PUBLISHED" }));
+		queueMicrotask(() => {
+			formRef.current?.requestSubmit();
+		});
 	};
 	return (
 		<AdminLayout>
@@ -188,7 +198,7 @@ export default function CreatePostPage() {
 					</Select>
 				</div>
 
-				<form onSubmit={handleSubmit} className="space-y-6">
+				<form ref={formRef} onSubmit={handleSubmit} className="space-y-6 pb-28">
 					{/* Main Content Card */}
 					<div className="flex gap-8">
 						<div className="w-full">
@@ -304,53 +314,46 @@ export default function CreatePostPage() {
 					</div>
 
 					{/* Content Card */}
+					<Label className="mb-2" htmlFor="description">
+						Content
+					</Label>
+					<Editor
+						onSerializedChange={(editorSerializedState) => {
+							setFormData((prev) => ({
+								...prev,
+								content: JSON.stringify(editorSerializedState),
+							}));
+						}}
+					/>
 
-					<Card className="w-full min-w-0">
-						<CardHeader className="flex flex-row items-center justify-between">
-							<div>
-								<CardTitle>Content</CardTitle>
-								<CardDescription>Write your post content using Markdown syntax</CardDescription>
+					{submittedPayload ? (
+						<Card className="w-full min-w-0">
+							<CardHeader>
+								<CardTitle>Submitted Payload</CardTitle>
+								<CardDescription>Hasil value PostCreate yang sudah dirapikan.</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<pre className="bg-muted max-h-96 overflow-auto rounded-lg border p-4 text-xs leading-relaxed whitespace-pre-wrap">{submittedPayload}</pre>
+							</CardContent>
+						</Card>
+					) : null}
+					{/* Floating actions */}
+					<div className="fixed inset-x-0 bottom-4 z-50 px-4">
+						<div className="bg-background/95 supports-backdrop-filter:bg-background/80 mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 rounded-2xl border p-3 shadow-xl backdrop-blur">
+							<div className="order-2 w-full sm:order-1 sm:w-auto">
+								<DateTimePicker24h />
 							</div>
-							<div className="flex items-center gap-2">
-								<label className="cursor-pointer">
-									<Button type="button" variant="outline" size="sm" asChild disabled={uploadingContent}>
-										<span>{uploadingContent ? "Uploading..." : "Insert Image"}</span>
-									</Button>
-									<input
-										type="file"
-										accept="image/*"
-										multiple
-										onChange={async (e) => {
-											const files = e.target.files;
-											if (!files) return;
-											for (const file of Array.from(files)) {
-												await handleContentImageUpload(file);
-											}
-										}}
-										className="hidden"
-									/>
-								</label>
+							<div className="order-1 flex w-full flex-wrap items-center justify-end gap-2 sm:order-2 sm:w-auto">
+								<Button type="button" variant="outline" className="border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => navigate("/admin/posts")}>
+									Cancel
+								</Button>
+								<Button type="button" variant="secondary" onClick={() => navigate("/admin/posts")}>
+									Draft
+								</Button>
+								<Button type="button" disabled={saving} onClick={handlePublishClick}>
+									{saving ? "Publishing..." : "Publish Post"}
+								</Button>
 							</div>
-						</CardHeader>
-						<CardContent className="space-y-2">
-							<Label htmlFor="content">Content *</Label>
-							<Textarea id="content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder="Write your content here. Supports Markdown syntax..." rows={12} className="font-mono text-sm" required />
-							{/* <Editor /> */}
-							<p className="text-muted-foreground text-xs">Supports Markdown: **bold**, *italic*, `code`, [links](url), # Headings, - Lists, etc.</p>
-						</CardContent>
-					</Card>
-
-					<Editor />
-					{/* Actions */}
-					<div className="flex gap-2">
-						<Button type="button" variant="outline" onClick={() => navigate("/admin/posts")}>
-							Cancel
-						</Button>
-						<Button type="submit" disabled={saving}>
-							{saving ? "Creating..." : "Create Post"}
-						</Button>
-						<div>
-							<DateTimePicker24h />
 						</div>
 					</div>
 				</form>
