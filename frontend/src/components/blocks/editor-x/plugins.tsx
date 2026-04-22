@@ -87,13 +87,14 @@ import { HistoryToolbarPlugin } from "@/components/editor/plugins/toolbar/histor
 import { LinkToolbarPlugin } from "@/components/editor/plugins/toolbar/link-toolbar-plugin";
 import { SubSuperToolbarPlugin } from "@/components/editor/plugins/toolbar/subsuper-toolbar-plugin";
 import { ToolbarPlugin } from "@/components/editor/plugins/toolbar/toolbar-plugin";
-import { TypingPerfPlugin } from "@/components/editor/plugins/typing-pref-plugin";
 import { EMOJI } from "@/components/editor/transformers/markdown-emoji-transformer";
 import { HR } from "@/components/editor/transformers/markdown-hr-transformer";
 import { IMAGE } from "@/components/editor/transformers/markdown-image-transformer";
 import { TABLE } from "@/components/editor/transformers/markdown-table-transformer";
 import { TWEET } from "@/components/editor/transformers/markdown-tweet-transformer";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const placeholder = "Press / for commands...";
 const maxLength = 500;
@@ -129,19 +130,44 @@ export function Plugins({}) {
 						) : (
 							<>
 								<FontFamilyToolbarPlugin />
+								<FontFormatToolbarPlugin />
 								<FontSizeToolbarPlugin />
 								<Separator orientation="vertical" className="h-7!" />
-								<FontFormatToolbarPlugin />
-								<Separator orientation="vertical" className="h-7!" />
-								<SubSuperToolbarPlugin />
 								<LinkToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
-								<Separator orientation="vertical" className="h-7!" />
-								<ClearFormattingToolbarPlugin />
-								<Separator orientation="vertical" className="h-7!" />
-								<FontColorToolbarPlugin />
-								<FontBackgroundToolbarPlugin />
-								<Separator orientation="vertical" className="h-7!" />
 								<ElementFormatToolbarPlugin />
+								<Separator orientation="vertical" className="h-7!" />
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button type="button" variant="outline" size="sm">
+											Text
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start" className="w-55 p-2">
+										<DropdownMenuLabel className="text-xs uppercase">Text Tools</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										<div className="flex items-center gap-2 py-1">
+											<SubSuperToolbarPlugin />
+											<ClearFormattingToolbarPlugin />
+										</div>
+									</DropdownMenuContent>
+								</DropdownMenu>
+
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button type="button" variant="outline" size="sm">
+											Color
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start" className="w-55 p-2">
+										<DropdownMenuLabel className="text-xs uppercase">Color Tools</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										<div className="flex items-center gap-2 py-1">
+											<FontColorToolbarPlugin />
+											<FontBackgroundToolbarPlugin />
+										</div>
+									</DropdownMenuContent>
+								</DropdownMenu>
+
 								<Separator orientation="vertical" className="h-7!" />
 								<BlockInsertPlugin>
 									<InsertHorizontalRule />
