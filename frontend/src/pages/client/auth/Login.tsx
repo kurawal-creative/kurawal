@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff } from "lucide-react";
 
 import googleIcons from "@/assets/svg/google.svg";
 
@@ -14,7 +13,7 @@ export default function Login() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoggingIn, setIsLoggingIn] = useState(false);
-	const [showPassword, setShowPassword] = useState(false);
+	const [showPassword] = useState(false);
 	const [rememberMe, setRememberMe] = useState(false);
 
 	const { data: session, isPending } = authClient.useSession();
@@ -28,9 +27,9 @@ export default function Login() {
 		}
 	}, [session, navigate, redirectTo]);
 
-    if (isPending || session) {
-        return null; 
-    }
+	if (isPending || session) {
+		return null;
+	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -91,19 +90,8 @@ export default function Login() {
 								required
 								placeholder="Password"
 								disabled={isLoggingIn}
-								className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 pr-11 text-sm text-neutral-900 transition outline-none focus:border-neutral-500 disabled:cursor-not-allowed disabled:opacity-70 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
+								className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 transition outline-none focus:border-neutral-500 disabled:cursor-not-allowed disabled:opacity-70 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
 							/>
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								onClick={() => setShowPassword((prev) => !prev)}
-								aria-label={showPassword ? "Hide password" : "Show password"}
-								title={showPassword ? "Hide password" : "Show password"}
-								className="absolute top-1/2 right-2 h-7 w-7 -translate-y-1/2 rounded-sm text-neutral-500 hover:bg-transparent hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
-							>
-								{showPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-							</Button>
 						</div>
 					</div>
 
