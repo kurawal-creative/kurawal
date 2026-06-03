@@ -1,6 +1,6 @@
-import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
+import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect";
 
-export default function ServicesHero() {
+export default function BlogsHero() {
 	return (
 		<section className="relative mx-auto min-h-[50vh] w-full max-w-350 overflow-hidden border-dashed px-0.5 pb-12 min-[1400px]:border-x min-[1800px]:max-w-384">
 			{/* Background Ripple */}
@@ -12,8 +12,8 @@ export default function ServicesHero() {
 				<div className="pointer-events-none absolute right-12 -bottom-16 h-56 w-56 rounded-full border border-dashed opacity-20" />
 
 				<div className="relative z-10 mx-auto max-w-4xl text-center leading-tight">
-					<h1 className="mt-9.5 text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl md:text-4xl lg:text-5xl dark:text-neutral-100">Digital Solutions Built for Growth</h1>
-					<p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base dark:text-neutral-400">We create modern websites, mobile applications, and intuitive user experiences that help businesses grow, engage customers, and achieve their goals.</p>
+					<h1 className="mt-9.5 text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl md:text-4xl lg:text-5xl dark:text-neutral-100">Insights That Drive Innovation</h1>
+					<p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base dark:text-neutral-400">Explore ideas, trends, and perspectives shaping the future of design, technology, and digital experiences.</p>
 				</div>
 			</div>
 		</section>

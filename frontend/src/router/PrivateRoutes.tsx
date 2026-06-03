@@ -1,31 +1,70 @@
-import Posts from "../pages/client/posts/Posts";
-import CreatePost from "../pages/client/posts/CreatePost";
-import EditPost from "../pages/client/posts/EditPost";
-// import Layout from "../layouts/layout";
+import AdminDashboardPage from "@/pages/dashboard";
+import AdminPostsPage from "@/pages/dashboard/posts/Post";
+import CreatePostPage from "@/pages/dashboard/posts/PostCreate";
+import EditPostPage from "@/pages/dashboard/posts/PostEdit";
+import AdminTagsPage from "@/pages/dashboard/Tags";
+import AdminMediaPage from "@/pages/dashboard/Media";
+import AdminWorksPage from "@/pages/dashboard/works";
+import AdminWorksCreatePage from "@/pages/dashboard/works/create/create";
+import AdminWorksDetailPage from "@/pages/dashboard/works/detail/detail";
+import AdminWorksEditPage from "@/pages/dashboard/works/edit/edit";
+import AdminUsersPage from "@/pages/dashboard/users";
+import UserProfilePage from "@/pages/dashboard/profile";
+import { NuqsAdapter } from "nuqs/adapters/react";
 
-export default [
+const privateRoutes = [
 	{
-		path: "/posts",
+		path: "/dashboard",
+		element: <AdminDashboardPage />,
+	},
+	{
+		path: "/dashboard/posts",
+		element: <AdminPostsPage />,
+	},
+	{
+		path: "/dashboard/posts/create",
+		element: <CreatePostPage />,
+	},
+	{
+		path: "/dashboard/posts/:id/edit",
+		element: <EditPostPage />,
+	},
+	{
+		path: "/dashboard/tags",
+		element: <AdminTagsPage />,
+	},
+	{
+		path: "/dashboard/media",
 		element: (
-			// <Layout>
-			<Posts />
-			// </Layout>
+			<NuqsAdapter>
+				<AdminMediaPage />
+			</NuqsAdapter>
 		),
 	},
 	{
-		path: "/create-post",
-		element: (
-			// <Layout>
-			<CreatePost />
-			// </Layout>
-		),
+		path: "/dashboard/works",
+		element: <AdminWorksPage />,
 	},
 	{
-		path: "/edit-post/:id",
-		element: (
-			//<Layout>
-			<EditPost />
-			// </Layout>
-		),
+		path: "/dashboard/works/create",
+		element: <AdminWorksCreatePage />,
+	},
+	{
+		path: "/dashboard/works/:id",
+		element: <AdminWorksDetailPage />,
+	},
+	{
+		path: "/dashboard/works/:id/edit",
+		element: <AdminWorksEditPage />,
+	},
+	{
+		path: "/dashboard/users",
+		element: <AdminUsersPage />,
+	},
+	{
+		path: "/dashboard/profile",
+		element: <UserProfilePage />,
 	},
 ];
+
+export default privateRoutes;

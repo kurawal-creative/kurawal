@@ -1,6 +1,6 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import kurawalSidebar from "@/assets/kurawal-sidebar.svg";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { authClient } from "@/lib/auth-client";
 import { NavGroup } from "./NavGroup";
 import { footerNavLinks, navGroups, getMostSpecificActivePath, type SidebarNavItem } from "./AppShared";
@@ -29,9 +29,9 @@ export function AppSidebar() {
 			{/* Header */}
 			<SidebarHeader className="h-14 justify-center border-b px-2">
 				<SidebarMenuButton asChild>
-					<a href="/admin">
+					<Link to="/dashboard">
 						<img src={kurawalSidebar} alt="" className="size-8" /> <h4 className="text-md font-medium"> Dashboard Kurawal</h4>
-					</a>
+					</Link>
 				</SidebarMenuButton>
 			</SidebarHeader>
 			{/* Content */}
@@ -48,10 +48,10 @@ export function AppSidebar() {
 						<SidebarMenuItem key={item.title}>
 							{item.path ? (
 								<SidebarMenuButton asChild className="text-muted-foreground" isActive={mostSpecificFooter?.path === item.path} size="sm">
-									<a href={item.path}>
+									<Link to={item.path}>
 										{item.icon}
 										<span>{item.title}</span>
-									</a>
+									</Link>
 								</SidebarMenuButton>
 							) : (
 								<SidebarMenuButton className="text-muted-foreground" size="sm" type="button" onClick={handleLogout}>

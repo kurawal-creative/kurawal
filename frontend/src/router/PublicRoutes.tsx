@@ -1,11 +1,11 @@
-import Home from "@/pages/client/home/Home";
-import Login from "@/pages/client/auth/Login";
-import AboutUsPage from "@/pages/client/about-us/AboutUsPage";
-import ContactUsPage from "@/pages/client/contact-us/ContactUsPage";
-import WorksPage from "@/pages/client/works/WorksPage";
+import Home from "@/pages/client";
+import Login from "@/pages/auth/Login";
+import AboutUsPage from "@/pages/client/about-us";
+import ContactUsPage from "@/pages/client/contact-us";
+import WorksPage from "@/pages/client/works";
 import Layout from "@/layouts/layout";
-import BlogsPage from "@/pages/client/blogs/BlogsPage";
-import ServicesPage from "@/pages/client/services/ServicesPage";
+import BlogsPage from "@/pages/client/blogs";
+import ServicesPage from "@/pages/client/services";
 
 export default [
 	{

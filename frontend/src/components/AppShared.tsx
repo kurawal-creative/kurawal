@@ -35,7 +35,7 @@ export const navGroups: SidebarNavGroup[] = [
 		items: [
 			{
 				title: "Dashboard",
-				path: "/admin",
+				path: "/dashboard",
 				icon: <LayoutGridIcon />,
 			},
 		],
@@ -44,18 +44,18 @@ export const navGroups: SidebarNavGroup[] = [
 		label: "Content Management",
 		items: [
 			{
-				title: "Projects",
-				path: "/admin/project",
+				title: "Works",
+				path: "/dashboard/works",
 				icon: <FolderGit2Icon />,
 			},
 			{
 				title: "Posts",
-				path: "/admin/posts",
+				path: "/dashboard/posts",
 				icon: <BookOpenIcon />,
 			},
 			{
 				title: "Tags",
-				path: "/admin/tags",
+				path: "/dashboard/tags",
 				icon: <TagsIcon />,
 			},
 		],
@@ -65,12 +65,12 @@ export const navGroups: SidebarNavGroup[] = [
 		items: [
 			{
 				title: "Users",
-				path: "/admin/users",
+				path: "/dashboard/users",
 				icon: <UsersIcon />,
 			},
 			{
 				title: "Profile",
-				path: "/admin/profile",
+				path: "/dashboard/profile",
 				icon: <UserIcon />,
 			},
 		],
