@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Pencil, ExternalLink, AlertCircle, Github } from "lucide-react";
+import { ArrowLeft, Pencil, AlertCircle, Github, Globe } from "lucide-react";
 import api from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,7 @@ export default function ProjectDetail() {
 	useEffect(() => {
 		const fetchProject = async () => {
 			try {
-				const response = await api.get(`/projects/${id}`);
+				const response = await api.get(`/works/${id}`);
 				setProject(response.data);
 			} catch (error) {
 				console.error("Failed to fetch project detail", error);
@@ -40,19 +40,6 @@ export default function ProjectDetail() {
 		};
 		fetchProject();
 	}, [id]);
-
-	const getStatusVariant = (status: string) => {
-		switch (status.toLowerCase()) {
-			case "production":
-				return { className: "bg-green-600 text-white" };
-			case "preview":
-				return { className: "bg-yellow-600 text-white" };
-			case "archived":
-				return { className: "bg-gray-600 text-white" };
-			default:
-				return { className: "bg-gray-600 text-white" };
-		}
-	};
 
 	if (loading) {
 		return (
@@ -77,14 +64,14 @@ export default function ProjectDetail() {
 
 	if (!project) {
 		return (
-			<div className="p-6">
+			<div>
 				<div className="rounded-lg border border-red-200 bg-red-50">
 					<div className="p-12 text-center">
 						<AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-600" />
 						<p className="mb-2 text-lg font-semibold text-red-900">Project Not Found</p>
 						<p className="mb-6 text-sm text-red-700">The project you're looking for doesn't exist.</p>
 						<Button asChild variant="outline" size="sm">
-							<Link to="/admin/project">
+							<Link to="/dashboard/works">
 								<ArrowLeft className="mr-2 h-4 w-4" />
 								Back to Projects
 							</Link>
@@ -96,40 +83,60 @@ export default function ProjectDetail() {
 	}
 
 	return (
-		<div className="space-y-6 p-6">
+		<div className="space-y-4">
 			{/* Header */}
-			<div className="flex items-start justify-between">
-				<div className="flex-1">
-					<div className="mb-2 flex items-center gap-3">
-						<h1 className="text-3xl font-semibold">{project.name}</h1>
-						<Badge className={getStatusVariant(project.status).className}>{project.status}</Badge>
+			<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+				<div>
+					<div className="flex flex-wrap items-center gap-2">
+						<h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
+
+						<Badge variant="outline" className={project.status.toLowerCase() === "production" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600" : project.status.toLowerCase() === "preview" ? "border-amber-500/20 bg-amber-500/10 text-amber-600" : "bg-muted text-muted-foreground"}>
+							{project.status}
+						</Badge>
 					</div>
-					<div className="flex items-center gap-4 text-sm text-gray-600">
+
+					<div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-xs">
 						<span>
-							{project.startDate ? new Date(project.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "?"} — {project.endDate ? new Date(project.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Present"}
+							{project.startDate
+								? new Date(project.startDate).toLocaleDateString("en-US", {
+										month: "short",
+										year: "numeric",
+									})
+								: "-"}
 						</span>
-						{project.stack && project.stack.length > 0 && (
-							<>
-								<span className="text-gray-400">•</span>
-								<div className="flex items-center gap-2">
-									{project.stack.slice(0, 3).map((s, i) => (
-										<span key={i} className="rounded bg-gray-100 px-2 py-0.5 text-xs">
-											{s}
-										</span>
-									))}
-									{project.stack.length > 3 && <span className="text-xs text-gray-500">+{project.stack.length - 3} more</span>}
-								</div>
-							</>
-						)}
+
+						<span>•</span>
+
+						<span>
+							{project.endDate
+								? new Date(project.endDate).toLocaleDateString("en-US", {
+										month: "short",
+										year: "numeric",
+									})
+								: "Present"}
+						</span>
+
+						<span>•</span>
+
+						<span>
+							Updated{" "}
+							{new Date(project.updatedAt).toLocaleDateString("en-US", {
+								month: "short",
+								day: "numeric",
+								year: "numeric",
+							})}
+						</span>
 					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					<Button asChild variant="outline" size="sm" className="border-gray-300">
+
+				<div className="flex gap-2">
+					<Button asChild variant="outline" size="sm">
 						<Link to="/dashboard/works">
 							<ArrowLeft className="mr-2 h-4 w-4" />
 							Back
 						</Link>
 					</Button>
+
 					<Button asChild size="sm">
 						<Link to={`/dashboard/works/${id}/edit`}>
 							<Pencil className="mr-2 h-4 w-4" />
@@ -139,64 +146,127 @@ export default function ProjectDetail() {
 				</div>
 			</div>
 
-			{/* Main Content */}
-			<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-				<div className="space-y-8 p-8">
-					{/* Images Grid */}
-					{project.images && project.images.length > 0 && (
-						<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-							{project.images.map((url, idx) => (
-								<div key={idx} className="aspect-square overflow-hidden rounded-lg border-2 border-gray-200 bg-gray-50 transition-colors hover:border-gray-300">
-									<img src={url} alt={`${project.name} ${idx + 1}`} className="h-full w-full object-cover" />
+			{/* Content */}
+			<div className="grid gap-4 lg:grid-cols-[1fr_240px]">
+				{/* Main */}
+				<div className="space-y-4">
+					{/* Gallery */}
+					{project.images?.length > 0 && (
+						<div className="bg-card overflow-hidden rounded-xl border">
+							<img src={project.images[0]} alt={project.name} className="aspect-video w-full object-cover" />
+
+							{project.images.length > 1 && (
+								<div className="grid grid-cols-4 gap-2 border-t p-3">
+									{project.images.slice(1).map((image, index) => (
+										<div key={index} className="overflow-hidden rounded-md border">
+											<img src={image} alt="" className="aspect-square w-full object-cover transition-transform duration-300 hover:scale-105" />
+										</div>
+									))}
 								</div>
-							))}
+							)}
 						</div>
 					)}
 
 					{/* Description */}
-					{project.description && (
-						<div className="prose prose-sm max-w-none">
-							<p className="leading-relaxed whitespace-pre-wrap text-gray-700">{project.description}</p>
+					<div className="bg-card rounded-xl border">
+						<div className="border-b px-4 py-3">
+							<h2 className="text-sm font-semibold">Overview</h2>
 						</div>
-					)}
 
-					{/* Links & Tech Stack */}
-					<div className="flex flex-wrap items-center gap-6 border-t pt-6">
-						{project.link_github && (
-							<a href={project.link_github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 transition-colors hover:text-gray-900">
-								<Github className="h-4 w-4" />
-								<span className="font-medium">GitHub</span>
-							</a>
-						)}
-						{project.link_demo && (
-							<a href={project.link_demo} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 transition-colors hover:text-gray-900">
-								<ExternalLink className="h-4 w-4" />
-								<span className="font-medium">Live Demo</span>
-							</a>
-						)}
-						{project.stack && project.stack.length > 0 && (
-							<>
-								<span className="text-gray-300">|</span>
-								<div className="flex flex-wrap items-center gap-2">
-									{project.stack.map((s, i) => (
-										<span key={i} className="rounded border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
-											{s}
-										</span>
-									))}
-								</div>
-							</>
-						)}
+						<div className="p-4">
+							<p className="text-muted-foreground text-sm leading-6 whitespace-pre-wrap">{project.description || "No description available."}</p>
+						</div>
 					</div>
 
-					{/* Environment Variables */}
+					{/* Environment */}
 					{project.env && (
-						<div className="border-t pt-6">
-							<pre className="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-4 font-mono text-xs text-gray-800">{project.env}</pre>
+						<div className="bg-card rounded-xl border">
+							<div className="border-b px-4 py-3">
+								<h2 className="text-sm font-semibold">Environment</h2>
+							</div>
+
+							<div className="p-4">
+								<pre className="bg-muted overflow-x-auto rounded-lg p-3 text-xs">{project.env}</pre>
+							</div>
 						</div>
 					)}
+				</div>
 
-					{/* Footer */}
-					<div className="border-t pt-6 text-xs text-gray-500">Last updated {new Date(project.updatedAt).toLocaleString()}</div>
+				{/* Sidebar */}
+				<div className="space-y-4">
+					{/* Stack */}
+					<div className="bg-card rounded-xl border">
+						<div className="border-b px-4 py-3">
+							<h2 className="text-sm font-semibold">Technology Stack</h2>
+						</div>
+
+						<div className="flex flex-wrap gap-2 p-4">
+							{project.stack?.length ? (
+								project.stack.map((tech, index) => (
+									<Badge key={index} variant="secondary">
+										{tech}
+									</Badge>
+								))
+							) : (
+								<p className="text-muted-foreground text-sm">No technologies specified.</p>
+							)}
+						</div>
+					</div>
+
+					{/* Project Info */}
+					<div className="bg-card rounded-xl border">
+						<div className="border-b px-4 py-3">
+							<h2 className="text-sm font-semibold">Project Information</h2>
+						</div>
+
+						<div className="grid gap-3 p-4 text-sm">
+							<div className="grid grid-cols-2">
+								<div>
+									<p className="text-muted-foreground text-xs">Created</p>
+									<p className="font-medium">{new Date(project.createdAt).toLocaleDateString()}</p>
+								</div>
+
+								<div>
+									<p className="text-muted-foreground text-xs">Last Updated</p>
+									<p className="font-medium">{new Date(project.updatedAt).toLocaleDateString()}</p>
+								</div>
+							</div>
+
+							<div>
+								<p className="text-muted-foreground text-xs">Status</p>
+								<p className="font-medium">{project.status}</p>
+							</div>
+						</div>
+					</div>
+
+					{/* Links */}
+					<div className="bg-card rounded-xl border">
+						<div className="border-b px-4 py-3">
+							<h2 className="text-sm font-semibold">Resources</h2>
+						</div>
+
+						<div className="flex flex-wrap gap-2 p-4">
+							{project.link_github && (
+								<Button asChild size="sm">
+									<a href={project.link_github} target="_blank" rel="noopener noreferrer" title="GitHub Repository" className="flex items-center gap-1">
+										<Github className="h-4 w-4" />
+										GitHub
+									</a>
+								</Button>
+							)}
+
+							{project.link_demo && (
+								<Button asChild variant="outline" size="sm">
+									<a href={project.link_demo} target="_blank" rel="noopener noreferrer" title="Project Website" className="flex items-center gap-1">
+										<Globe className="h-4 w-4" />
+										Website
+									</a>
+								</Button>
+							)}
+
+							{!project.link_demo && !project.link_github && <p className="text-muted-foreground text-sm">No resources available.</p>}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

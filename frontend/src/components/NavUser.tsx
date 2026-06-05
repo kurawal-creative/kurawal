@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { UserIcon, SettingsIcon, LogOutIcon } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const defaultUser = {
 	name: "User",
@@ -60,9 +60,11 @@ export function NavUser() {
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem>
-						<UserIcon />
-						Account
+					<DropdownMenuItem asChild>
+						<Link to="/dashboard/profile" className="flex items-center gap-2">
+							<UserIcon />
+							Account
+						</Link>
 					</DropdownMenuItem>
 					<DropdownMenuItem>
 						<SettingsIcon />

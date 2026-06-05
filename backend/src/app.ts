@@ -8,7 +8,7 @@ import { apiReference } from "@scalar/express-api-reference";
 import postRoutes from "./routes/postRoutes.js";
 import envRoutes from "./routes/envRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
-import projectRoutes from "./routes/projectRoutes.js";
+import workRoutes from "./routes/workRoutes.js";
 import { getUploadSignature } from "./utils/cloudinary.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use("/api/posts", postRoutes);
 app.use("/api/envs", envRoutes);
 app.use("/api/tags", tagRoutes);
-app.use("/api/projects", projectRoutes);
+app.use("/api/works", workRoutes);
 
 app.get("/api/media/upload-signature", (_req, res) => {
   try {

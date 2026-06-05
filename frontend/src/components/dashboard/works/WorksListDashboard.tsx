@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ExternalLink, Eye, Pencil, Trash2, Plus, Search, Filter, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { Eye, Pencil, Trash2, Plus, Search, Filter, ArrowUpDown, MoreHorizontal, Github, Globe, FolderKanban, Rocket, FlaskConical, Archive } from "lucide-react";
 import api from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface Project {
@@ -29,7 +29,7 @@ export default function ProjectList() {
 	useEffect(() => {
 		const fetchProjects = async () => {
 			try {
-				const response = await api.get("/projects");
+				const response = await api.get("/works");
 				const projectsData = Array.isArray(response.data) ? response.data : response.data.data;
 				setProjects(Array.isArray(projectsData) ? projectsData : []);
 			} catch (error) {
@@ -44,7 +44,7 @@ export default function ProjectList() {
 	const handleDelete = async (id: string) => {
 		if (!confirm("Are you sure you want to delete this project?")) return;
 		try {
-			await api.delete(`/projects/${id}`);
+			await api.delete(`/works/${id}`);
 			setProjects(projects.filter((p) => p.id !== id));
 		} catch (error) {
 			alert("Failed to delete project");
@@ -116,162 +116,204 @@ export default function ProjectList() {
 	}
 
 	return (
-		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+		<div className="space-y-5">
+			{/* Header */}
+			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 				<div>
-					<h1 className="text-3xl font-semibold">Projects</h1>
-					<p className="text-muted-foreground mt-1 text-sm">Manage your project portfolio</p>
+					<h1 className="text-2xl font-semibold tracking-tight">Our Works</h1>
+					<p className="text-muted-foreground mt-1 text-sm">Manage and organize company projects, case studies, and client works.</p>
 				</div>
-				<div className="flex items-center">
-					<Button asChild size="sm">
-						<Link to="/dashboard/works/create">
-							<Plus className="mr-2 h-4 w-4" />
-							Add Project
-						</Link>
-					</Button>
+
+				<Button asChild>
+					<Link to="/dashboard/works/create">
+						<Plus className="mr-2 h-4 w-4" />
+						New Project
+					</Link>
+				</Button>
+			</div>
+
+			{/* Stats */}
+			<div className="grid gap-3 md:grid-cols-4">
+				<div className="bg-card flex items-center justify-between rounded-xl border p-4">
+					<div>
+						<p className="text-muted-foreground text-xs font-medium">Total Projects</p>
+						<p className="mt-1 text-2xl font-bold">{counts.all}</p>
+					</div>
+
+					<div className="bg-primary/10 flex h-11 w-11 items-center justify-center rounded-lg">
+						<FolderKanban className="text-primary h-5 w-5" />
+					</div>
+				</div>
+
+				<div className="bg-card flex items-center justify-between rounded-xl border p-4">
+					<div>
+						<p className="text-muted-foreground text-xs font-medium">Production</p>
+						<p className="mt-1 text-2xl font-bold">{counts.production}</p>
+					</div>
+
+					<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-500/10">
+						<Rocket className="h-5 w-5 text-emerald-600" />
+					</div>
+				</div>
+
+				<div className="bg-card flex items-center justify-between rounded-xl border p-4">
+					<div>
+						<p className="text-muted-foreground text-xs font-medium">Preview</p>
+						<p className="mt-1 text-2xl font-bold">{counts.preview}</p>
+					</div>
+
+					<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500/10">
+						<FlaskConical className="h-5 w-5 text-amber-600" />
+					</div>
+				</div>
+
+				<div className="bg-card flex items-center justify-between rounded-xl border p-4">
+					<div>
+						<p className="text-muted-foreground text-xs font-medium">Archived</p>
+						<p className="mt-1 text-2xl font-bold">{counts.archived}</p>
+					</div>
+
+					<div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-500/10">
+						<Archive className="h-5 w-5 text-slate-600" />
+					</div>
 				</div>
 			</div>
 
-			<Tabs defaultValue="all" onValueChange={setStatusFilter} className="space-y-2">
-				<TabsList className="bg-gray-100">
-					<TabsTrigger value="all" className="data-[state=active]:bg-white">
-						All <span className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs">{counts.all}</span>
-					</TabsTrigger>
-					<TabsTrigger value="production" className="data-[state=active]:bg-white">
-						Production <span className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs">{counts.production}</span>
-					</TabsTrigger>
-					<TabsTrigger value="preview" className="data-[state=active]:bg-white">
-						Preview <span className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs">{counts.preview}</span>
-					</TabsTrigger>
-					<TabsTrigger value="archived" className="data-[state=active]:bg-white">
-						Archived <span className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs">{counts.archived}</span>
-					</TabsTrigger>
-				</TabsList>
+			<div className="bg-card rounded-xl border">
+				{/* Toolbar */}
+				<div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
+					<Tabs defaultValue="all" onValueChange={setStatusFilter}>
+						<TabsList className="h-9">
+							<TabsTrigger value="all">All ({counts.all})</TabsTrigger>
+							<TabsTrigger value="production">Production ({counts.production})</TabsTrigger>
+							<TabsTrigger value="preview">Preview ({counts.preview})</TabsTrigger>
+							<TabsTrigger value="archived">Archived ({counts.archived})</TabsTrigger>
+						</TabsList>
+					</Tabs>
 
-				<TabsContent value={statusFilter} className="space-y-4">
-					<div className="flex items-center gap-2">
-						<div className="relative max-w-md flex-1">
-							<Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-							<Input type="text" placeholder="Search Project by Name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-white pl-9" />
+					<div className="flex gap-2">
+						<div className="relative w-full lg:w-72">
+							<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+							<Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search projects..." className="h-9 pl-9" />
 						</div>
-						<Button variant="outline" size="sm" className="border-gray-300">
-							<Filter className="mr-2 h-4 w-4" />
-							Filter
-						</Button>
-						<Button variant="outline" size="sm" className="border-gray-300">
-							<ArrowUpDown className="mr-2 h-4 w-4" />
-							Sort
-						</Button>
-					</div>
 
-					<div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-						{filteredProjects.length === 0 ? (
-							<div className="flex flex-col items-center justify-center py-16 text-center">
-								<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-									<Search className="h-8 w-8 text-gray-400" />
-								</div>
-								<p className="text-muted-foreground text-sm font-medium">No projects found.</p>
-								<p className="text-muted-foreground mt-1 text-xs">Try adjusting your search or filters</p>
-								{searchQuery === "" && (
-									<Button asChild variant="outline" size="sm" className="mt-4">
-										<Link to="/admin/project/create">
-											<Plus className="mr-2 h-4 w-4" />
-											Create Your First Project
-										</Link>
-									</Button>
-								)}
-							</div>
-						) : (
-							<Table className="rounded-lg">
-								<TableHeader className="rounded-lg">
-									<TableRow className="rounded-lg bg-gray-50 hover:bg-gray-50">
-										<TableHead className="w-12 font-semibold text-gray-700">No</TableHead>
-										<TableHead className="font-semibold text-gray-700">Name</TableHead>
-										<TableHead className="font-semibold text-gray-700">Links</TableHead>
-										<TableHead className="font-semibold text-gray-700">Date</TableHead>
-										<TableHead className="font-semibold text-gray-700">Status</TableHead>
-										<TableHead className="w-16 text-center font-semibold text-gray-700">Action</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody className="rounded-lg">
-									{filteredProjects.map((p, index) => (
-										<TableRow key={p.id} className="hover:bg-gray-50">
-											<TableCell className="text-muted-foreground font-medium">{index + 1}</TableCell>
-											<TableCell>
-												<div className="flex items-center gap-3">
-													{p.images && p.images.length > 0 ? (
-														<div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border-2 border-gray-200">
-															<img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
-														</div>
-													) : (
-														<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-100">
-															<span className="text-xs font-semibold text-gray-500">N/A</span>
-														</div>
-													)}
-													<div className="flex flex-col">
-														<span className="font-medium text-gray-900">{p.name}</span>
-														{(p.link_github || p.link_demo) && <span className="text-xs text-gray-500">{p.link_github ? new URL(p.link_github).hostname : p.link_demo ? new URL(p.link_demo).hostname : ""}</span>}
-													</div>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center gap-2">
-													{p.link_github && (
-														<a href={p.link_github} target="_blank" rel="noopener noreferrer" className="rounded-md bg-gray-100 p-1.5 text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900" title="GitHub">
-															<svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-																<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-															</svg>
-														</a>
-													)}
-													{p.link_demo && (
-														<a href={p.link_demo} target="_blank" rel="noopener noreferrer" className="rounded-md bg-gray-100 p-1.5 text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900" title="Demo">
-															<ExternalLink className="h-4 w-4" />
-														</a>
-													)}
-													{!p.link_github && !p.link_demo && <span className="text-muted-foreground text-xs">-</span>}
-												</div>
-											</TableCell>
-											<TableCell className="text-sm text-gray-600">{new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</TableCell>
-											<TableCell>
-												<Badge className={getStatusVariant(p.status).className}>{p.status}</Badge>
-											</TableCell>
-											<TableCell className="flex items-center justify-center">
-												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-gray-100">
-															<MoreHorizontal className="h-4 w-4" />
-															<span className="sr-only">More actions</span>
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end" className="w-48">
-														<DropdownMenuItem asChild>
-															<Link to={`/dashboard/works/${p.id}`} className="cursor-pointer">
-																<Eye className="mr-2 h-4 w-4" />
-																View Details
-															</Link>
-														</DropdownMenuItem>
-														<DropdownMenuItem asChild>
-															<Link to={`/dashboard/works/${p.id}/edit`} className="cursor-pointer">
-																<Pencil className="mr-2 h-4 w-4" />
-																Edit Project
-															</Link>
-														</DropdownMenuItem>
-														<DropdownMenuSeparator />
-														<DropdownMenuItem variant="destructive" onClick={() => handleDelete(p.id)} className="cursor-pointer">
-															<Trash2 className="mr-2 h-4 w-4" />
-															Delete Project
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						)}
+						<Button variant="outline" size="icon" className="h-9 w-10">
+							<Filter className="h-4 w-4" />
+						</Button>
+
+						<Button variant="outline" size="icon" className="h-9 w-10">
+							<ArrowUpDown className="h-4 w-4" />
+						</Button>
 					</div>
-				</TabsContent>
-			</Tabs>
+				</div>
+
+				{/* Table */}
+				{filteredProjects.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-10">
+						<div className="bg-muted/50 mb-3 flex h-14 w-14 items-center justify-center rounded-full">
+							<FolderKanban className="text-muted-foreground h-7 w-7" />
+						</div>
+
+						<p className="text-sm font-medium">{statusFilter === "all" ? "No projects found" : statusFilter === "production" ? "No production projects" : statusFilter === "preview" ? "No preview projects" : "No archived projects"}</p>
+
+						<p className="text-muted-foreground mt-1 text-xs">Try changing the filter or create a new project.</p>
+					</div>
+				) : (
+					<Table>
+						<TableHeader>
+							<TableRow className="bg-muted/30 hover:bg-muted/30">
+								<TableHead className="w-14">No.</TableHead>
+								<TableHead>Project</TableHead>
+								<TableHead>Resources</TableHead>
+								<TableHead>Date</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead className="w-14">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+
+						<TableBody>
+							{filteredProjects.map((p, index) => (
+								<TableRow key={p.id} className="group">
+									<TableCell className="text-muted-foreground">{index + 1}</TableCell>
+
+									<TableCell>
+										<div className="flex items-center gap-3">
+											<div className="bg-muted h-11 w-11 overflow-hidden rounded-lg border">{p.images?.[0] ? <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" /> : null}</div>
+
+											<div>
+												<p className="font-medium">{p.name}</p>
+
+												<p className="text-muted-foreground text-xs">{new Date(p.createdAt).toLocaleDateString()}</p>
+											</div>
+										</div>
+									</TableCell>
+
+									<TableCell>
+										<div className="flex items-center gap-2">
+											{p.link_github && (
+												<a href={p.link_github} target="_blank" rel="noreferrer" className="hover:bg-muted flex h-8 w-8 items-center justify-center rounded-md border transition-colors">
+													<Github className="h-4 w-4" />
+												</a>
+											)}
+
+											{p.link_demo && (
+												<a href={p.link_demo} target="_blank" rel="noreferrer" className="hover:bg-muted flex h-8 w-8 items-center justify-center rounded-md border transition-colors">
+													<Globe className="h-4 w-4" />
+												</a>
+											)}
+										</div>
+									</TableCell>
+
+									<TableCell className="text-muted-foreground">
+										{new Date(p.createdAt).toLocaleDateString("en-US", {
+											month: "short",
+											day: "numeric",
+											year: "numeric",
+										})}
+									</TableCell>
+
+									<TableCell>
+										<Badge className={getStatusVariant(p.status).className}>{p.status}</Badge>
+									</TableCell>
+
+									<TableCell>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="ghost" size="icon" className="opacity-0 transition-opacity group-hover:opacity-100">
+													<MoreHorizontal className="h-4 w-4" />
+												</Button>
+											</DropdownMenuTrigger>
+
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem asChild>
+													<Link to={`/dashboard/works/${p.id}`}>
+														<Eye className="mr-2 h-4 w-4" />
+														View
+													</Link>
+												</DropdownMenuItem>
+
+												<DropdownMenuItem asChild>
+													<Link to={`/dashboard/works/${p.id}/edit`}>
+														<Pencil className="mr-2 h-4 w-4" />
+														Edit
+													</Link>
+												</DropdownMenuItem>
+
+												<DropdownMenuSeparator />
+
+												<DropdownMenuItem variant="destructive" onClick={() => handleDelete(p.id)}>
+													<Trash2 className="mr-2 h-4 w-4" />
+													Delete
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				)}
+			</div>
 		</div>
 	);
 }

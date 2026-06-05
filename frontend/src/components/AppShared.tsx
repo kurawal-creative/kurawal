@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LayoutGridIcon, FolderGit2Icon, BookOpenIcon, TagsIcon, UsersIcon, UserIcon, LogOutIcon, HelpCircleIcon } from "lucide-react";
+import { LayoutGridIcon, FolderGit2Icon, BookOpenIcon, TagsIcon, UsersIcon, LogOutIcon } from "lucide-react";
 
 export const isPathActive = (currentPath: string, itemPath?: string): boolean => {
 	if (!itemPath) return false;
@@ -68,21 +68,11 @@ export const navGroups: SidebarNavGroup[] = [
 				path: "/dashboard/users",
 				icon: <UsersIcon />,
 			},
-			{
-				title: "Profile",
-				path: "/dashboard/profile",
-				icon: <UserIcon />,
-			},
 		],
 	},
 ];
 
 export const footerNavLinks: SidebarNavItem[] = [
-	{
-		title: "Help Center",
-		path: "/help",
-		icon: <HelpCircleIcon />,
-	},
 	{
 		title: "Logout",
 		icon: <LogOutIcon />,

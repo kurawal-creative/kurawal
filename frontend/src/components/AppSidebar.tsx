@@ -5,7 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import { NavGroup } from "./NavGroup";
 import { footerNavLinks, navGroups, getMostSpecificActivePath, type SidebarNavItem } from "./AppShared";
 import { cn } from "@/lib/utils";
-import { LatestChange } from "./LatestChange";
+// import { LatestChange } from "./LatestChange";
 
 export function AppSidebar() {
 	const navigate = useNavigate();
@@ -42,7 +42,7 @@ export function AppSidebar() {
 			</SidebarContent>
 			{/* Footer */}
 			<SidebarFooter className="gap-0 p-0">
-				<LatestChange />
+				{/* <LatestChange /> */}
 				<SidebarMenu className="border-t p-2">
 					{footerNavLinks.map((item) => (
 						<SidebarMenuItem key={item.title}>

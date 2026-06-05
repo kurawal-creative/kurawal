@@ -14,22 +14,22 @@ const getPublicIds = (content: string) => {
   });
 };
 
-export const getProjects = async (req: Request, res: Response) => {
+export const getWorks = async (req: Request, res: Response) => {
   try {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
     const skip = (page - 1) * limit;
 
-    const [projects, totalProjects] = await Promise.all([
-      prisma.project.findMany({
+    const [works, totalWorks] = await Promise.all([
+      prisma.work.findMany({
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.project.count(),
+      prisma.work.count(),
     ]);
 
-    const totalPages = Math.ceil(totalProjects / limit);
+    const totalPages = Math.ceil(totalWorks / limit);
 
     // If authenticated (admin request), include the 'env' field.
     // Otherwise, omit it for public listings.
@@ -37,34 +37,34 @@ export const getProjects = async (req: Request, res: Response) => {
       headers: fromNodeHeaders(req.headers),
     });
     const isAuth = !!session;
-    const sanitizedProjects = isAuth ? projects : projects.map(({ env, ...p }) => p);
+    const sanitizedWorks = isAuth ? works : works.map(({ env, ...w }) => w);
 
     res.json({
       success: true,
-      data: sanitizedProjects,
+      data: sanitizedWorks,
       pagination: {
         currentPage: page,
         totalPages,
-        totalItems: totalProjects,
+        totalItems: totalWorks,
         itemsPerPage: limit,
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1,
       },
     });
   } catch (error) {
-    console.error("Error fetching projects:", error);
+    console.error("Error fetching works:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const getProjectById = async (req: Request, res: Response) => {
+export const getWorkById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
-    const project = await prisma.project.findUnique({
+    const work = await prisma.work.findUnique({
       where: { id },
     });
-    if (!project) return res.status(404).json({ message: "Project not found" });
+    if (!work) return res.status(404).json({ message: "Work not found" });
 
     // If authenticated (admin request), include the 'env' field.
     // Otherwise, omit it for public view.
@@ -73,27 +73,27 @@ export const getProjectById = async (req: Request, res: Response) => {
     });
     const isAuth = !!session;
     if (isAuth) {
-      return res.json(project);
+      return res.json(work);
     }
 
-    const { env, ...sanitizedProject } = project;
-    res.json(sanitizedProject);
+    const { env, ...sanitizedWork } = work;
+    res.json(sanitizedWork);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const createProject = async (req: Request, res: Response) => {
+export const createWork = async (req: Request, res: Response) => {
   try {
     let { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = req.body;
 
-    // Finalize multiple images from tmp to projects
+    // Finalize multiple images from tmp to works
     if (Array.isArray(images) && images.length > 0) {
       images = await Promise.all(
         images.map(async (url: string) => {
           const ids = getPublicIds(url);
           if (ids.length > 0 && ids[0].startsWith("tmp/")) {
-            const finalizedId = await finalizeImage(ids[0], "projects");
+            const finalizedId = await finalizeImage(ids[0], "works");
             return url.replace(ids[0], finalizedId);
           }
           return url;
@@ -106,13 +106,13 @@ export const createProject = async (req: Request, res: Response) => {
       const descIds = getPublicIds(description);
       for (const id of descIds) {
         if (id.startsWith("tmp/")) {
-          const finalizedId = await finalizeImage(id, "projects");
+          const finalizedId = await finalizeImage(id, "works");
           description = description.replace(id, finalizedId);
         }
       }
     }
 
-    const project = await prisma.project.create({
+    const work = await prisma.work.create({
       data: {
         name,
         description,
@@ -126,31 +126,31 @@ export const createProject = async (req: Request, res: Response) => {
         env,
       },
     });
-    res.status(201).json(project);
+    res.status(201).json(work);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const updateProject = async (req: Request, res: Response) => {
+export const updateWork = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 
     let { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = req.body;
 
-    const oldProject = await prisma.project.findUnique({ where: { id } });
-    if (!oldProject) return res.status(404).json({ message: "Project not found" });
+    const oldWork = await prisma.work.findUnique({ where: { id } });
+    if (!oldWork) return res.status(404).json({ message: "Work not found" });
 
     // 1. Handle images array lifecycle
     if (Array.isArray(images)) {
-      // Finalize new images from tmp to projects
+      // Finalize new images from tmp to works
       images = await Promise.all(
         images.map(async (url: string) => {
           const publicIds = getPublicIds(url);
           if (publicIds.length > 0 && publicIds[0].startsWith("tmp/")) {
-            const finalizedId = await finalizeImage(publicIds[0], "projects");
+            const finalizedId = await finalizeImage(publicIds[0], "works");
             return url.replace(publicIds[0], finalizedId);
           }
           return url;
@@ -163,13 +163,13 @@ export const updateProject = async (req: Request, res: Response) => {
       const newDescIds = getPublicIds(description);
       for (const pid of newDescIds) {
         if (pid.startsWith("tmp/")) {
-          const finalizedId = await finalizeImage(pid, "projects");
+          const finalizedId = await finalizeImage(pid, "works");
           description = description.replace(pid, finalizedId);
         }
       }
     }
 
-    const project = await prisma.project.update({
+    const work = await prisma.work.update({
       where: { id },
       data: {
         name,
@@ -184,23 +184,23 @@ export const updateProject = async (req: Request, res: Response) => {
         env,
       },
     });
-    res.json(project);
+    res.json(work);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const deleteProject = async (req: Request, res: Response) => {
+export const deleteWork = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 
-    const project = await prisma.project.findUnique({ where: { id } });
-    if (project) {
+    const work = await prisma.work.findUnique({ where: { id } });
+    if (work) {
       // 1. Delete array of images
-      if (Array.isArray(project.images)) {
-        for (const url of project.images) {
+      if (Array.isArray(work.images)) {
+        for (const url of work.images) {
           const pids = getPublicIds(url);
           for (const pid of pids) {
             await deleteImage(pid);
@@ -209,18 +209,18 @@ export const deleteProject = async (req: Request, res: Response) => {
       }
 
       // 2. Delete description images (Markdown)
-      if (project.description) {
-        const descPids = getPublicIds(project.description);
+      if (work.description) {
+        const descPids = getPublicIds(work.description);
         for (const pid of descPids) {
           await deleteImage(pid);
         }
       }
     }
 
-    await prisma.project.delete({ where: { id } });
-    res.json({ message: "Project deleted" });
+    await prisma.work.delete({ where: { id } });
+    res.json({ message: "Work deleted" });
   } catch (error) {
-    console.error("Error deleting project:", error);
+    console.error("Error deleting work:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

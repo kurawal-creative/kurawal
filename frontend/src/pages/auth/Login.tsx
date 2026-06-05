@@ -19,7 +19,7 @@ export default function Login() {
 	const { data: session, isPending } = authClient.useSession();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
-	const redirectTo = searchParams.get("redirect") || "/admin";
+	const redirectTo = searchParams.get("redirect") || "/dashboard";
 
 	useEffect(() => {
 		if (session) {

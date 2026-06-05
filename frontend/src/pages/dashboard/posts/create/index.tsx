@@ -157,7 +157,7 @@ export default function CreatePostPage() {
 
 			setSubmittedPayload(JSON.stringify(payloadForDisplay, null, 2));
 			toast.success("Post published successfully");
-			navigate("/admin/posts");
+			navigate("/dashboard/posts");
 		} catch (error: any) {
 			console.error("Error publishing post:", error);
 			toast.error(error?.response?.data?.message || "Failed to publish post");
@@ -344,10 +344,10 @@ export default function CreatePostPage() {
 								<DateTimePicker24h />
 							</div>
 							<div className="order-1 flex w-full flex-wrap items-center justify-end gap-2 sm:order-2 sm:w-auto">
-								<Button type="button" variant="outline" className="border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => navigate("/admin/posts")}>
+								<Button type="button" variant="outline" className="border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => navigate("/dashboard/posts")}>
 									Cancel
 								</Button>
-								<Button type="button" variant="secondary" onClick={() => navigate("/admin/posts")}>
+								<Button type="button" variant="secondary" onClick={() => navigate("/dashboard/posts")}>
 									Draft
 								</Button>
 								<Button type="button" disabled={saving} onClick={handlePublishClick}>

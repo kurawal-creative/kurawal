@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { tagsApi } from "@/utils/adminApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Pencil, Trash2, Plus, Search, Filter, ArrowUpDown, MoreHorizontal, Tag as TagIcon } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/layouts/adminLayout";
 
@@ -112,12 +113,14 @@ export default function AdminTagsPage() {
 
 	return (
 		<AdminLayout>
-			<div className="space-y-6 pb-8">
-				<div className="flex items-center justify-between">
+			<div className="space-y-5">
+				{/* Header */}
+				<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 					<div>
-						<h1 className="text-3xl font-bold tracking-tight">Tags Management</h1>
-						<p className="text-muted-foreground mt-2">Organize and manage your content tags</p>
+						<h1 className="text-2xl font-semibold tracking-tight">Tags Management</h1>
+						<p className="text-muted-foreground mt-1 text-sm">Organize and categorize your content with tags.</p>
 					</div>
+
 					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 						<DialogTrigger asChild>
 							<Button
@@ -170,105 +173,151 @@ export default function AdminTagsPage() {
 					</Dialog>
 				</div>
 
-				{/* Search */}
-				<Input placeholder="Search by tag name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-sm" />
-
-				{/* Table */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Tags</CardTitle>
-						<CardDescription>Showing {tags.length} tags</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{loading ? (
-							<div className="space-y-2">
-								{Array.from({ length: 5 }).map((_, i) => (
-									<Skeleton key={i} className="h-12 w-full" />
-								))}
+				<div className="bg-card rounded-xl border">
+					{/* Toolbar */}
+					<div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
+						<div className="flex items-center gap-2">
+							<div className="relative w-full lg:w-92">
+								<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+								<Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search tags..." className="h-9 pl-9" />
 							</div>
-						) : (
-							<div className="overflow-x-auto">
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>Name</TableHead>
-											<TableHead>Slug</TableHead>
-											<TableHead>Created</TableHead>
-											<TableHead className="text-right">Actions</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{tags.length === 0 ? (
-											<TableRow>
-												<TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
-													No tags found
-												</TableCell>
-											</TableRow>
-										) : (
-											tags.map((tag) => (
-												<TableRow key={tag.id}>
-													<TableCell className="font-medium">{tag.name}</TableCell>
-													<TableCell>
-														<code className="rounded bg-gray-100 px-2 py-1 text-sm">{tag.slug}</code>
-													</TableCell>
-													<TableCell className="text-sm">{new Date(tag.createdAt).toLocaleDateString()}</TableCell>
-													<TableCell className="text-right">
-														<div className="flex justify-end gap-2">
-															<Button size="sm" variant="outline" onClick={() => handleEdit(tag)}>
-																<Pencil className="h-4 w-4" />
-															</Button>
-															<Button
-																size="sm"
-																variant="destructive"
-																onClick={() => {
-																	setDeleteTagId(tag.id);
-																	setIsDeleteOpen(true);
-																}}
-															>
-																<Trash2 className="h-4 w-4" />
-															</Button>
-														</div>
-													</TableCell>
-												</TableRow>
-											))
-										)}
-									</TableBody>
-								</Table>
-							</div>
-						)}
+						</div>
 
-						{/* Pagination */}
-						{totalPages > 1 && (
-							<div className="mt-4 flex justify-center gap-2">
-								<Button
-									variant="outline"
-									disabled={currentPage === 1}
-									onClick={() => {
-										setCurrentPage(currentPage - 1);
-										fetchTags(currentPage - 1);
-									}}
-								>
-									Previous
-								</Button>
-								<div className="flex items-center gap-2">
-									<span className="text-sm">
-										Page {currentPage} of {totalPages}
-									</span>
+						<div className="flex gap-2">
+							<Button variant="outline" size="icon" className="h-9 w-10">
+								<Filter className="h-4 w-4" />
+							</Button>
+
+							<Button variant="outline" size="icon" className="h-9 w-10">
+								<ArrowUpDown className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
+
+					{/* Table */}
+					{loading ? (
+						<div className="space-y-3 p-6">
+							{[...Array(5)].map((_, i) => (
+								<div key={i} className="flex items-center gap-4">
+									<Skeleton className="h-12 flex-1" />
+									<Skeleton className="h-4 w-24" />
+									<Skeleton className="h-4 w-24" />
 								</div>
-								<Button
-									variant="outline"
-									disabled={currentPage === totalPages}
-									onClick={() => {
-										setCurrentPage(currentPage + 1);
-										fetchTags(currentPage + 1);
-									}}
-								>
-									Next
-								</Button>
+							))}
+						</div>
+					) : tags.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-10">
+							<div className="bg-muted/50 mb-3 flex h-14 w-14 items-center justify-center rounded-full">
+								<TagIcon className="text-muted-foreground h-7 w-7" />
 							</div>
-						)}
-					</CardContent>
-				</Card>
+
+							<p className="text-sm font-medium">No tags found</p>
+
+							<p className="text-muted-foreground mt-1 text-xs">Try changing the search term or create a new tag.</p>
+						</div>
+					) : (
+						<Table>
+							<TableHeader>
+								<TableRow className="bg-muted/30 hover:bg-muted/30">
+									<TableHead className="w-14">No.</TableHead>
+									<TableHead>Tag Name</TableHead>
+									<TableHead>Slug</TableHead>
+									<TableHead>Created</TableHead>
+									<TableHead className="w-14">Actions</TableHead>
+								</TableRow>
+							</TableHeader>
+
+							<TableBody>
+								{tags.map((tag, index) => (
+									<TableRow key={tag.id} className="group">
+										<TableCell className="text-muted-foreground">{index + 1}</TableCell>
+
+										<TableCell>
+											<span className="font-medium">{tag.name}</span>
+										</TableCell>
+
+										<TableCell>
+											<Badge variant="outline" className="font-mono text-xs">
+												{tag.slug}
+											</Badge>
+										</TableCell>
+
+										<TableCell className="text-muted-foreground">
+											{new Date(tag.createdAt).toLocaleDateString("en-US", {
+												month: "short",
+												day: "numeric",
+												year: "numeric",
+											})}
+										</TableCell>
+
+										<TableCell>
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="ghost" size="icon" className="opacity-0 transition-opacity group-hover:opacity-100">
+														<MoreHorizontal className="h-4 w-4" />
+													</Button>
+												</DropdownMenuTrigger>
+
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem onClick={() => handleEdit(tag)}>
+														<Pencil className="mr-2 h-4 w-4" />
+														Edit
+													</DropdownMenuItem>
+
+													<DropdownMenuSeparator />
+
+													<DropdownMenuItem
+														variant="destructive"
+														onClick={() => {
+															setDeleteTagId(tag.id);
+															setIsDeleteOpen(true);
+														}}
+													>
+														<Trash2 className="mr-2 h-4 w-4" />
+														Delete
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					)}
+
+					{/* Pagination */}
+					{totalPages > 1 && (
+						<div className="flex items-center justify-end gap-2 border-t p-4">
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={currentPage === 1}
+								onClick={() => {
+									setCurrentPage(currentPage - 1);
+									fetchTags(currentPage - 1);
+								}}
+							>
+								Previous
+							</Button>
+							<div className="flex items-center gap-2">
+								<span className="text-muted-foreground text-sm">
+									Page {currentPage} of {totalPages}
+								</span>
+							</div>
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={currentPage === totalPages}
+								onClick={() => {
+									setCurrentPage(currentPage + 1);
+									fetchTags(currentPage + 1);
+								}}
+							>
+								Next
+							</Button>
+						</div>
+					)}
+				</div>
 			</div>
 
 			{/* Delete Confirmation Dialog */}

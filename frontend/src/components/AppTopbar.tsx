@@ -11,7 +11,7 @@ export function AppTopbar() {
 	const { pathname } = useLocation();
 	const activeItem = getMostSpecificActivePath(pathname, navLinks);
 	return (
-		<header className={cn("sticky top-0 z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4 md:px-6", "bg-background/95 supports-backdrop-filter:bg-background/60 backdrop-blur-sm")}>
+		<header className={cn("bg-background sticky top-0 z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4 md:px-6")}>
 			<DecorIcon className="hidden opacity-40 md:block dark:opacity-30" position="bottom-left" />
 			<div className="flex items-center gap-3">
 				<CustomSidebarTrigger />

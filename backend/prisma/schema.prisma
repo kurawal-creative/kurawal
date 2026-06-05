@@ -63,7 +63,7 @@ model Tag {
   updatedAt DateTime @updatedAt
 }
 
-model Project {
+model Work {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
