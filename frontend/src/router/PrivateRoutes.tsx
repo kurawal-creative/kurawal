@@ -2,6 +2,7 @@ import AdminDashboardPage from "@/pages/dashboard";
 import AdminPostsPage from "@/pages/dashboard/posts";
 import CreatePostPage from "@/pages/dashboard/posts/create";
 import EditPostPage from "@/pages/dashboard/posts/edit";
+import DetailPostPage from "@/pages/dashboard/posts/detail";
 import AdminTagsPage from "@/pages/dashboard/tags";
 import AdminMediaPage from "@/pages/dashboard/Media";
 import AdminWorksPage from "@/pages/dashboard/works";
@@ -13,10 +14,13 @@ import UserProfilePage from "@/pages/dashboard/profile";
 import { NuqsAdapter } from "nuqs/adapters/react";
 
 const privateRoutes = [
+	// Dashboard
 	{
 		path: "/dashboard",
 		element: <AdminDashboardPage />,
 	},
+
+	// Posts
 	{
 		path: "/dashboard/posts",
 		element: <AdminPostsPage />,
@@ -26,13 +30,21 @@ const privateRoutes = [
 		element: <CreatePostPage />,
 	},
 	{
-		path: "/dashboard/posts/:id/edit",
+		path: "/dashboard/posts/edit/:id",
 		element: <EditPostPage />,
 	},
+	{
+		path: "/dashboard/posts/detail/:id",
+		element: <DetailPostPage />,
+	},
+
+	// Tags
 	{
 		path: "/dashboard/tags",
 		element: <AdminTagsPage />,
 	},
+
+	// Media
 	{
 		path: "/dashboard/media",
 		element: (
@@ -41,6 +53,8 @@ const privateRoutes = [
 			</NuqsAdapter>
 		),
 	},
+
+	// Works
 	{
 		path: "/dashboard/works",
 		element: <AdminWorksPage />,
@@ -57,10 +71,14 @@ const privateRoutes = [
 		path: "/dashboard/works/:id/edit",
 		element: <AdminWorksEditPage />,
 	},
+
+	// Users
 	{
 		path: "/dashboard/users",
 		element: <AdminUsersPage />,
 	},
+
+	// Profile
 	{
 		path: "/dashboard/profile",
 		element: <UserProfilePage />,

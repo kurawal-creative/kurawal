@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,11 +11,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Pencil, Trash2, Plus, Search, Filter, ArrowUpDown, MoreHorizontal, Tag as TagIcon } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/layouts/adminLayout";
+import { generateTagColor, generateTagColorHex } from "@/utils/tagColors";
 
 interface Tag {
 	id: string;
 	name: string;
 	slug: string;
+	color?: string;
 	createdAt: string;
 }
 
@@ -33,26 +35,32 @@ export default function AdminTagsPage() {
 	const [formData, setFormData] = useState({
 		name: "",
 		slug: "",
+		color: "",
 	});
 
-	const fetchTags = async (page: number) => {
-		try {
-			setLoading(true);
-			const data = await tagsApi.getAll(page, 10, searchTerm);
-			setTags(data.data || []);
-			setTotalPages(data.pagination?.totalPages || 1);
-		} catch (error) {
-			console.error("Error fetching tags:", error);
-			toast.error("Failed to fetch tags");
-		} finally {
-			setLoading(false);
-		}
-	};
+	const fetchTags = useCallback(
+		async (page: number) => {
+			try {
+				setLoading(true);
+
+				const data = await tagsApi.getAll(page, 10, searchTerm);
+
+				setTags(data.data || []);
+				setTotalPages(data.pagination?.totalPages || 1);
+			} catch (error) {
+				console.error("Error fetching tags:", error);
+				toast.error("Failed to fetch tags");
+			} finally {
+				setLoading(false);
+			}
+		},
+		[searchTerm],
+	);
 
 	useEffect(() => {
 		setCurrentPage(1);
 		fetchTags(1);
-	}, [searchTerm]);
+	}, [fetchTags]);
 
 	const handleCreateOrUpdate = async () => {
 		try {
@@ -61,21 +69,27 @@ export default function AdminTagsPage() {
 				return;
 			}
 
+			const payload = {
+				...formData,
+				color: formData.color || generateTagColorHex(formData.name),
+			};
+
 			if (editingTag) {
-				await tagsApi.update(editingTag.id, formData);
+				await tagsApi.update(editingTag.id, payload);
 				toast.success("Tag updated successfully");
 			} else {
-				await tagsApi.create(formData);
+				await tagsApi.create(payload);
 				toast.success("Tag created successfully");
 			}
 
 			setIsDialogOpen(false);
 			setEditingTag(null);
-			setFormData({ name: "", slug: "" });
+			setFormData({ name: "", slug: "", color: "" });
 			fetchTags(currentPage);
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error("Error saving tag:", error);
-			toast.error(error.response?.data?.message || "Failed to save tag");
+			const errorMessage = error && typeof error === "object" && "response" in error ? (error.response as { data?: { message?: string } })?.data?.message : undefined;
+			toast.error(errorMessage || "Failed to save tag");
 		}
 	};
 
@@ -84,6 +98,7 @@ export default function AdminTagsPage() {
 		setFormData({
 			name: tag.name,
 			slug: tag.slug,
+			color: tag.color || "",
 		});
 		setIsDialogOpen(true);
 	};
@@ -97,9 +112,10 @@ export default function AdminTagsPage() {
 			setIsDeleteOpen(false);
 			setDeleteTagId(null);
 			fetchTags(currentPage);
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error("Error deleting tag:", error);
-			toast.error(error.response?.data?.message || "Failed to delete tag");
+			const errorMessage = error && typeof error === "object" && "response" in error ? (error.response as { data?: { message?: string } })?.data?.message : undefined;
+			toast.error(errorMessage || "Failed to delete tag");
 		}
 	};
 
@@ -126,7 +142,7 @@ export default function AdminTagsPage() {
 							<Button
 								onClick={() => {
 									setEditingTag(null);
-									setFormData({ name: "", slug: "" });
+									setFormData({ name: "", slug: "", color: "" });
 								}}
 							>
 								<Plus className="mr-2 h-4 w-4" />
@@ -147,10 +163,12 @@ export default function AdminTagsPage() {
 										value={formData.name}
 										onChange={(e) => {
 											const name = e.target.value;
-											setFormData({
+
+											setFormData((prev) => ({
+												...prev,
 												name,
-												slug: formData.slug || generateSlug(name),
-											});
+												slug: !editingTag || prev.slug === generateSlug(prev.name) ? generateSlug(name) : prev.slug,
+											}));
 										}}
 										placeholder="e.g., React, Web Development"
 									/>
@@ -233,7 +251,7 @@ export default function AdminTagsPage() {
 										<TableCell className="text-muted-foreground">{index + 1}</TableCell>
 
 										<TableCell>
-											<span className="font-medium">{tag.name}</span>
+											<Badge className={generateTagColor(tag.name)}>{tag.name}</Badge>
 										</TableCell>
 
 										<TableCell>

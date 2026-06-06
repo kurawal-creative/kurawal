@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { postsApi } from "@/utils/adminApi";
 import PostsDeleteDialog from "@/components/dashboard/posts/PostsDeleteDialog";
@@ -33,22 +33,27 @@ export default function AdminPostsPage() {
 	const [deletePostId, setDeletePostId] = useState<string | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
 
-	const fetchPosts = async (page: number) => {
-		try {
-			setLoading(true);
-			const data = await postsApi.getAll(page, 10, searchTerm, "");
-			setPosts(data.data || []);
-		} catch (error) {
-			console.error("Error fetching posts:", error);
-			toast.error("Failed to fetch posts");
-		} finally {
-			setLoading(false);
-		}
-	};
+	const fetchPosts = useCallback(
+		async (page: number) => {
+			try {
+				setLoading(true);
+
+				const data = await postsApi.getAll(page, 10, searchTerm, "");
+
+				setPosts(data.data || []);
+			} catch (error) {
+				console.error("Error fetching posts:", error);
+				toast.error("Failed to fetch posts");
+			} finally {
+				setLoading(false);
+			}
+		},
+		[searchTerm],
+	);
 
 	useEffect(() => {
 		fetchPosts(currentPage);
-	}, []);
+	}, [fetchPosts, currentPage]);
 
 	useEffect(() => {
 		if (currentPage !== 1) {
@@ -56,11 +61,7 @@ export default function AdminPostsPage() {
 		} else {
 			fetchPosts(1);
 		}
-	}, [searchTerm]);
-
-	useEffect(() => {
-		fetchPosts(currentPage);
-	}, [currentPage]);
+	}, [searchTerm, currentPage, fetchPosts]);
 
 	const handleDelete = async () => {
 		if (!deletePostId) return;
@@ -72,9 +73,10 @@ export default function AdminPostsPage() {
 			setIsDeleteOpen(false);
 			setDeletePostId(null);
 			fetchPosts(currentPage);
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error("Error deleting post:", error);
-			toast.error(error.response?.data?.message || "Failed to delete post");
+			const errorMessage = error && typeof error === "object" && "response" in error ? (error.response as { data?: { message?: string } })?.data?.message : undefined;
+			toast.error(errorMessage || "Failed to delete post");
 		} finally {
 			setIsDeleting(false);
 		}
@@ -285,14 +287,14 @@ export default function AdminPostsPage() {
 
 												<DropdownMenuContent align="end">
 													<DropdownMenuItem asChild>
-														<Link to={`/dashboard/posts/${p.id}`}>
+														<Link to={`/dashboard/posts/detail/${p.id}`}>
 															<Eye className="mr-2 h-4 w-4" />
 															View
 														</Link>
 													</DropdownMenuItem>
 
 													<DropdownMenuItem asChild>
-														<Link to={`/dashboard/posts/${p.id}/edit`}>
+														<Link to={`/dashboard/posts/edit/${p.id}`}>
 															<Pencil className="mr-2 h-4 w-4" />
 															Edit
 														</Link>

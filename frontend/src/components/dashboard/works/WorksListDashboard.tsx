@@ -46,7 +46,7 @@ export default function ProjectList() {
 		try {
 			await api.delete(`/works/${id}`);
 			setProjects(projects.filter((p) => p.id !== id));
-		} catch (error) {
+		} catch {
 			alert("Failed to delete project");
 		}
 	};
@@ -126,7 +126,7 @@ export default function ProjectList() {
 
 				<Button asChild>
 					<Link to="/dashboard/works/create">
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus className="mr-2 h-4 w-4 " />
 						New Project
 					</Link>
 				</Button>
@@ -183,7 +183,7 @@ export default function ProjectList() {
 				{/* Toolbar */}
 				<div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
 					<Tabs defaultValue="all" onValueChange={setStatusFilter}>
-						<TabsList className="h-9">
+						<TabsList>
 							<TabsTrigger value="all">All ({counts.all})</TabsTrigger>
 							<TabsTrigger value="production">Production ({counts.production})</TabsTrigger>
 							<TabsTrigger value="preview">Preview ({counts.preview})</TabsTrigger>
