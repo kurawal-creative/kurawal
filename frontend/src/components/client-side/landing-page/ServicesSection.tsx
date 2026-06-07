@@ -26,9 +26,9 @@ const ServicesSection = () => {
 						</div>
 
 						<div className="flex justify-center lg:justify-start">
-							<Button asChild className="group mt-7">
-								<Link to={"contact-us"}>
-									Contact Us <ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
+							<Button asChild className="group mt-7 rounded-full">
+								<Link to={"contact-us"} className="flex items-center gap-2">
+									Contact Us <ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5 h-4 w-4" />
 								</Link>
 							</Button>
 						</div>

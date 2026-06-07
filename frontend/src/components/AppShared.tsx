@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LayoutGridIcon, FolderGit2Icon, BookOpenIcon, TagsIcon, UsersIcon, LogOutIcon } from "lucide-react";
+import { LayoutGridIcon, FolderGit2Icon, BookOpenIcon, TagsIcon, UsersIcon, LogOutIcon, TrophyIcon, BriefcaseBusinessIcon, Building2Icon, MessageSquareQuoteIcon, ImagesIcon } from "lucide-react";
 
 export const isPathActive = (currentPath: string, itemPath?: string): boolean => {
 	if (!itemPath) return false;
@@ -12,7 +12,9 @@ export const getMostSpecificActivePath = (currentPath: string, items: SidebarNav
 
 export const isPathMostSpecificActive = (currentPath: string, itemPath?: string, allItems?: SidebarNavItem[]): boolean => {
 	if (!itemPath || !allItems) return false;
+
 	const mostSpecific = getMostSpecificActivePath(currentPath, allItems);
+
 	return mostSpecific?.path === itemPath;
 };
 
@@ -40,6 +42,28 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 		],
 	},
+
+	{
+		label: "Company",
+		items: [
+			{
+				title: "Company Profile",
+				path: "/dashboard/company",
+				icon: <Building2Icon />,
+			},
+			{
+				title: "Services",
+				path: "/dashboard/services",
+				icon: <BriefcaseBusinessIcon />,
+			},
+			{
+				title: "Testimonials",
+				path: "/dashboard/testimonials",
+				icon: <MessageSquareQuoteIcon />,
+			},
+		],
+	},
+
 	{
 		label: "Content Management",
 		items: [
@@ -58,10 +82,21 @@ export const navGroups: SidebarNavGroup[] = [
 				path: "/dashboard/tags",
 				icon: <TagsIcon />,
 			},
+			{
+				title: "Awards",
+				path: "/dashboard/awards",
+				icon: <TrophyIcon />,
+			},
+			{
+				title: "Gallery",
+				path: "/dashboard/gallery",
+				icon: <ImagesIcon />,
+			},
 		],
 	},
+
 	{
-		label: "User Management",
+		label: "Administration",
 		items: [
 			{
 				title: "Users",

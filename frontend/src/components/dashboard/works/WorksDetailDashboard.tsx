@@ -11,6 +11,7 @@ interface Project {
 	name: string;
 	images: string[];
 	stack: string[];
+	category: string;
 	startDate: string | null;
 	endDate: string | null;
 	description: string | null;
@@ -93,6 +94,12 @@ export default function ProjectDetail() {
 						<Badge variant="outline" className={project.status.toLowerCase() === "production" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600" : project.status.toLowerCase() === "preview" ? "border-amber-500/20 bg-amber-500/10 text-amber-600" : "bg-muted text-muted-foreground"}>
 							{project.status}
 						</Badge>
+
+						{project.category && (
+							<Badge variant="secondary">
+								{project.category}
+							</Badge>
+						)}
 					</div>
 
 					<div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-xs">

@@ -58,10 +58,10 @@ const CTASection = () => {
 										</div>
 
 										<div className="flex justify-center md:justify-start">
-											<Button asChild className="group my-3">
-												<Link to="/contact-us">
+											<Button asChild className="group my-3 rounded-full">
+												<Link to="/contact-us" className="flex items-center gap-2">
 													Contact Us
-													<ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
+													<ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5 h-4 w-4" />
 												</Link>
 											</Button>
 										</div>

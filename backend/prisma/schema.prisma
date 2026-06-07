@@ -69,6 +69,7 @@ model Work {
   description String?
   images      String[]
   stack       String[]
+  category    String?
   startDate   DateTime?
   endDate     DateTime?
   link_github String?

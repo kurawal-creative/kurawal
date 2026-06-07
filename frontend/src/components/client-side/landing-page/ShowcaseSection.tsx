@@ -41,9 +41,9 @@ const ShowcaseSection = () => {
 						</div>
 					</div>
 
-					<Button asChild className="group my-6">
-						<Link to="/projects">
-							Show More <ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
+					<Button asChild className="group my-6 rounded-full">
+						<Link to="/projects" className="flex items-center gap-2">
+							Show More <ArrowUpRight className="transition-transform duration-200 group-hover:translate-x-0.5 h-4 w-4" />
 						</Link>
 					</Button>
 				</div>

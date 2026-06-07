@@ -17,6 +17,7 @@ interface Project {
 	link_github: string;
 	link_demo: string;
 	status: string;
+	category: string;
 	createdAt: string;
 }
 
@@ -224,6 +225,7 @@ export default function ProjectList() {
 							<TableRow className="bg-muted/30 hover:bg-muted/30">
 								<TableHead className="w-14">No.</TableHead>
 								<TableHead>Project</TableHead>
+								<TableHead>Category</TableHead>
 								<TableHead>Resources</TableHead>
 								<TableHead>Date</TableHead>
 								<TableHead>Status</TableHead>
@@ -246,6 +248,16 @@ export default function ProjectList() {
 												<p className="text-muted-foreground text-xs">{new Date(p.createdAt).toLocaleDateString()}</p>
 											</div>
 										</div>
+									</TableCell>
+
+									<TableCell>
+										{p.category ? (
+											<Badge variant="outline" className="text-xs">
+												{p.category}
+											</Badge>
+										) : (
+											<span className="text-muted-foreground text-xs">-</span>
+										)}
 									</TableCell>
 
 									<TableCell>

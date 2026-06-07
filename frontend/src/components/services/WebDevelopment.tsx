@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Button } from "../ui/button";
 
 export default function WebDevelopment() {
 	const featureList = ["Responsive across all devices", "SEO-friendly architecture", "Fast loading performance", "Scalable and maintainable codebase"];
@@ -22,12 +23,13 @@ export default function WebDevelopment() {
 						</ul>
 
 						<div className="flex flex-wrap items-center gap-3 pt-1">
-							<Link to="/works" className="inline-flex items-center rounded-full border border-neutral-900 bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-neutral-300">
-								See Projects
-							</Link>
-							<Link to="/services" className="inline-flex items-center rounded-full border border-dashed border-neutral-300 px-4 py-2 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-neutral-100 dark:hover:text-neutral-100">
-								View Process
-							</Link>
+							<Button asChild className="rounded-full">
+								<Link to="/works">See Projects</Link>
+							</Button>
+
+							<Button asChild variant="outline" className="rounded-full border-dashed">
+								<Link to="/services">View Process</Link>
+							</Button>
 						</div>
 					</div>
 					<div className="border border-dashed border-neutral-300 bg-neutral-50/60 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">

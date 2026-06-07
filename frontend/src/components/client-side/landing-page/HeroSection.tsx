@@ -114,10 +114,10 @@ const HeroSection = () => {
 						<div className="from-background pointer-events-none absolute inset-y-0 right-0 w-1/6 bg-linear-to-l"></div>
 					</div>
 					<div className="mx-auto mt-6 flex justify-center gap-4 md:mt-8">
-						<Button asChild>
+						<Button asChild className="rounded-full">
 							<Link to="/">Our Services</Link>
 						</Button>
-						<Button variant="outline" asChild>
+						<Button variant="outline" asChild className="rounded-full">
 							<Link to="/contact-us">Contact Us</Link>
 						</Button>
 					</div>

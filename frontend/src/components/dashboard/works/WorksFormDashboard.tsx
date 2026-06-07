@@ -23,6 +23,7 @@ export default function ProjectForm() {
 		description: "",
 		images: [] as string[],
 		stack: [] as string[],
+		category: "",
 		startDate: "",
 		endDate: "",
 		link_github: "",
@@ -36,12 +37,13 @@ export default function ProjectForm() {
 			const fetchProject = async () => {
 				try {
 					const response = await api.get(`/works/${id}`);
-					const { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = response.data;
+					const { name, description, images, stack, category, startDate, endDate, link_github, link_demo, status, env } = response.data;
 					setFormData({
 						name: name || "",
 						description: description || "",
 						images: images || [],
 						stack: stack || [],
+						category: category || "",
 						startDate: startDate ? new Date(startDate).toISOString().split("T")[0] : "",
 						endDate: endDate ? new Date(endDate).toISOString().split("T")[0] : "",
 						link_github: link_github || "",
@@ -74,7 +76,7 @@ export default function ProjectForm() {
 				...prev,
 				images: [...prev.images, ...newUrls],
 			}));
-		} catch (error) {
+		} catch {
 			alert("Failed to upload images");
 		} finally {
 			setUploading(false);

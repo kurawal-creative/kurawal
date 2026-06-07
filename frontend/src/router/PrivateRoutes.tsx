@@ -11,6 +11,7 @@ import AdminWorksDetailPage from "@/pages/dashboard/works/detail/detail";
 import AdminWorksEditPage from "@/pages/dashboard/works/edit/edit";
 import AdminUsersPage from "@/pages/dashboard/users";
 import UserProfilePage from "@/pages/dashboard/profile";
+import AdminAwardsPage from "@/pages/dashboard/awards";
 import { NuqsAdapter } from "nuqs/adapters/react";
 
 const privateRoutes = [
@@ -70,6 +71,12 @@ const privateRoutes = [
 	{
 		path: "/dashboard/works/:id/edit",
 		element: <AdminWorksEditPage />,
+	},
+
+	// Awards
+	{
+		path: "/dashboard/awards",
+		element: <AdminAwardsPage />,
 	},
 
 	// Users

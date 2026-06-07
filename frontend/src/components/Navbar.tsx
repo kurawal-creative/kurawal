@@ -58,17 +58,17 @@ export default function Navbar() {
 
 				{/* Right */}
 				<div className="hidden flex-1 items-center justify-end gap-3 lg:flex">
-					<button className="rounded-md p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
-						<Search className="h-4 w-4 text-neutral-800 dark:text-neutral-100" />
-					</button>
+					<Button size="icon" variant="ghost" className="rounded-full">
+						<Search className="h-4 w-4" />
+					</Button>
 
 					<ThemeToggler />
 
-					<a href="https://github.com/kurawal-creative" target="_blank" className="rounded-md p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
+					<a href="https://github.com/kurawal-creative" target="_blank" className="rounded-full p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
 						<Github className="h-4 w-4 text-neutral-800 dark:text-neutral-100" />
 					</a>
 
-					<Button asChild>
+					<Button asChild variant="default" className="rounded-full">
 						<Link to="contact-us">Contact Us</Link>
 					</Button>
 				</div>
@@ -79,17 +79,19 @@ export default function Navbar() {
 						{isOpen ? <X className="h-5 w-5 text-neutral-800 dark:text-neutral-100" /> : <Menu className="h-5 w-5 text-neutral-800 dark:text-neutral-100" />}
 					</button>
 
-					<button className="rounded-md p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
-						<Search className="h-4 w-4 text-neutral-800 dark:text-neutral-100" />
-					</button>
+					<Button size="icon" variant="ghost" className="rounded-full">
+						<Search className="h-4 w-4" />
+					</Button>
 
 					<ThemeToggler />
 
-					<a href="https://github.com/KurawalCreative" className="rounded-md p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
+					<a href="https://github.com/KurawalCreative" className="rounded-full p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
 						<Github className="h-4 w-4 text-neutral-800 dark:text-neutral-100" />
 					</a>
 
-					<Button>Get Access</Button>
+					<Button variant="default" className="rounded-full">
+						Contact Us
+					</Button>
 				</div>
 
 				{/* Hamburger Button - Mobile Only */}
@@ -116,18 +118,20 @@ export default function Navbar() {
 						{/* Action Buttons */}
 						<div className="flex flex-col gap-3">
 							<div className="flex items-center justify-end gap-3">
-								<button className="rounded-md p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
-									<Search className="h-4 w-4 text-neutral-800 dark:text-neutral-100" />
-								</button>
+								<Button size="icon" variant="ghost" className="rounded-full">
+									<Search className="h-4 w-4" />
+								</Button>
 
 								<ThemeToggler />
 
-								<a href="https://github.com/KurawalCreative" className="rounded-md p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
+								<a href="https://github.com/KurawalCreative" className="rounded-full p-2 transition hover:bg-neutral-100 dark:hover:bg-neutral-800">
 									<Github className="h-4 w-4 text-neutral-800 dark:text-neutral-100" />
 								</a>
 							</div>
 
-							<Button>Get Access</Button>
+							<Button variant="default" className="rounded-full">
+								Contact Us
+							</Button>
 						</div>
 					</div>
 				</div>

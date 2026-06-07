@@ -85,7 +85,7 @@ export const getWorkById = async (req: Request, res: Response) => {
 
 export const createWork = async (req: Request, res: Response) => {
   try {
-    let { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = req.body;
+    let { name, description, images, stack, category, startDate, endDate, link_github, link_demo, status, env } = req.body;
 
     // Finalize multiple images from tmp to works
     if (Array.isArray(images) && images.length > 0) {
@@ -118,6 +118,7 @@ export const createWork = async (req: Request, res: Response) => {
         description,
         images,
         stack: Array.isArray(stack) ? stack : [],
+        category,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         link_github,
@@ -138,7 +139,7 @@ export const updateWork = async (req: Request, res: Response) => {
     const { id } = req.params;
     if (typeof id !== "string") return res.status(400).json({ message: "Invalid ID" });
 
-    let { name, description, images, stack, startDate, endDate, link_github, link_demo, status, env } = req.body;
+    let { name, description, images, stack, category, startDate, endDate, link_github, link_demo, status, env } = req.body;
 
     const oldWork = await prisma.work.findUnique({ where: { id } });
     if (!oldWork) return res.status(404).json({ message: "Work not found" });
@@ -176,6 +177,7 @@ export const updateWork = async (req: Request, res: Response) => {
         description,
         images,
         stack: Array.isArray(stack) ? stack : [],
+        category,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         link_github,

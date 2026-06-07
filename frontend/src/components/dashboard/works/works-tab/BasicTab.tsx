@@ -3,6 +3,7 @@ interface BasicTabProps {
 		name: string;
 		description: string;
 		status: string;
+		category: string;
 		stack: string[];
 	};
 	handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -61,26 +62,39 @@ export default function BasicTab({ formData, handleChange, setFormData }: BasicT
 							</select>
 						</div>
 						<div className="space-y-2">
-							<label htmlFor="stack" className="text-sm font-medium">
-								Tech Stack <span className="text-destructive">*</span>
+							<label htmlFor="category" className="text-sm font-medium">
+								Category
 							</label>
-							<input
-								id="stack"
-								type="text"
-								name="stack"
-								value={formData.stack.join(", ")}
-								onChange={(e) => {
-									const val = e.target.value;
-									setFormData((prev: any) => ({
-										...prev,
-										stack: val.split(",").map((s) => s.trim()),
-									}));
-								}}
-								placeholder="React, TypeScript, Node.js"
-								className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-								required
-							/>
+							<select id="category" name="category" value={formData.category} onChange={handleChange} className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+								<option value="">Select category</option>
+								<option value="Education">Education</option>
+								<option value="Business">Business</option>
+								<option value="Landing Page">Landing Page</option>
+								<option value="Dashboard">Dashboard</option>
+							</select>
 						</div>
+					</div>
+
+					<div className="space-y-2">
+						<label htmlFor="stack" className="text-sm font-medium">
+							Tech Stack <span className="text-destructive">*</span>
+						</label>
+						<input
+							id="stack"
+							type="text"
+							name="stack"
+							value={formData.stack.join(", ")}
+							onChange={(e) => {
+								const val = e.target.value;
+								setFormData((prev: any) => ({
+									...prev,
+									stack: val.split(",").map((s) => s.trim()),
+								}));
+							}}
+							placeholder="React, TypeScript, Node.js"
+							className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+							required
+						/>
 					</div>
 				</div>
 			</div>
