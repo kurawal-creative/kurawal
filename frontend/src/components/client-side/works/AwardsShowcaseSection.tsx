@@ -1,39 +1,39 @@
-import aitherwayImage from "@/assets/images/aitherway.jpg";
-import chatbotImage from "@/assets/images/chatbot.jpg";
-import daunesiaImage from "@/assets/images/daunesia.jpg";
+import { useEffect, useState } from "react";
+import api from "@/utils/api";
 import { Badge } from "../../ui/badge";
 
-const achievements = [
-	{
-		title: "Top Digital Product Experience 2025",
-		institution: "Indonesia Product Design Forum",
-		date: "12 March 2025",
-		location: "Jakarta",
-		category: "UX & Product",
-		image: aitherwayImage,
-		description: "Awarded for successfully designing a digital product flow that improved user retention and client satisfaction.",
-	},
-	{
-		title: "Best Innovation in Web Engineering",
-		institution: "ASEAN Technology Summit",
-		date: "08 November 2024",
-		location: "Singapore",
-		category: "Engineering",
-		image: chatbotImage,
-		description: "Recognized for implementing a modern frontend architecture that accelerated app performance and time-to-market.",
-	},
-	{
-		title: "Creative Impact Award",
-		institution: "Nusantara Creative Council",
-		date: "21 July 2024",
-		location: "Bandung",
-		category: "Brand & Visual",
-		image: daunesiaImage,
-		description: "Acknowledged for delivering a strong and consistent visual experience that contributed to higher brand conversion.",
-	},
-];
+type Award = {
+	id: string;
+	title: string;
+	tagIds: string[];
+	images: string[];
+	date: string;
+	description: string;
+	institution: string;
+	location: string;
+};
 
 export default function AwardsShowcaseSection() {
+	const [awards, setAwards] = useState<Award[]>([]);
+
+	useEffect(() => {
+		const fetchAwards = async () => {
+			try {
+				const response = await api.get("/awards");
+				const awardsData = response.data.data || response.data;
+				setAwards(Array.isArray(awardsData) ? awardsData : []);
+			} catch (error) {
+				console.error("Failed to fetch awards", error);
+			}
+		};
+		fetchAwards();
+	}, []);
+
+	// Jika tidak ada data, tidak render apapun
+	if (awards.length === 0) {
+		return null;
+	}
+
 	return (
 		<>
 			<hr className="-mb-px w-full border-dashed" />
@@ -45,16 +45,18 @@ export default function AwardsShowcaseSection() {
 				</div>
 				<div className="mx-auto w-full max-w-7xl">
 					<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-						{achievements.map((item) => (
-							<article key={item.title} className="overflow-hidden border border-dashed">
+						{awards.map((item) => (
+							<article key={item.id} className="overflow-hidden border border-dashed">
 								<div className="relative h-48 w-full overflow-hidden">
-									<img src={item.image} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
-									<Badge variant={"default"} className="absolute top-3 left-3">
-										{item.category}
-									</Badge>
+									{item.images[0] && <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" loading="lazy" />}
+									{item.tagIds.length > 0 && (
+										<Badge variant={"default"} className="absolute top-3 left-3">
+											{item.tagIds[0]}
+										</Badge>
+									)}
 								</div>
 								<div className="space-y-2 p-4 text-left">
-									<p className="text-xs text-neutral-500 dark:text-neutral-400">{item.date}</p>
+									<p className="text-xs text-neutral-500 dark:text-neutral-400">{new Date(item.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
 									<h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">{item.title}</h3>
 									<p className="line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p>
 									<div className="space-y-1 border-t border-dashed border-neutral-300 pt-3 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
