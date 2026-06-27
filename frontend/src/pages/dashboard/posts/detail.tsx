@@ -80,35 +80,32 @@ export default function DetailPostDashboard() {
 
 	return (
 		<AdminLayout>
-			<div className="bg-background min-h-screen">
-				<div>
-					<div className="bg-background/80 border-border/50 rounded-2xl border shadow-sm backdrop-blur-xl">
-						{/* TOP NAV */}
-						<div className="flex items-center justify-between p-4">
-							{/* LEFT */}
-							<div className="flex items-center gap-3">
-								<div className="flex flex-col">
-									<span className="text-sm font-semibold">{post.title}</span>
-									<span className="text-muted-foreground text-xs">Read mode</span>
-								</div>
-							</div>
-
-							{/* RIGHT */}
-							<div className="flex items-center gap-2">
-								{/* EDIT */}
-								<Button size="sm" asChild variant="default">
-									<Link to={`/dashboard/posts/edit/${post.id}`}>
-										<Pencil className="mr-2 h-4 w-4" />
-										Edit
-									</Link>
-								</Button>
-							</div>
-						</div>
+			<div className="space-y-6">
+				<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+					<div>
+						<h1 className="text-2xl font-semibold tracking-tight">Post Details</h1>
+						<p className="text-muted-foreground mt-1 text-sm">View detailed information about this post.</p>
 					</div>
 
-					{/* CONTENT */}
-					<DetailContent post={post} />
+					<div className="flex gap-2">
+						<Button asChild variant="outline" size="sm">
+							<Link to="/dashboard/posts">
+								<ArrowLeft className="mr-2 h-4 w-4" />
+								Back
+							</Link>
+						</Button>
+
+						<Button asChild size="sm">
+							<Link to={`/dashboard/posts/edit/${post.id}`}>
+								<Pencil className="mr-2 h-4 w-4" />
+								Edit Post
+							</Link>
+						</Button>
+					</div>
 				</div>
+
+				{/* CONTENT */}
+				<DetailContent post={post} />
 			</div>
 		</AdminLayout>
 	);

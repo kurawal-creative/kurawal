@@ -1,13 +1,21 @@
+interface FormData {
+	name: string;
+	description: string;
+	images: string[];
+	stack: string[];
+	category: string;
+	startDate: string;
+	endDate: string;
+	link_github: string;
+	link_demo: string;
+	status: string;
+	env: string;
+}
+
 interface BasicTabProps {
-	formData: {
-		name: string;
-		description: string;
-		status: string;
-		category: string;
-		stack: string[];
-	};
+	formData: FormData;
 	handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-	setFormData: React.Dispatch<React.SetStateAction<any>>;
+	setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 }
 
 export default function BasicTab({ formData, handleChange, setFormData }: BasicTabProps) {
@@ -86,7 +94,7 @@ export default function BasicTab({ formData, handleChange, setFormData }: BasicT
 							value={formData.stack.join(", ")}
 							onChange={(e) => {
 								const val = e.target.value;
-								setFormData((prev: any) => ({
+								setFormData((prev) => ({
 									...prev,
 									stack: val.split(",").map((s) => s.trim()),
 								}));

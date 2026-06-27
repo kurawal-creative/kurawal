@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import AdminLayout from "@/layouts/adminLayout";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Filter, ArrowUpDown, MoreHorizontal, Users, Shield, UserCheck, Trash2, User, UserCog, ShieldAlert } from "lucide-react";
+import { Plus, Search, Filter, ArrowUpDown, MoreHorizontal, Users, Shield, UserCheck, Trash2, Eye, Edit, UserCog, ShieldAlert } from "lucide-react";
 
 type User = {
 	id: string;
@@ -24,17 +22,10 @@ type User = {
 };
 
 export default function AdminUsersPage() {
+	const navigate = useNavigate();
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
-
-	const [newUser, setNewUser] = useState({
-		email: "",
-		password: "",
-		name: "",
-		role: "user" as "user" | "admin",
-	});
 
 	const fetchUsers = async () => {
 		setLoading(true);
@@ -73,26 +64,6 @@ export default function AdminUsersPage() {
 	useEffect(() => {
 		fetchUsers();
 	}, []);
-
-	const handleCreateUser = async (e: React.FormEvent) => {
-		e.preventDefault();
-		try {
-			await authClient.admin.createUser(newUser);
-			toast.success("USER CREATED");
-
-			setShowCreateModal(false);
-			setNewUser({
-				email: "",
-				password: "",
-				name: "",
-				role: "user",
-			});
-
-			fetchUsers();
-		} catch (error: any) {
-			toast.error(error.message);
-		}
-	};
 
 	const handleBanUser = async (userId: string) => {
 		const reason = window.prompt("Enter ban reason:");
@@ -174,8 +145,8 @@ export default function AdminUsersPage() {
 						<p className="text-muted-foreground mt-1 text-sm">Manage users, roles, and permissions across the platform.</p>
 					</div>
 
-					<Button onClick={() => setShowCreateModal(true)}>
-						<Plus className="mr-2 h-4 w-4" />
+					<Button onClick={() => navigate("/dashboard/users/create")}>
+						<Plus />
 						Create User
 					</Button>
 				</div>
@@ -328,6 +299,18 @@ export default function AdminUsersPage() {
 												</DropdownMenuTrigger>
 
 												<DropdownMenuContent align="end">
+													<DropdownMenuItem onClick={() => navigate(`/dashboard/users/detail/${user.id}`)}>
+														<Eye className="mr-2 h-4 w-4" />
+														View
+													</DropdownMenuItem>
+
+													<DropdownMenuItem onClick={() => navigate(`/dashboard/users/edit/${user.id}`)}>
+														<Edit className="mr-2 h-4 w-4" />
+														Edit
+													</DropdownMenuItem>
+
+													<DropdownMenuSeparator />
+
 													<DropdownMenuItem onClick={() => handleSetRole(user.id, user.role)}>
 														<UserCog className="mr-2 h-4 w-4" />
 														Set as {user.role === "admin" ? "User" : "Admin"}
@@ -362,89 +345,6 @@ export default function AdminUsersPage() {
 						</Table>
 					)}
 				</div>
-
-				{/* Dialog */}
-				<Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-					<DialogContent className="sm:max-w-md">
-						<DialogHeader>
-							<DialogTitle>Create New User</DialogTitle>
-							<DialogDescription>Fill in the details to create a new user account.</DialogDescription>
-						</DialogHeader>
-
-						<form onSubmit={handleCreateUser} className="space-y-4">
-							<div className="space-y-1">
-								<Label>Name</Label>
-								<Input
-									required
-									placeholder="John Doe"
-									value={newUser.name}
-									onChange={(e) =>
-										setNewUser({
-											...newUser,
-											name: e.target.value,
-										})
-									}
-								/>
-							</div>
-
-							<div className="space-y-1">
-								<Label>Email</Label>
-								<Input
-									type="email"
-									required
-									placeholder="user@example.com"
-									value={newUser.email}
-									onChange={(e) =>
-										setNewUser({
-											...newUser,
-											email: e.target.value,
-										})
-									}
-								/>
-							</div>
-
-							<div className="space-y-1">
-								<Label>Password</Label>
-								<Input
-									type="password"
-									required
-									placeholder="••••••••"
-									value={newUser.password}
-									onChange={(e) =>
-										setNewUser({
-											...newUser,
-											password: e.target.value,
-										})
-									}
-								/>
-							</div>
-
-							<div className="space-y-1">
-								<Label>Role</Label>
-								<Select value={newUser.role} onValueChange={(value: "user" | "admin") => setNewUser({ ...newUser, role: value })}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Select role" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="user">User</SelectItem>
-										<SelectItem value="admin">Admin</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className="flex gap-2 pt-4">
-								<Button type="submit" className="flex-1 gap-2">
-									<Plus className="h-4 w-4" />
-									Create
-								</Button>
-
-								<Button type="button" variant="outline" onClick={() => setShowCreateModal(false)} className="flex-1">
-									Cancel
-								</Button>
-							</div>
-						</form>
-					</DialogContent>
-				</Dialog>
 			</div>
 		</AdminLayout>
 	);

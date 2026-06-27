@@ -84,56 +84,12 @@ export default function ProjectDetail() {
 	}
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<div>
-					<div className="flex flex-wrap items-center gap-2">
-						<h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
-
-						<Badge variant="outline" className={project.status.toLowerCase() === "production" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600" : project.status.toLowerCase() === "preview" ? "border-amber-500/20 bg-amber-500/10 text-amber-600" : "bg-muted text-muted-foreground"}>
-							{project.status}
-						</Badge>
-
-						{project.category && (
-							<Badge variant="secondary">
-								{project.category}
-							</Badge>
-						)}
-					</div>
-
-					<div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-xs">
-						<span>
-							{project.startDate
-								? new Date(project.startDate).toLocaleDateString("en-US", {
-										month: "short",
-										year: "numeric",
-									})
-								: "-"}
-						</span>
-
-						<span>•</span>
-
-						<span>
-							{project.endDate
-								? new Date(project.endDate).toLocaleDateString("en-US", {
-										month: "short",
-										year: "numeric",
-									})
-								: "Present"}
-						</span>
-
-						<span>•</span>
-
-						<span>
-							Updated{" "}
-							{new Date(project.updatedAt).toLocaleDateString("en-US", {
-								month: "short",
-								day: "numeric",
-								year: "numeric",
-							})}
-						</span>
-					</div>
+					<h1 className="text-2xl font-semibold tracking-tight">Project Details</h1>
+					<p className="text-muted-foreground mt-1 text-sm">View detailed information about this project.</p>
 				</div>
 
 				<div className="flex gap-2">
@@ -154,124 +110,195 @@ export default function ProjectDetail() {
 			</div>
 
 			{/* Content */}
-			<div className="grid gap-4 lg:grid-cols-[1fr_240px]">
-				{/* Main */}
-				<div className="space-y-4">
-					{/* Gallery */}
-					{project.images?.length > 0 && (
-						<div className="bg-card overflow-hidden rounded-xl border">
-							<img src={project.images[0]} alt={project.name} className="aspect-video w-full object-cover" />
-
-							{project.images.length > 1 && (
-								<div className="grid grid-cols-4 gap-2 border-t p-3">
-									{project.images.slice(1).map((image, index) => (
-										<div key={index} className="overflow-hidden rounded-md border">
-											<img src={image} alt="" className="aspect-square w-full object-cover transition-transform duration-300 hover:scale-105" />
-										</div>
-									))}
-								</div>
-							)}
-						</div>
-					)}
-
-					{/* Description */}
-					<div className="bg-card rounded-xl border">
-						<div className="border-b px-4 py-3">
-							<h2 className="text-sm font-semibold">Overview</h2>
-						</div>
-
-						<div className="p-4">
-							<p className="text-muted-foreground text-sm leading-6 whitespace-pre-wrap">{project.description || "No description available."}</p>
-						</div>
+			<div className="space-y-6">
+				{/* Project Header Section */}
+				<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+					<div className="border-b px-6 py-4">
+						<h2 className="text-base font-semibold">Project Overview</h2>
+						<p className="text-muted-foreground mt-1 text-sm">Basic information and status</p>
 					</div>
 
-					{/* Environment */}
-					{project.env && (
-						<div className="bg-card rounded-xl border">
-							<div className="border-b px-4 py-3">
-								<h2 className="text-sm font-semibold">Environment</h2>
-							</div>
+					<div className="space-y-5 p-6">
+						<div className="flex items-start justify-between">
+							<div className="flex-1 space-y-3">
+								<div className="flex flex-wrap items-center gap-2">
+									<h3 className="text-xl font-semibold">{project.name}</h3>
 
-							<div className="p-4">
-								<pre className="bg-muted overflow-x-auto rounded-lg p-3 text-xs">{project.env}</pre>
+									<Badge variant="outline" className={project.status.toLowerCase() === "production" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600" : project.status.toLowerCase() === "preview" ? "border-amber-500/20 bg-amber-500/10 text-amber-600" : "bg-muted text-muted-foreground"}>
+										{project.status}
+									</Badge>
+
+									{project.category && <Badge variant="secondary">{project.category}</Badge>}
+								</div>
+
+								<div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
+									<span>
+										{project.startDate
+											? new Date(project.startDate).toLocaleDateString("en-US", {
+													month: "short",
+													year: "numeric",
+												})
+											: "-"}
+									</span>
+
+									<span>•</span>
+
+									<span>
+										{project.endDate
+											? new Date(project.endDate).toLocaleDateString("en-US", {
+													month: "short",
+													year: "numeric",
+												})
+											: "Present"}
+									</span>
+
+									<span>•</span>
+
+									<span>
+										Updated{" "}
+										{new Date(project.updatedAt).toLocaleDateString("en-US", {
+											month: "short",
+											day: "numeric",
+											year: "numeric",
+										})}
+									</span>
+								</div>
 							</div>
 						</div>
-					)}
+					</div>
 				</div>
 
-				{/* Sidebar */}
-				<div className="space-y-4">
-					{/* Stack */}
-					<div className="bg-card rounded-xl border">
-						<div className="border-b px-4 py-3">
-							<h2 className="text-sm font-semibold">Technology Stack</h2>
-						</div>
-
-						<div className="flex flex-wrap gap-2 p-4">
-							{project.stack?.length ? (
-								project.stack.map((tech, index) => (
-									<Badge key={index} variant="secondary">
-										{tech}
-									</Badge>
-								))
-							) : (
-								<p className="text-muted-foreground text-sm">No technologies specified.</p>
-							)}
-						</div>
-					</div>
-
-					{/* Project Info */}
-					<div className="bg-card rounded-xl border">
-						<div className="border-b px-4 py-3">
-							<h2 className="text-sm font-semibold">Project Information</h2>
-						</div>
-
-						<div className="grid gap-3 p-4 text-sm">
-							<div className="grid grid-cols-2">
-								<div>
-									<p className="text-muted-foreground text-xs">Created</p>
-									<p className="font-medium">{new Date(project.createdAt).toLocaleDateString()}</p>
+				<div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+					{/* Main Content */}
+					<div className="space-y-6">
+						{/* Gallery */}
+						{project.images?.length > 0 && (
+							<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+								<div className="border-b px-6 py-4">
+									<h2 className="text-base font-semibold">Project Gallery</h2>
+									<p className="text-muted-foreground mt-1 text-sm">Visual preview and screenshots</p>
 								</div>
 
 								<div>
-									<p className="text-muted-foreground text-xs">Last Updated</p>
-									<p className="font-medium">{new Date(project.updatedAt).toLocaleDateString()}</p>
+									<img src={project.images[0]} alt={project.name} className="aspect-video w-full object-cover" />
+
+									{project.images.length > 1 && (
+										<div className="grid grid-cols-4 gap-2 border-t p-4">
+											{project.images.slice(1).map((image, index) => (
+												<div key={index} className="overflow-hidden rounded-md border">
+													<img src={image} alt="" className="aspect-square w-full object-cover transition-transform duration-300 hover:scale-105" />
+												</div>
+											))}
+										</div>
+									)}
 								</div>
 							</div>
+						)}
 
-							<div>
-								<p className="text-muted-foreground text-xs">Status</p>
-								<p className="font-medium">{project.status}</p>
+						{/* Description */}
+						<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+							<div className="border-b px-6 py-4">
+								<h2 className="text-base font-semibold">Description</h2>
+								<p className="text-muted-foreground mt-1 text-sm">Project overview and details</p>
+							</div>
+
+							<div className="p-6">
+								<p className="text-muted-foreground text-sm leading-6 whitespace-pre-wrap">{project.description || "No description available."}</p>
 							</div>
 						</div>
+
+						{/* Environment */}
+						{project.env && (
+							<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+								<div className="border-b px-6 py-4">
+									<h2 className="text-base font-semibold">Environment Variables</h2>
+									<p className="text-muted-foreground mt-1 text-sm">Configuration and setup</p>
+								</div>
+
+								<div className="p-6">
+									<pre className="bg-muted overflow-x-auto rounded-lg p-3 text-xs">{project.env}</pre>
+								</div>
+							</div>
+						)}
 					</div>
 
-					{/* Links */}
-					<div className="bg-card rounded-xl border">
-						<div className="border-b px-4 py-3">
-							<h2 className="text-sm font-semibold">Resources</h2>
+					{/* Sidebar */}
+					<div className="space-y-6">
+						{/* Stack */}
+						<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+							<div className="border-b px-6 py-4">
+								<h2 className="text-base font-semibold">Technology Stack</h2>
+								<p className="text-muted-foreground mt-1 text-sm">Tools and frameworks used</p>
+							</div>
+
+							<div className="flex flex-wrap gap-2 p-6">
+								{project.stack?.length ? (
+									project.stack.map((tech, index) => (
+										<Badge key={index} variant="secondary">
+											{tech}
+										</Badge>
+									))
+								) : (
+									<p className="text-muted-foreground text-sm">No technologies specified.</p>
+								)}
+							</div>
 						</div>
 
-						<div className="flex flex-wrap gap-2 p-4">
-							{project.link_github && (
-								<Button asChild size="sm">
-									<a href={project.link_github} target="_blank" rel="noopener noreferrer" title="GitHub Repository" className="flex items-center gap-1">
-										<Github className="h-4 w-4" />
-										GitHub
-									</a>
-								</Button>
-							)}
+						{/* Project Info */}
+						<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+							<div className="border-b px-6 py-4">
+								<h2 className="text-base font-semibold">Project Information</h2>
+								<p className="text-muted-foreground mt-1 text-sm">Metadata and timestamps</p>
+							</div>
 
-							{project.link_demo && (
-								<Button asChild variant="outline" size="sm">
-									<a href={project.link_demo} target="_blank" rel="noopener noreferrer" title="Project Website" className="flex items-center gap-1">
-										<Globe className="h-4 w-4" />
-										Website
-									</a>
-								</Button>
-							)}
+							<div className="space-y-4 p-6 text-sm">
+								<div className="grid grid-cols-2 gap-4">
+									<div>
+										<p className="text-muted-foreground mb-1 text-xs font-medium">Created</p>
+										<p className="font-medium">{new Date(project.createdAt).toLocaleDateString()}</p>
+									</div>
 
-							{!project.link_demo && !project.link_github && <p className="text-muted-foreground text-sm">No resources available.</p>}
+									<div>
+										<p className="text-muted-foreground mb-1 text-xs font-medium">Last Updated</p>
+										<p className="font-medium">{new Date(project.updatedAt).toLocaleDateString()}</p>
+									</div>
+								</div>
+
+								<div>
+									<p className="text-muted-foreground mb-1 text-xs font-medium">Status</p>
+									<p className="font-medium capitalize">{project.status}</p>
+								</div>
+							</div>
+						</div>
+
+						{/* Links */}
+						<div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+							<div className="border-b px-6 py-4">
+								<h2 className="text-base font-semibold">Resources</h2>
+								<p className="text-muted-foreground mt-1 text-sm">External links and demos</p>
+							</div>
+
+							<div className="flex flex-wrap gap-2 p-6">
+								{project.link_github && (
+									<Button asChild size="sm">
+										<a href={project.link_github} target="_blank" rel="noopener noreferrer" title="GitHub Repository" className="flex items-center gap-1">
+											<Github className="h-4 w-4" />
+											GitHub
+										</a>
+									</Button>
+								)}
+
+								{project.link_demo && (
+									<Button asChild variant="outline" size="sm">
+										<a href={project.link_demo} target="_blank" rel="noopener noreferrer" title="Project Website" className="flex items-center gap-1">
+											<Globe className="h-4 w-4" />
+											Website
+										</a>
+									</Button>
+								)}
+
+								{!project.link_demo && !project.link_github && <p className="text-muted-foreground text-sm">No resources available.</p>}
+							</div>
 						</div>
 					</div>
 				</div>

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/utils/cloudinary";
@@ -10,15 +10,25 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Pencil } from "lucide-react";
 import { Separator } from "./ui/separator";
 
-export default function AccountInfo({ user, name, setName, image, setImage, isUpdatingProfile, onProfileUpdate }: any) {
+interface AccountInfoProps {
+	user: {
+		email: string;
+	};
+	name: string;
+	setName: (name: string) => void;
+	image: string;
+	setImage: (image: string) => void;
+	isUpdatingProfile: boolean;
+	onProfileUpdate: () => void;
+}
+
+export default function AccountInfo({ user, name, setName, image, setImage, isUpdatingProfile, onProfileUpdate }: AccountInfoProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const [isUploading, setIsUploading] = useState(false);
 
 	const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
-		setIsUploading(true);
 		try {
 			const res = await uploadToCloudinary(file);
 
@@ -31,8 +41,6 @@ export default function AccountInfo({ user, name, setName, image, setImage, isUp
 			toast.success("Profile image updated");
 		} catch {
 			toast.error("Upload failed");
-		} finally {
-			setIsUploading(false);
 		}
 	};
 

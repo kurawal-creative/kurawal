@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LayoutGridIcon, FolderGit2Icon, BookOpenIcon, TagsIcon, UsersIcon, LogOutIcon, TrophyIcon, BriefcaseBusinessIcon, Building2Icon, MessageSquareQuoteIcon, ImagesIcon } from "lucide-react";
+import { LayoutGridIcon, FolderGit2Icon, BookOpenIcon, TagsIcon, UsersIcon, LogOutIcon, TrophyIcon } from "lucide-react";
 
 export const isPathActive = (currentPath: string, itemPath?: string): boolean => {
 	if (!itemPath) return false;
@@ -43,26 +43,26 @@ export const navGroups: SidebarNavGroup[] = [
 		],
 	},
 
-	{
-		label: "Company",
-		items: [
-			{
-				title: "Company Profile",
-				path: "/dashboard/company",
-				icon: <Building2Icon />,
-			},
-			{
-				title: "Services",
-				path: "/dashboard/services",
-				icon: <BriefcaseBusinessIcon />,
-			},
-			{
-				title: "Testimonials",
-				path: "/dashboard/testimonials",
-				icon: <MessageSquareQuoteIcon />,
-			},
-		],
-	},
+	// {
+	// 	label: "Company",
+	// 	items: [
+	// 		{
+	// 			title: "Company Profile",
+	// 			path: "/dashboard/company",
+	// 			icon: <Building2Icon />,
+	// 		},
+	// 		{
+	// 			title: "Services",
+	// 			path: "/dashboard/services",
+	// 			icon: <BriefcaseBusinessIcon />,
+	// 		},
+	// 		{
+	// 			title: "Testimonials",
+	// 			path: "/dashboard/testimonials",
+	// 			icon: <MessageSquareQuoteIcon />,
+	// 		},
+	// 	],
+	// },
 
 	{
 		label: "Content Management",
@@ -73,6 +73,11 @@ export const navGroups: SidebarNavGroup[] = [
 				icon: <FolderGit2Icon />,
 			},
 			{
+				title: "Awards",
+				path: "/dashboard/awards",
+				icon: <TrophyIcon />,
+			},
+			{
 				title: "Posts",
 				path: "/dashboard/posts",
 				icon: <BookOpenIcon />,
@@ -81,16 +86,6 @@ export const navGroups: SidebarNavGroup[] = [
 				title: "Tags",
 				path: "/dashboard/tags",
 				icon: <TagsIcon />,
-			},
-			{
-				title: "Awards",
-				path: "/dashboard/awards",
-				icon: <TrophyIcon />,
-			},
-			{
-				title: "Gallery",
-				path: "/dashboard/gallery",
-				icon: <ImagesIcon />,
 			},
 		],
 	},

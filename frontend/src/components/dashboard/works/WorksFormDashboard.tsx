@@ -11,7 +11,7 @@ import MediaTab from "./works-tab/MediaTab";
 import LinksTab from "./works-tab/LinksTab";
 import AdvancedTab from "./works-tab/AdvancedTab";
 
-export default function ProjectForm() {
+export default function WorksFormDashboard() {
 	const { id } = useParams();
 	const isEdit = !!id;
 	const navigate = useNavigate();

@@ -6,12 +6,18 @@ import DetailPostPage from "@/pages/dashboard/posts/detail";
 import AdminTagsPage from "@/pages/dashboard/tags";
 import AdminMediaPage from "@/pages/dashboard/Media";
 import AdminWorksPage from "@/pages/dashboard/works";
-import AdminWorksCreatePage from "@/pages/dashboard/works/create/create";
-import AdminWorksDetailPage from "@/pages/dashboard/works/detail/detail";
-import AdminWorksEditPage from "@/pages/dashboard/works/edit/edit";
+import AdminWorksCreatePage from "@/pages/dashboard/works/create";
+import AdminWorksDetailPage from "@/pages/dashboard/works/detail";
+import AdminWorksEditPage from "@/pages/dashboard/works/edit";
 import AdminUsersPage from "@/pages/dashboard/users";
+import CreateUserPage from "@/pages/dashboard/users/create";
+import EditUserPage from "@/pages/dashboard/users/edit";
+import DetailUserPage from "@/pages/dashboard/users/detail";
 import UserProfilePage from "@/pages/dashboard/profile";
 import AdminAwardsPage from "@/pages/dashboard/awards";
+import CreateAwardPage from "@/pages/dashboard/awards/create";
+import EditAwardPage from "@/pages/dashboard/awards/edit";
+import DetailAwardPage from "@/pages/dashboard/awards/detail";
 import { NuqsAdapter } from "nuqs/adapters/react";
 
 const privateRoutes = [
@@ -78,11 +84,35 @@ const privateRoutes = [
 		path: "/dashboard/awards",
 		element: <AdminAwardsPage />,
 	},
+	{
+		path: "/dashboard/awards/create",
+		element: <CreateAwardPage />,
+	},
+	{
+		path: "/dashboard/awards/edit/:id",
+		element: <EditAwardPage />,
+	},
+	{
+		path: "/dashboard/awards/detail/:id",
+		element: <DetailAwardPage />,
+	},
 
 	// Users
 	{
 		path: "/dashboard/users",
 		element: <AdminUsersPage />,
+	},
+	{
+		path: "/dashboard/users/create",
+		element: <CreateUserPage />,
+	},
+	{
+		path: "/dashboard/users/edit/:id",
+		element: <EditUserPage />,
+	},
+	{
+		path: "/dashboard/users/detail/:id",
+		element: <DetailUserPage />,
 	},
 
 	// Profile
