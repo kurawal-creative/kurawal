@@ -5,11 +5,12 @@ import { Ellipsis } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { deleteMedia, pathToUrl } from "@/helpers/media";
+import { deleteMedia } from "@/helpers/media";
 
 export type Media = {
 	_id: string;
 	publicId: string;
+	url: string;
 	status: string;
 	filename: string;
 	createdAt: string;
@@ -31,13 +32,12 @@ export const columns: ColumnDef<Media>[] = [
 		header: "Image",
 		cell: ({ getValue, row }) => {
 			const src = getValue<string>();
-			// const url = toImageUrl(src);
 			return (
 				<div className="flex items-center gap-3">
 					<Dialog>
 						<DialogTrigger asChild>
 							<img
-								src={pathToUrl(row.original.publicId)}
+								src={row.original.url}
 								alt={row.original._id}
 								className="h-12 w-12 rounded border object-cover"
 								onError={(e) => {
@@ -50,7 +50,7 @@ export const columns: ColumnDef<Media>[] = [
 								<DialogTitle>Preview Image</DialogTitle>
 							</DialogHeader>
 							<img
-								src={pathToUrl(row.original.publicId)}
+								src={row.original.url}
 								alt={row.original._id}
 								className="h-full w-full rounded border object-cover"
 								onError={(e) => {
