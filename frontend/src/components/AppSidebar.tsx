@@ -34,12 +34,12 @@ export function AppSidebar() {
 					</Link>
 				</SidebarMenuButton>
 			</SidebarHeader>
-			{/* Content */}
-			<SidebarContent className="bg-gray-50!">
-				{navGroups.map((group, index) => (
-					<NavGroup key={`sidebar-group-${index}`} {...group} allNavItems={allNavItems} />
-				))}
-			</SidebarContent>
+		{/* Content */}
+		<SidebarContent>
+			{navGroups.map((group, index) => (
+				<NavGroup key={`sidebar-group-${index}`} {...group} allNavItems={allNavItems} />
+			))}
+		</SidebarContent>
 			{/* Footer */}
 			<SidebarFooter className="gap-0 p-0">
 				{/* <LatestChange /> */}
