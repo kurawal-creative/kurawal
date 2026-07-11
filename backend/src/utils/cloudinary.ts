@@ -69,3 +69,10 @@ export const deleteImage = async (publicId: string) => {
     console.error(`Failed to delete image ${publicId}:`, error.message);
   }
 };
+
+// Convert publicId to full Cloudinary URL
+export const publicIdToUrl = (publicId: string): string => {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const cleanId = publicId.replace(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i, "");
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${cleanId}`;
+};

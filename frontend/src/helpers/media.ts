@@ -9,6 +9,7 @@ export interface Media1 {
 export interface Media {
 	_id: string;
 	publicId: string;
+	url: string;
 	status: string;
 	filename: string;
 	createdAt: string;
@@ -68,10 +69,6 @@ export async function uploadMedia(file: File, onProgress: (file: File, progress:
 export async function getListMedia(page: number = 1, limit: number = 10) {
 	const response = await api.get<Media1>(`/media/listmedia/?page=${page}&limit=${limit}`);
 	return response.data;
-}
-
-export function pathToUrl(path: string) {
-	return `${import.meta.env.VITE_URL_CLOUDINARY}/${path}`;
 }
 
 export async function deleteMedia(public_id: string) {

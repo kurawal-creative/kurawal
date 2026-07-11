@@ -9,6 +9,7 @@ import postRoutes from "./routes/postRoutes.js";
 import envRoutes from "./routes/envRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
 import workRoutes from "./routes/workRoutes.js";
+import mediaRoutes from "./routes/mediaRoutes.js";
 import { getUploadSignature } from "./utils/cloudinary.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
@@ -26,7 +27,9 @@ app.use("/api/posts", postRoutes);
 app.use("/api/envs", envRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/works", workRoutes);
+app.use("/api/media", mediaRoutes);
 
+// Legacy endpoint - kept for backward compatibility
 app.get("/api/media/upload-signature", (_req, res) => {
   try {
     const signatureData = getUploadSignature();
