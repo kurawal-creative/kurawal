@@ -1,47 +1,44 @@
 import { Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
-import Env, { IEnv } from "../models/Env.js";
+import { prisma } from "../lib/prisma.js";
 import validator from "validator";
 
 export const getEnvs = async (req: AuthRequest, res: Response) => {
   try {
-    // Ambil query params untuk pagination
-    const page = Math.max(1, parseInt(req.query.page as string) || 1); // Default page 1, minimal 1
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 10)); // Default 10, max 100
-
-    // Hitung skip
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
     const skip = (page - 1) * limit;
 
-    // Query: Find dengan pagination + sort default (terbaru dulu)
-    // Hapus .lean() buat fix type error
-    const envs: IEnv[] = await Env.find({})
-      .sort({ createdAt: -1 }) // Best practice: Sort konsisten
-      .skip(skip)
-      .limit(limit);
+    const [envs, totalItems] = await Promise.all([
+      prisma.env.findMany({
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.env.count(),
+    ]);
 
-    // Hitung total items (efisien, tanpa load semua data)
-    const totalItems = await Env.countDocuments({});
-
-    // Hitung pagination metadata
     const totalPages = Math.ceil(totalItems / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
 
     res.status(200).json({
-      message: "Envs fetched successfully",
+      success: true,
       data: envs,
       pagination: {
         currentPage: page,
         totalPages,
         totalItems,
         limit,
-        hasNextPage,
-        hasPrevPage,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
       },
     });
-  } catch (errror) {
-    console.error("Error fetching envs:", errror);
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    console.error("Error fetching envs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch environments",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -49,27 +46,35 @@ export const getEnv = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Validasi: ID wajib
     if (!id) {
       return res.status(400).json({
-        message: "Env ID is required",
+        success: false,
+        message: "Environment ID is required",
       });
     }
 
-    const env: IEnv | null = await Env.findById(id);
+    const env = await prisma.env.findUnique({
+      where: { id },
+    });
+
     if (!env) {
       return res.status(404).json({
-        message: "Env not found",
+        success: false,
+        message: "Environment not found",
       });
     }
 
     res.status(200).json({
-      message: "Env fetched successfully",
+      success: true,
       data: env,
     });
   } catch (error) {
     console.error("Error fetching env:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch environment",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -77,83 +82,96 @@ export const createEnv = async (req: AuthRequest, res: Response) => {
   try {
     const { title, description, link_github, env: envArray } = req.body;
 
-    // Validasi: Semua field wajib
     if (!title || !description || !link_github || !envArray || !Array.isArray(envArray) || envArray.length === 0) {
       return res.status(400).json({
-        message: "All fields are required, including at least one env variable in array format",
+        success: false,
+        message: "All fields are required, including at least one environment variable",
       });
     }
 
-    // Validasi length: title max 100, description max 500
     if (title.trim().length > 100) {
       return res.status(400).json({
+        success: false,
         message: "Title must be at most 100 characters",
       });
     }
+
     if (description.trim().length > 500) {
       return res.status(400).json({
+        success: false,
         message: "Description must be at most 500 characters",
       });
     }
 
-    // Validasi URL untuk link_github
     if (!validator.isURL(link_github.trim(), { require_protocol: true })) {
       return res.status(400).json({
+        success: false,
         message: "link_github must be a valid URL",
       });
     }
 
-    // Validasi struktur env array: Tiap item harus punya key & value
     for (const item of envArray) {
       if (!item.key || typeof item.key !== "string" || !item.value || typeof item.value !== "string" || !item.env_description || typeof item.env_description !== "string") {
         return res.status(400).json({
-          message: "Each env item must have 'key' (string), 'value' (string), and 'env_description' (string)",
+          success: false,
+          message: "Each environment variable must have 'key', 'value', and 'env_description'",
         });
       }
 
-      // Validasi length key max 50
       if (item.key.trim().length > 50) {
         return res.status(400).json({
+          success: false,
           message: "Each env key must be at most 50 characters",
         });
       }
     }
 
-    // Cek duplikat key di env array
     const keys = envArray.map((item: any) => item.key);
     const uniqueKeys = new Set(keys);
     if (uniqueKeys.size !== keys.length) {
       return res.status(400).json({
-        message: "Env keys must be unique within the array",
+        success: false,
+        message: "Environment variable keys must be unique",
       });
     }
 
-    // Cek duplikat title (sebelum save)
-    const existingEnv = await Env.findOne({ title: title.trim() });
+    const existingEnv = await prisma.env.findUnique({
+      where: { title: title.trim() },
+    });
+
     if (existingEnv) {
       return res.status(409).json({
+        success: false,
         message: `Environment with title '${title}' already exists`,
       });
     }
 
-    const environment = new Env({
-      title: title.trim(),
-      description: description.trim(),
-      link_github: link_github.trim(),
-      env: envArray.map((item: any) => ({
-        key: item.key.trim(),
-        value: item.value.trim(),
-        env_description: item.env_description.trim(),
-        optional: item.optional ?? false, // Default false
-        sensitive: item.sensitive ?? false, // Default false
-      })),
+    const environment = await prisma.env.create({
+      data: {
+        title: title.trim(),
+        description: description.trim(),
+        link_github: link_github.trim(),
+        env: envArray.map((item: any) => ({
+          key: item.key.trim(),
+          value: item.value.trim(),
+          env_description: item.env_description.trim(),
+          optional: item.optional ?? false,
+          sensitive: item.sensitive ?? false,
+        })),
+      },
     });
 
-    const savedEnv: IEnv = await environment.save();
-    res.status(201).json(savedEnv);
+    res.status(201).json({
+      success: true,
+      data: environment,
+    });
   } catch (error) {
     console.error("Error creating env:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to create environment",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -162,80 +180,90 @@ export const updateEnv = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { title, description, link_github, env: envArray } = req.body;
 
-    // Validasi: ID wajib
     if (!id) {
       return res.status(400).json({
-        message: "Env ID is required",
+        success: false,
+        message: "Environment ID is required",
       });
     }
 
-    // Validasi: Minimal satu field untuk update
     if (!title && !description && !link_github && (!envArray || envArray.length === 0)) {
       return res.status(400).json({
+        success: false,
         message: "At least one field must be provided for update",
       });
     }
 
-    // Cek existence
-    const existingEnv: IEnv | null = await Env.findById(id);
+    const existingEnv = await prisma.env.findUnique({
+      where: { id },
+    });
+
     if (!existingEnv) {
       return res.status(404).json({
-        message: "Env not found",
+        success: false,
+        message: "Environment not found",
       });
     }
 
-    // Kalau ada title, validasi length dan duplikat
     if (title !== undefined) {
       if (title.trim().length > 100) {
         return res.status(400).json({
+          success: false,
           message: "Title must be at most 100 characters",
         });
       }
+
       if (title.trim() !== existingEnv.title) {
-        const duplicate = await Env.findOne({ title: title.trim() });
+        const duplicate = await prisma.env.findUnique({
+          where: { title: title.trim() },
+        });
+
         if (duplicate) {
           return res.status(409).json({
+            success: false,
             message: `Environment with title '${title}' already exists`,
           });
         }
       }
     }
 
-    // Kalau ada description, validasi length
     if (description !== undefined) {
       if (description.trim().length > 500) {
         return res.status(400).json({
+          success: false,
           message: "Description must be at most 500 characters",
         });
       }
     }
 
-    // Kalau ada link_github, validasi URL
     if (link_github !== undefined) {
       if (!validator.isURL(link_github.trim(), { require_protocol: true })) {
         return res.status(400).json({
+          success: false,
           message: "link_github must be a valid URL",
         });
       }
     }
 
-    // Kalau ada envArray, validasi struktur dan duplikat
     if (envArray !== undefined) {
       if (!Array.isArray(envArray) || envArray.length === 0) {
         return res.status(400).json({
-          message: "Env array must be non-empty if provided",
+          success: false,
+          message: "Environment array must be non-empty if provided",
         });
       }
 
       for (const item of envArray) {
         if (!item.key || typeof item.key !== "string" || !item.value || typeof item.value !== "string" || !item.env_description || typeof item.env_description !== "string") {
           return res.status(400).json({
-            message: "Each env item must have 'key' (string), 'value' (string), and 'env_description' (string)",
+            success: false,
+            message: "Each environment variable must have 'key', 'value', and 'env_description'",
           });
         }
 
         if (item.key.trim().length > 50) {
           return res.status(400).json({
+            success: false,
             message: "Each env key must be at most 50 characters",
           });
         }
@@ -245,12 +273,12 @@ export const updateEnv = async (req: AuthRequest, res: Response) => {
       const uniqueKeys = new Set(keys);
       if (uniqueKeys.size !== keys.length) {
         return res.status(400).json({
-          message: "Env keys must be unique within the array",
+          success: false,
+          message: "Environment variable keys must be unique",
         });
       }
     }
 
-    // Update fields yang ada
     const updateData: any = {};
     if (title !== undefined) updateData.title = title.trim();
     if (description !== undefined) updateData.description = description.trim();
@@ -265,15 +293,22 @@ export const updateEnv = async (req: AuthRequest, res: Response) => {
       }));
     }
 
-    const updatedEnv: IEnv = (await Env.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })) as IEnv;
+    const updatedEnv = await prisma.env.update({
+      where: { id },
+      data: updateData,
+    });
 
     res.status(200).json({
-      message: "Env updated successfully",
+      success: true,
       data: updatedEnv,
     });
   } catch (error) {
     console.error("Error updating env:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to update environment",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -281,26 +316,35 @@ export const deleteEnv = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Validasi: ID wajib
     if (!id) {
       return res.status(400).json({
-        message: "Env ID is required",
+        success: false,
+        message: "Environment ID is required",
       });
     }
 
-    const deletedEnv: IEnv | null = await Env.findByIdAndDelete(id);
-    if (!deletedEnv) {
-      return res.status(404).json({
-        message: "Env not found",
-      });
-    }
+    const deletedEnv = await prisma.env.delete({
+      where: { id },
+    });
 
     res.status(200).json({
-      message: "Env deleted successfully",
-      data: { id: deletedEnv._id, title: deletedEnv.title },
+      success: true,
+      message: "Environment deleted successfully",
+      data: { id: deletedEnv.id, title: deletedEnv.title },
     });
   } catch (error) {
+    if (error instanceof Error && error.message.includes("Record to delete does not exist")) {
+      return res.status(404).json({
+        success: false,
+        message: "Environment not found",
+      });
+    }
+
     console.error("Error deleting env:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete environment",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };

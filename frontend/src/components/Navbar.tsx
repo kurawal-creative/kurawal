@@ -11,7 +11,7 @@ const navbarItems = [
 	{ title: "Works", href: "/works" },
 	{ title: "Blogs", href: "/blogs" },
 	{ title: "Services", href: "/services" },
-	{ title: "About Us", href: "/about-us" },
+	// { title: "About Us", href: "/about-us" },
 ];
 
 export default function Navbar() {

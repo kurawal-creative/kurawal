@@ -95,6 +95,26 @@ model Awards {
   @@map("awards")
 }
 
+type EnvVar {
+  key             String
+  value           String
+  env_description String
+  optional        Boolean @default(false)
+  sensitive       Boolean @default(false)
+}
+
+model Env {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String   @unique
+  description String
+  link_github String
+  env         EnvVar[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("envs")
+}
+
 model User {
   id        String   @id @map("_id")
   name      String

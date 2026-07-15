@@ -43,7 +43,7 @@ router.get("/:id", getTag);
 
 // Admin routes (require authentication)
 router.post("/", authenticate, createTag);
-router.put("/:id", authenticate, updateTag);
+router.patch("/:id", authenticate, updateTag);
 router.delete("/:id", authenticate, deleteTag);
 
 export default router;
