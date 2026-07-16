@@ -5,8 +5,8 @@ import validator from "validator";
 
 export const getEnvs = async (req: AuthRequest, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const page = Math.max(1, parseInt((req.query.page as string) || "1"));
+    const limit = Math.min(50, Math.max(1, parseInt((req.query.limit as string) || "10")));
     const skip = (page - 1) * limit;
 
     const [envs, totalItems] = await Promise.all([
@@ -46,7 +46,7 @@ export const getEnv = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return res.status(400).json({
         success: false,
         message: "Environment ID is required",
@@ -180,7 +180,7 @@ export const updateEnv = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { title, description, link_github, env: envArray } = req.body;
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return res.status(400).json({
         success: false,
         message: "Environment ID is required",
@@ -316,7 +316,7 @@ export const deleteEnv = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return res.status(400).json({
         success: false,
         message: "Environment ID is required",
