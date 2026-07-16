@@ -56,7 +56,7 @@ router.get("/:id", getWorkById);
 
 // Admin routes (require authentication)
 router.post("/", authenticate, createWork);
-router.put("/:id", authenticate, updateWork);
+router.patch("/:id", authenticate, updateWork);
 router.delete("/:id", authenticate, deleteWork);
 
 export default router;

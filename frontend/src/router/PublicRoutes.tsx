@@ -1,6 +1,5 @@
 import Home from "@/pages/client";
 import Login from "@/pages/auth/Login";
-import AboutUsPage from "@/pages/client/about-us";
 import ContactUsPage from "@/pages/client/contact-us";
 import WorksPage from "@/pages/client/works";
 import Layout from "@/layouts/layout";
@@ -45,14 +44,14 @@ export default [
 			</Layout>
 		),
 	},
-	{
-		path: "/about-us",
-		element: (
-			<Layout>
-				<AboutUsPage />
-			</Layout>
-		),
-	},
+	// {
+	// 	path: "/about-us",
+	// 	element: (
+	// 		<Layout>
+	// 			<AboutUsPage />
+	// 		</Layout>
+	// 	),
+	// },
 	{
 		path: "/contact-us",
 		element: (

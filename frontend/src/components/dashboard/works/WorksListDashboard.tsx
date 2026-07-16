@@ -31,7 +31,9 @@ export default function ProjectList() {
 		const fetchProjects = async () => {
 			try {
 				const response = await api.get("/works");
+				console.log("API Response:", response.data);
 				const projectsData = Array.isArray(response.data) ? response.data : response.data.data;
+				console.log("Projects Data:", projectsData);
 				setProjects(Array.isArray(projectsData) ? projectsData : []);
 			} catch (error) {
 				console.error("Failed to fetch projects", error);
@@ -53,18 +55,20 @@ export default function ProjectList() {
 	};
 
 	const getStatusVariant = (status: string) => {
-		switch (status.toLowerCase()) {
-			case "production":
+		switch (status.toUpperCase()) {
+			case "PRODUCTION":
+			case "PUBLISHED":
 				return {
 					variant: "secondary" as const,
-					className: "bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black",
+					className: "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-500",
 				};
-			case "preview":
+			case "PREVIEW":
+			case "DRAFT":
 				return {
 					variant: "secondary" as const,
-					className: "bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-100",
+					className: "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 dark:bg-amber-500/10 dark:text-amber-500",
 				};
-			case "archived":
+			case "ARCHIVED":
 				return {
 					variant: "outline" as const,
 					className: "border-zinc-300 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400",
@@ -79,14 +83,23 @@ export default function ProjectList() {
 
 	const filteredProjects = projects.filter((p) => {
 		const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-		const matchesStatus = statusFilter === "all" || p.status.toLowerCase() === statusFilter.toLowerCase();
+		const normalizedStatus = p.status.toUpperCase();
+		const matchesStatus = 
+			statusFilter === "all" || 
+			normalizedStatus === statusFilter.toUpperCase() ||
+			(statusFilter.toUpperCase() === "PRODUCTION" && normalizedStatus === "PUBLISHED") ||
+			(statusFilter.toUpperCase() === "PREVIEW" && normalizedStatus === "DRAFT");
 		return matchesSearch && matchesStatus;
 	});
 
 	const getStatusCounts = () => {
-		const production = projects.filter((p) => p.status.toLowerCase() === "production").length;
-		const preview = projects.filter((p) => p.status.toLowerCase() === "preview").length;
-		const archived = projects.filter((p) => p.status.toLowerCase() === "archived").length;
+		const production = projects.filter((p) => 
+			p.status.toUpperCase() === "PRODUCTION" || p.status.toUpperCase() === "PUBLISHED"
+		).length;
+		const preview = projects.filter((p) => 
+			p.status.toUpperCase() === "PREVIEW" || p.status.toUpperCase() === "DRAFT"
+		).length;
+		const archived = projects.filter((p) => p.status.toUpperCase() === "ARCHIVED").length;
 		return { all: projects.length, production, preview, archived };
 	};
 

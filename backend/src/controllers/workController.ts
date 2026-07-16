@@ -87,6 +87,17 @@ export const createWork = async (req: Request, res: Response) => {
   try {
     let { name, description, images, stack, category, startDate, endDate, link_github, link_demo, status, env } = req.body;
 
+    // Normalize status to uppercase enum value
+    if (status && typeof status === 'string') {
+      status = status.toUpperCase();
+      // Map legacy values to new enum
+      if (!['DRAFT', 'PUBLISHED', 'ARCHIVED', 'PREVIEW', 'PRODUCTION'].includes(status)) {
+        status = 'PREVIEW'; // Default fallback
+      }
+    } else {
+      status = 'PREVIEW'; // Default if not provided
+    }
+
     // Finalize multiple images from tmp to works
     if (Array.isArray(images) && images.length > 0) {
       images = await Promise.all(
@@ -143,6 +154,15 @@ export const updateWork = async (req: Request, res: Response) => {
 
     const oldWork = await prisma.work.findUnique({ where: { id } });
     if (!oldWork) return res.status(404).json({ message: "Work not found" });
+
+    // Normalize status to uppercase enum value
+    if (status && typeof status === 'string') {
+      status = status.toUpperCase();
+      // Map legacy values to new enum
+      if (!['DRAFT', 'PUBLISHED', 'ARCHIVED', 'PREVIEW', 'PRODUCTION'].includes(status)) {
+        status = oldWork.status; // Keep existing if invalid
+      }
+    }
 
     // 1. Handle images array lifecycle
     if (Array.isArray(images)) {

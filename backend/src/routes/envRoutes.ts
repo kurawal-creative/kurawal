@@ -7,7 +7,7 @@ const router: Router = Router();
 router.get("/", authenticate, getEnvs);
 router.post("/", authenticate, createEnv);
 router.get("/:id", authenticate, getEnv);
-router.put("/:id", authenticate, updateEnv);
+router.patch("/:id", authenticate, updateEnv);
 router.delete("/:id", authenticate, deleteEnv);
 
 export default router;

@@ -3,7 +3,6 @@ import SafariMockups from "../../SafariMockup";
 import { Button } from "../../ui/button";
 import { Highlighter } from "../../ui/highlighter";
 import IphoneMockup from "../../IphoneMockup";
-import AndroidMockup from "../../AndroidMockup";
 import { Link } from "react-router-dom";
 
 const ServicesSection = () => {
@@ -40,11 +39,10 @@ const ServicesSection = () => {
 							{/* Mobile App */}
 							<div className="overflow-hidden border-b border-dashed p-4 md:col-span-2 lg:col-span-2 lg:border-r">
 								<h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">Mobile App Development</h2>
-
 								<p className="text-neutral-600 dark:text-neutral-400">High-performance mobile apps for iOS & Android.</p>
 
 								<div className="mx-auto mt-4 flex items-center justify-center gap-2">
-									<AndroidMockup />
+
 									<IphoneMockup />
 								</div>
 							</div>
@@ -59,10 +57,47 @@ const ServicesSection = () => {
 							</div>
 
 							{/* UI UX */}
-							<div className="col-span-1 overflow-hidden border-b-0 border-dashed p-4 md:col-span-5 lg:col-span-2">
+							<div className="col-span-1 overflow-hidden border-b-0 border-dashed p-4 md:col-span-5 lg:col-span-5">
 								<h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">UI/UX Design</h2>
 								<p className="text-neutral-600 dark:text-neutral-400">Clean, intuitive, and user-centered digital design.</p>
-								<div className="mt-4"></div>
+								
+								<div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+									<div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white dark:bg-neutral-800">
+											<svg className="h-5 w-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+											</svg>
+										</div>
+										<div className="flex-1">
+											<p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">User Research</p>
+											<p className="text-xs text-neutral-600 dark:text-neutral-400">Understanding user needs</p>
+										</div>
+									</div>
+
+									<div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white dark:bg-neutral-800">
+											<svg className="h-5 w-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5z" />
+											</svg>
+										</div>
+										<div className="flex-1">
+											<p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Wireframing</p>
+											<p className="text-xs text-neutral-600 dark:text-neutral-400">Structure & layout planning</p>
+										</div>
+									</div>
+
+									<div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white dark:bg-neutral-800">
+											<svg className="h-5 w-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+											</svg>
+										</div>
+										<div className="flex-1">
+											<p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Visual Design</p>
+											<p className="text-xs text-neutral-600 dark:text-neutral-400">Beautiful & functional UI</p>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
