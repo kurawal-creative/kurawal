@@ -34,7 +34,7 @@ export default function WorksFormDashboard() {
 
 	useEffect(() => {
 		if (isEdit) {
-			const fetchProject = async () => {
+			const fetchWorks = async () => {
 				try {
 					const response = await api.get(`/works/${id}`);
 					const { name, description, images, stack, category, startDate, endDate, link_github, link_demo, status, env } = response.data;
@@ -52,14 +52,14 @@ export default function WorksFormDashboard() {
 						env: env || "",
 					});
 				} catch (error) {
-					console.error("Failed to fetch project", error);
+					console.error("Failed to fetch works", error);
 					alert("Project not found");
-					navigate("/dashboard/project");
+					navigate("/dashboard/works");
 				} finally {
 					setLoading(false);
 				}
 			};
-			fetchProject();
+			fetchWorks();
 		}
 	}, [id, isEdit, navigate]);
 
@@ -125,7 +125,7 @@ export default function WorksFormDashboard() {
 			} else {
 				await api.post("/works", formData);
 			}
-			navigate("/dashboard/project");
+			navigate("/dashboard/works");
 		} catch (error) {
 			console.error("Failed to save project", error);
 			alert("Error saving project");

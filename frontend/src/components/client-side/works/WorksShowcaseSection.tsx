@@ -71,7 +71,7 @@ export default function WorksShowcaseSection({ activeFilter }: WorksShowcaseSect
 										{work.images?.[0] && <img src={work.images[0]} alt={work.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
 
 										{/* Overlay */}
-										<div className="absolute inset-0 bg-linear-to-b from-black/10 via-black/20 to-black/80 transition-opacity duration-300 group-hover:from-black/20 group-hover:via-black/30 group-hover:to-black/90" />
+										<div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/10 to-black/40 transition-opacity duration-300 group-hover:from-black/10 group-hover:via-black/15 group-hover:to-black/50" />
 
 										{/* Links */}
 										{(work.link_github || work.link_demo) && (

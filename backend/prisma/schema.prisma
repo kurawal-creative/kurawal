@@ -32,6 +32,20 @@ enum PostStatus {
   ARCHIVED
 }
 
+enum WorkStatus {
+  DRAFT
+  PUBLISHED  
+  ARCHIVED
+  PREVIEW      // Legacy support
+  PRODUCTION   // Legacy support
+}
+
+enum AwardStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 enum PostType {
   POST
   PROJECT
@@ -64,7 +78,7 @@ model Tag {
 }
 
 model Work {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   images      String[]
@@ -74,23 +88,24 @@ model Work {
   endDate     DateTime?
   link_github String?
   link_demo   String?
-  status      String    @default("Preview")
+  status      WorkStatus @default(PREVIEW)
   env         String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Awards {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  tagIds      String[] @db.ObjectId
+  tagIds      String[]    @db.ObjectId
   images      String[]
   date        DateTime
   description String
   institution String
   location    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      AwardStatus @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@map("awards")
 }
