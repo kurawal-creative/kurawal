@@ -38,7 +38,7 @@ export default [
 		),
 	},
 	{
-		path: "/blogs/:id",
+		path: "/blogs/:slug",
 		element: (
 			<Layout>
 				<BlogDetailPage />

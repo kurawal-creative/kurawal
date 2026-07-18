@@ -7,6 +7,7 @@ import BlogCardSkeleton from "@/components/skeleton/BlogCardSkeleton";
 
 interface Post {
 	id: string;
+	slug: string | null;
 	title: string;
 	description: string | null;
 	content: string;
@@ -144,9 +145,9 @@ export default function BlogsCollection() {
 								});
 
 								return (
-									<div key={post.id} className="flex flex-col border border-dashed">
+									<Link key={post.id} to={`/blogs/${post.slug ?? post.id}`} className="group flex flex-col border border-dashed transition-colors hover:border-neutral-400 dark:hover:border-neutral-600">
 										<div className="relative w-full overflow-hidden">
-											{post.thumbnail ? <img src={post.thumbnail} alt={post.title} className="h-56 w-full object-cover" loading="lazy" /> : <div className="h-56 w-full bg-neutral-200 dark:bg-neutral-800" />}
+											{post.thumbnail ? <img src={post.thumbnail} alt={post.title} className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" /> : <div className="h-56 w-full bg-neutral-200 dark:bg-neutral-800" />}
 											{firstTag && (
 												<Badge variant={"default"} className="absolute top-4 left-4">
 													{firstTag.name}
@@ -159,17 +160,14 @@ export default function BlogsCollection() {
 											<p className="line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{post.description || "No description available."}</p>
 										</div>
 										<div className="w-full px-4 pb-4">
-											<Link
-												to={`/blogs/${post.id}`}
-												className="group inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-neutral-50 px-2.5 py-1.5 text-xs text-neutral-800 transition-all hover:-translate-y-0.5 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:border-neutral-100 dark:hover:bg-neutral-100 dark:hover:text-neutral-950"
-											>
+											<span className="inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-neutral-50 px-2.5 py-1.5 text-xs text-neutral-800 transition-all group-hover:-translate-y-0.5 group-hover:border-neutral-900 group-hover:bg-neutral-900 group-hover:text-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:group-hover:border-neutral-100 dark:group-hover:bg-neutral-100 dark:group-hover:text-neutral-950">
 												<span>Read More</span>
 												<span className="transition-transform group-hover:translate-x-0.5">
 													<ArrowRight size={14} />
 												</span>
-											</Link>
+											</span>
 										</div>
-									</div>
+									</Link>
 								);
 							})
 						)}

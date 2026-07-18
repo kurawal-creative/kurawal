@@ -13,6 +13,7 @@ interface Tag {
 
 interface Post {
 	id: string;
+	slug: string | null;
 	title: string;
 	description: string | null;
 	content: string;
@@ -24,7 +25,8 @@ interface Post {
 }
 
 export default function BlogDetailPage() {
-	const { id } = useParams<{ id: string }>();
+	const { slug } = useParams<{ slug: string }>();
+	const id = slug;
 	const [post, setPost] = useState<Post | null>(null);
 	const [tags, setTags] = useState<Tag[]>([]);
 	const [loading, setLoading] = useState(true);
