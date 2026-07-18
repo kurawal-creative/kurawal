@@ -10,6 +10,14 @@ import {
 } from "../utils/mediaHelpers.js";
 import { finalizeImage } from "../utils/cloudinary.js";
 
+const generateSlug = (title: string) =>
+  title
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-");
+
 // Helper scan public_id dari markdown
 const getPublicIds = (content: string) => {
   const cloudinaryUrls = extractCloudinaryUrlsFromContent(content);
@@ -118,10 +126,11 @@ export const getPosts = async (
 
 export const getPost = async (req: AuthRequest, res: Response) => {
   try {
-    const id = req.params.id as string;
+    const identifier = req.params.id as string;
 
-    const post = await prisma.post.findUnique({
-      where: { id },
+    const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
+    const post = await (prisma.post as any).findFirst({
+      where: { OR: [{ slug: identifier }, ...(isObjectId ? [{ id: identifier }] : [])] },
     });
 
     if (!post) {
@@ -203,9 +212,19 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    const baseSlug = generateSlug(title);
+    let slug = baseSlug;
+    let slugExists = await prisma.post.findUnique({ where: { slug } });
+    let counter = 1;
+    while (slugExists) {
+      slug = `${baseSlug}-${counter++}`;
+      slugExists = await prisma.post.findUnique({ where: { slug } });
+    }
+
     const post = await prisma.post.create({
       data: {
         title,
+        slug,
         content,
         tagIds: uniqueTagIds,
         userId: req.user!.id,
@@ -379,7 +398,18 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
     const updateData: any = {};
 
-    if (title !== undefined) updateData.title = title;
+    if (title !== undefined) {
+      updateData.title = title;
+      const baseSlug = generateSlug(title);
+      let slug = baseSlug;
+      let slugExists = await prisma.post.findFirst({ where: { slug, NOT: { id } } });
+      let counter = 1;
+      while (slugExists) {
+        slug = `${baseSlug}-${counter++}`;
+        slugExists = await prisma.post.findFirst({ where: { slug, NOT: { id } } });
+      }
+      updateData.slug = slug;
+    }
     if (description !== undefined) updateData.description = description;
     if (content !== undefined) updateData.content = content;
     if (thumbnail !== undefined) updateData.thumbnail = thumbnail;

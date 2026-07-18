@@ -4,6 +4,7 @@ import ContactUsPage from "@/pages/client/contact-us";
 import WorksPage from "@/pages/client/works";
 import Layout from "@/layouts/layout";
 import BlogsPage from "@/pages/client/blogs";
+import BlogDetailPage from "@/pages/client/blogs/[id]";
 import ServicesPage from "@/pages/client/services";
 
 export default [
@@ -33,6 +34,14 @@ export default [
 		element: (
 			<Layout>
 				<BlogsPage />
+			</Layout>
+		),
+	},
+	{
+		path: "/blogs/:slug",
+		element: (
+			<Layout>
+				<BlogDetailPage />
 			</Layout>
 		),
 	},
