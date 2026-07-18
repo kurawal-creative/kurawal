@@ -20,14 +20,19 @@ export const renderContent = (contentString: string) => {
 		const rootNode = content.root;
 
 		const renderNode = (node: SerializedLexicalNode, index: number): React.ReactNode => {
-			if (node.type === "paragraph") {
-				const paragraphNode = node as { children?: SerializedLexicalNode[] };
-				return (
-					<p key={index} className="mb-4 text-base leading-relaxed">
-						{paragraphNode.children?.map((child, i) => renderNode(child, i))}
-					</p>
-				);
+		if (node.type === "paragraph") {
+			const paragraphNode = node as { children?: SerializedLexicalNode[] };
+			const children = paragraphNode.children ?? [];
+			const hasImage = children.some((c) => (c as any).type === "image");
+			if (hasImage) {
+				return <div key={index} className="mb-4 text-base leading-relaxed">{children.map((child, i) => renderNode(child, i))}</div>;
 			}
+			return (
+				<p key={index} className="mb-4 text-base leading-relaxed">
+					{children.map((child, i) => renderNode(child, i))}
+				</p>
+			);
+		}
 
 			if (node.type === "text") {
 				const textNode = node as { text?: string; format?: number };
@@ -95,16 +100,27 @@ export const renderContent = (contentString: string) => {
 				);
 			}
 
-			if (node.type === "code") {
-				const codeNode = node as { children?: SerializedLexicalNode[] };
-				return (
-					<pre key={index} className="bg-muted mb-4 overflow-x-auto rounded-lg p-4">
-						<code className="font-mono text-sm">{codeNode.children?.map((child, i) => renderNode(child, i))}</code>
-					</pre>
-				);
-			}
+		if (node.type === "code") {
+			const codeNode = node as { children?: SerializedLexicalNode[] };
+			return (
+				<pre key={index} className="bg-muted mb-4 overflow-x-auto rounded-lg p-4">
+					<code className="font-mono text-sm">{codeNode.children?.map((child, i) => renderNode(child, i))}</code>
+				</pre>
+			);
+		}
 
-			return null;
+		if (node.type === "linebreak") {
+			return <br key={index} />;
+		}
+
+		if (node.type === "image") {
+			const imageNode = node as { src?: string; altText?: string };
+			return (
+				<img key={index} src={imageNode.src} alt={imageNode.altText || ""} className="mb-4 max-w-full" loading="lazy" />
+			);
+		}
+
+		return null;
 		};
 
 		const childrenNode = rootNode as { children?: SerializedLexicalNode[] };
