@@ -54,7 +54,7 @@ export const getTags = async (req: AuthRequest, res: Response): Promise<void> =>
 
 export const getTag = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
 
         const tag = await prisma.tag.findUnique({
             where: { id },
@@ -135,7 +135,7 @@ export const createTag = async (req: AuthRequest, res: Response) => {
 
 export const updateTag = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const { name, slug } = req.body;
 
         if ((name === undefined || name === null) && (slug === undefined || slug === null)) {
@@ -205,7 +205,7 @@ export const updateTag = async (req: AuthRequest, res: Response) => {
 
 export const deleteTag = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
 
         const deletedTag = await prisma.tag.delete({
             where: { id },
