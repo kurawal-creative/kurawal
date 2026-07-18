@@ -17,18 +17,18 @@ interface UploadToCloudinaryOptions {
 export const uploadToCloudinary = async (file: File, options?: UploadToCloudinaryOptions) => {
 	try {
 		// 1. Get signature from backend
-		const { data: sig } = await api.get("/media/upload-signature");
+		const { data: sig } = await api.post("/media/signature", { folder: "tmp" });
 
 		// 2. Prepare FormData for Cloudinary
 		const cloudFormData = new FormData();
 		cloudFormData.append("file", file);
-		cloudFormData.append("api_key", sig.apiKey);
+		cloudFormData.append("api_key", sig.api_key);
 		cloudFormData.append("timestamp", sig.timestamp);
 		cloudFormData.append("signature", sig.signature);
 		cloudFormData.append("folder", sig.folder);
 
 		// 3. Upload directly to Cloudinary
-		const res = await axios.post(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, cloudFormData, {
+		const res = await axios.post(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`, cloudFormData, {
 			onUploadProgress: (event) => {
 				const total = event.total ?? 0;
 				const loaded = event.loaded;

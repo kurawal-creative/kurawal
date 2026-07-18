@@ -109,19 +109,21 @@ export function InsertImageUploadedDialogBody({
 }) {
   const [src, setSrc] = useState("")
   const [altText, setAltText] = useState("")
+  const [uploading, setUploading] = useState(false)
 
-  const isDisabled = src === ""
+  const isDisabled = src === "" || uploading
 
-  const loadImage = (files: FileList | null) => {
-    const reader = new FileReader()
-    reader.onload = function () {
-      if (typeof reader.result === "string") {
-        setSrc(reader.result)
-      }
-      return ""
-    }
-    if (files !== null) {
-      reader.readAsDataURL(files[0])
+  const loadImage = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    setUploading(true)
+    try {
+      const { uploadToCloudinary } = await import("@/utils/cloudinary")
+      const result = await uploadToCloudinary(files[0])
+      setSrc(result.secure_url)
+    } catch {
+      setSrc("")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -136,6 +138,8 @@ export function InsertImageUploadedDialogBody({
           accept="image/*"
           data-test-id="image-modal-file-upload"
         />
+        {uploading && <p className="text-muted-foreground text-xs">Uploading...</p>}
+        {src && !uploading && <p className="text-xs text-green-600">Uploaded</p>}
       </div>
       <div className="grid gap-2">
         <Label htmlFor="alt-text">Alt Text</Label>
@@ -180,7 +184,9 @@ export function InsertImageDialog({
   }, [activeEditor])
 
   const onClick = (payload: InsertImagePayload) => {
-    activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload)
+    activeEditor.focus(() => {
+      activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload)
+    })
     onClose()
   }
 
