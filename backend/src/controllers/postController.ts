@@ -149,6 +149,21 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     let { title, description, content, thumbnail, tagIds, tagId, status } =
       req.body;
 
+    console.log("=== CREATE POST REQUEST ===");
+    console.log("User ID:", req.user?.id);
+    console.log("Title:", title);
+    console.log("Description:", description);
+    console.log("Content length:", content?.length);
+    console.log("Thumbnail:", thumbnail);
+    console.log("TagIds:", tagIds);
+    console.log("Status:", status);
+
+    // Check if user exists
+    if (!req.user || !req.user.id) {
+      console.error("User not authenticated or missing ID");
+      return res.status(401).json({ message: "User authentication failed" });
+    }
+
     const normalizedTagIds: string[] = Array.isArray(tagIds)
       ? tagIds
       : typeof tagId === "string"
@@ -156,6 +171,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         : [];
 
     if (!title || !content || normalizedTagIds.length === 0) {
+      console.error("Validation failed:", { hasTitle: !!title, hasContent: !!content, tagCount: normalizedTagIds.length });
       return res
         .status(400)
         .json({ message: "title, content, and tagIds are required" });
@@ -164,6 +180,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     if (
       !normalizedTagIds.every((t) => typeof t === "string" && t.trim() !== "")
     ) {
+      console.error("Invalid tagIds format");
       return res
         .status(400)
         .json({ message: "tagIds must be an array of non-empty strings" });
@@ -174,11 +191,13 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     );
 
     if (status && !["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) {
+      console.error("Invalid status:", status);
       return res
         .status(400)
         .json({ message: "status must be DRAFT, PUBLISHED, or ARCHIVED" });
     }
 
+    console.log("Checking tags in database...");
     const existingTags = await prisma.tag.findMany({
       where: { id: { in: uniqueTagIds } },
       select: { id: true },
@@ -187,11 +206,13 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     if (existingTags.length !== uniqueTagIds.length) {
       const found = new Set(existingTags.map((t) => t.id));
       const missing = uniqueTagIds.filter((id) => !found.has(id));
+      console.error("Tags not found:", missing);
       return res
         .status(400)
         .json({ message: "Some tags not found", missingTagIds: missing });
     }
 
+    console.log("Processing thumbnail...");
     // Finalize thumbnail from tmp to posts
     if (thumbnail) {
       const thumbIds = getPublicIds(thumbnail);
@@ -201,6 +222,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    console.log("Processing content images...");
     // Finalize images in content (Markdown)
     if (content) {
       const contentIds = getPublicIds(content);
@@ -212,6 +234,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    console.log("Generating slug...");
     const baseSlug = generateSlug(title);
     let slug = baseSlug;
     let slugExists = await prisma.post.findUnique({ where: { slug } });
@@ -221,18 +244,32 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       slugExists = await prisma.post.findUnique({ where: { slug } });
     }
 
+    console.log("Creating post in database...");
+    console.log("Post data:", {
+      title,
+      slug,
+      contentLength: content.length,
+      tagIds: uniqueTagIds,
+      userId: req.user.id,
+      description: description ?? null,
+      thumbnailLength: thumbnail?.length ?? 0,
+      status: status ?? "DRAFT",
+    });
+
     const post = await prisma.post.create({
       data: {
         title,
         slug,
         content,
         tagIds: uniqueTagIds,
-        userId: req.user!.id,
+        userId: req.user.id,
         description: description ?? null,
         thumbnail: thumbnail ?? null,
         status: status ?? "DRAFT",
       },
     } as any);
+
+    console.log("Post created successfully:", post.id);
 
     // Collect all media public IDs from thumbnail and content
     const publicIds = new Set<string>();
@@ -249,6 +286,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
     // Link media to post
     if (publicIds.size > 0) {
+      console.log("Linking media to post...");
       const linkedCount = await linkMultipleMediaToPost(
         Array.from(publicIds),
         post.id,
@@ -256,10 +294,21 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       console.log(`Linked ${linkedCount} media to post ${post.id}`);
     }
 
+    console.log("=== POST CREATED SUCCESSFULLY ===");
     res.status(201).json(post);
-  } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ message: "Server error" });
+  } catch (error: any) {
+    console.error("=== ERROR CREATING POST ===");
+    console.error("Error:", error);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("Error name:", error.name);
+    if (error.code) console.error("Error code:", error.code);
+    res.status(500).json({ 
+      message: "Server error", 
+      error: error.message,
+      errorName: error.name,
+      errorCode: error.code 
+    });
   }
 };
 
