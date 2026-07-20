@@ -190,20 +190,22 @@ export default function AdminPostsPage() {
 				<div className="bg-card rounded-xl border">
 					{/* Toolbar */}
 					<div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
-						<Tabs defaultValue="all" onValueChange={setStatusFilter}>
-							<TabsList className="h-9">
-								<TabsTrigger value="all">All ({counts.all})</TabsTrigger>
-								<TabsTrigger value="published">Published ({counts.published})</TabsTrigger>
-								<TabsTrigger value="draft">Draft ({counts.draft})</TabsTrigger>
-								<TabsTrigger value="archived">Archived ({counts.archived})</TabsTrigger>
-							</TabsList>
-						</Tabs>
-
-						<div className="flex gap-2">
-							<div className="relative w-full lg:w-72">
+						<div className="flex items-center gap-2">
+							<div className="relative w-full lg:w-96">
 								<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 								<Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search posts..." className="h-9 pl-9" />
 							</div>
+						</div>
+
+						<div className="flex gap-2">
+							<Tabs defaultValue="all" onValueChange={setStatusFilter}>
+								<TabsList className="h-9">
+									<TabsTrigger value="all">All ({counts.all})</TabsTrigger>
+									<TabsTrigger value="published">Published ({counts.published})</TabsTrigger>
+									<TabsTrigger value="draft">Draft ({counts.draft})</TabsTrigger>
+									<TabsTrigger value="archived">Archived ({counts.archived})</TabsTrigger>
+								</TabsList>
+							</Tabs>
 
 							<Button variant="outline" size="icon" className="h-9 w-10">
 								<Filter className="h-4 w-4" />
