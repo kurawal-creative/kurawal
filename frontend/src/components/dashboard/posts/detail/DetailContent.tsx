@@ -113,6 +113,28 @@ export const renderContent = (contentString: string) => {
 			return <br key={index} />;
 		}
 
+		if (node.type === "link" || node.type === "autolink") {
+			const linkNode = node as {
+				children?: SerializedLexicalNode[];
+				url?: string;
+				target?: string;
+				rel?: string;
+				title?: string;
+			};
+			return (
+				<a
+					key={index}
+					href={linkNode.url || "#"}
+					target={linkNode.target || undefined}
+					rel={linkNode.rel || (linkNode.target === "_blank" ? "noopener noreferrer" : undefined)}
+					title={linkNode.title || undefined}
+					className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 transition-colors"
+				>
+					{linkNode.children?.map((child, i) => renderNode(child, i))}
+				</a>
+			);
+		}
+
 		if (node.type === "image") {
 			const imageNode = node as { src?: string; altText?: string };
 			return (
