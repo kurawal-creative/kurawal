@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "lucide-react";
+import { Calendar, Copy, Check } from "lucide-react";
 
 interface DetailContentProps {
 	post: {
@@ -12,6 +12,65 @@ interface DetailContentProps {
 		createdAt: string;
 		updatedAt: string;
 	};
+}
+
+const extractCodeText = (children?: SerializedLexicalNode[]): string => {
+	if (!children) return "";
+	return children
+		.map((child) => {
+			if (child.type === "linebreak") return "\n";
+			if ("text" in child && typeof (child as any).text === "string") {
+				return (child as any).text;
+			}
+			if ("children" in child && Array.isArray((child as any).children)) {
+				return extractCodeText((child as any).children);
+			}
+			return "";
+		})
+		.join("");
+};
+
+function CodeBlock({ language, rawText, children }: { language?: string; rawText: string; children: React.ReactNode }) {
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(rawText);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (err) {
+			console.error("Failed to copy code:", err);
+		}
+	};
+
+	return (
+		<div className="my-6 overflow-hidden rounded-lg border border-zinc-700/60 bg-zinc-800 shadow-sm dark:border-zinc-700/60 dark:bg-zinc-800">
+			<div className="flex items-center justify-between border-b border-zinc-700/60 bg-zinc-900/40 px-4 py-1.5 font-mono text-xs font-medium text-zinc-300">
+				<span>{language || "code"}</span>
+				<button
+					onClick={handleCopy}
+					type="button"
+					className="inline-flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 font-sans text-xs font-medium text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200 transition-colors"
+					title="Copy code"
+				>
+					{copied ? (
+						<>
+							<Check className="h-3.5 w-3.5 text-emerald-400" />
+							<span className="text-emerald-400">Copied!</span>
+						</>
+					) : (
+						<>
+							<Copy className="h-3.5 w-3.5" />
+							<span>Copy</span>
+						</>
+					)}
+				</button>
+			</div>
+			<pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed text-zinc-100">
+				<code>{children}</code>
+			</pre>
+		</div>
+	);
 }
 
 export const renderContent = (contentString: string) => {
@@ -34,9 +93,9 @@ export const renderContent = (contentString: string) => {
 			);
 		}
 
-			if (node.type === "text") {
-				const textNode = node as { text?: string; format?: number };
-				let text = textNode.text || "";
+			if (node.type === "text" || node.type === "code-highlight") {
+				const textNode = node as { text?: string; format?: number; highlightType?: string };
+				let text: React.ReactNode = textNode.text || "";
 
 				const format = textNode.format || 0;
 				const isBold = (format & 1) !== 0;
@@ -44,10 +103,32 @@ export const renderContent = (contentString: string) => {
 				const isStrikethrough = (format & 4) !== 0;
 				const isUnderline = (format & 8) !== 0;
 
-				if (isBold) text = (<strong key={index}>{text}</strong>) as unknown as string;
-				if (isItalic) text = (<em key={index}>{text}</em>) as unknown as string;
-				if (isStrikethrough) text = (<s key={index}>{text}</s>) as unknown as string;
-				if (isUnderline) text = (<u key={index}>{text}</u>) as unknown as string;
+				if (isBold) text = <strong key={index}>{text}</strong>;
+				if (isItalic) text = <em key={index}>{text}</em>;
+				if (isStrikethrough) text = <s key={index}>{text}</s>;
+				if (isUnderline) text = <u key={index}>{text}</u>;
+
+				if (textNode.highlightType) {
+					const highlightClass =
+						{
+							keyword: "text-purple-400 font-semibold",
+							operator: "text-sky-400",
+							punctuation: "text-neutral-400",
+							function: "text-amber-300",
+							string: "text-emerald-400",
+							number: "text-orange-400",
+							comment: "text-neutral-500 italic",
+							variable: "text-indigo-300",
+							attr: "text-teal-300",
+							property: "text-rose-400",
+						}[textNode.highlightType] || "text-neutral-200";
+
+					return (
+						<span key={index} className={highlightClass}>
+							{text}
+						</span>
+					);
+				}
 
 				return text;
 			}
@@ -71,22 +152,35 @@ export const renderContent = (contentString: string) => {
 			}
 
 			if (node.type === "list") {
-				const listNode = node as { children?: SerializedLexicalNode[]; listType?: string; tag?: string };
-				const ListTag = listNode.listType === "number" || listNode.tag === "ol" ? "ol" : "ul";
-				const className = ListTag === "ol" ? "list-decimal list-inside mb-4 space-y-2" : "list-disc list-inside mb-4 space-y-2";
+				const listNode = node as { children?: SerializedLexicalNode[]; listType?: string; tag?: string; start?: number };
+				const isNumber = listNode.listType === "number" || listNode.tag === "ol";
+				const ListTag = isNumber ? "ol" : "ul";
+				const className = isNumber
+					? "list-decimal list-outside pl-6 mb-4 space-y-1"
+					: "list-disc list-outside pl-6 mb-4 space-y-1";
 
 				return (
-					<ListTag key={index} className={className}>
+					<ListTag key={index} className={className} start={listNode.start}>
 						{listNode.children?.map((child, i) => renderNode(child, i))}
 					</ListTag>
 				);
 			}
 
 			if (node.type === "listitem") {
-				const listItemNode = node as { children?: SerializedLexicalNode[] };
+				const listItemNode = node as { children?: SerializedLexicalNode[]; value?: number; checked?: boolean };
+				const children = listItemNode.children ?? [];
+				const isSublistContainer = children.length > 0 && children.every((c) => c.type === "list" || c.type === "linebreak");
+
 				return (
-					<li key={index} className="ml-4">
-						{listItemNode.children?.map((child, i) => renderNode(child, i))}
+					<li
+						key={index}
+						value={listItemNode.value}
+						className={isSublistContainer ? "list-none -ml-2 my-1" : "leading-relaxed mb-1"}
+					>
+						{listItemNode.checked !== undefined && (
+							<input type="checkbox" checked={listItemNode.checked} readOnly className="mr-2 rounded" />
+						)}
+						{children.map((child, i) => renderNode(child, i))}
 					</li>
 				);
 			}
@@ -101,11 +195,12 @@ export const renderContent = (contentString: string) => {
 			}
 
 		if (node.type === "code") {
-			const codeNode = node as { children?: SerializedLexicalNode[] };
+			const codeNode = node as { children?: SerializedLexicalNode[]; language?: string };
+			const rawText = extractCodeText(codeNode.children);
 			return (
-				<pre key={index} className="bg-muted mb-4 overflow-x-auto rounded-lg p-4">
-					<code className="font-mono text-sm">{codeNode.children?.map((child, i) => renderNode(child, i))}</code>
-				</pre>
+				<CodeBlock key={index} language={codeNode.language} rawText={rawText}>
+					{codeNode.children?.map((child, i) => renderNode(child, i))}
+				</CodeBlock>
 			);
 		}
 
